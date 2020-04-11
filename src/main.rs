@@ -1,3 +1,6 @@
+mod modul;
+use crate::modul::*;
+
 fn main() {
-    println!("Hello, world!");
+    run_modul();
 }
