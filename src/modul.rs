@@ -6,6 +6,7 @@ use std::f64::consts::PI;
 struct Audio {
     phase: f64,
     hz: f64,
+    sign: f64,
 }
 struct Model {
     stream: audio::Stream<Audio>,
@@ -28,16 +29,18 @@ fn model(app: &App) -> Model {
     let model = Audio {
         phase: 0.0,
         hz: 440.0,
+        sign: 1.0,
     };
     let stream = audio_host
         .new_output_stream(model)
-        .render(audio)
+        .render(audio_saw_tooth)
         .build()
         .unwrap();
     Model { stream }
 }
 
-fn audio(audio: &mut Audio, buffer: &mut Buffer) {
+// Cache the sine values for better performance
+fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     for frame in buffer.frames_mut() {
@@ -46,6 +49,57 @@ fn audio(audio: &mut Audio, buffer: &mut Buffer) {
         audio.phase %= sample_rate;
         for channel in frame {
             *channel = sine_amp * volume;
+        }
+    }
+}
+
+fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
+    let sample_rate = buffer.sample_rate() as f64;
+    let volume = 0.5;
+    for frame in buffer.frames_mut() {
+        audio.phase += 0.01 * audio.sign;
+        if audio.phase >= 1.0 {
+            audio.sign = -1.0;
+        } else if audio.phase <= -1.0 {
+            audio.sign = 1.0;
+        }
+        for channel in frame {
+            *channel = audio.phase as f32 * volume;
+        }
+    }
+}
+
+fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
+    let sample_rate = buffer.sample_rate() as f64;
+    let volume = 0.5;
+    for frame in buffer.frames_mut() {
+        if audio.sign < 120.0 {
+            audio.phase = -1.0;
+        } else if audio.sign < 240.0 {
+            audio.phase = 1.0;
+        }
+        audio.sign += 1.0;
+        if audio.sign >= 240.0 {
+            audio.sign = 0.0;
+        }
+        for channel in frame {
+            *channel = audio.phase as f32 * volume;
+        }
+    }
+}
+
+fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
+    let sample_rate = buffer.sample_rate() as f64;
+    let volume = 0.5;
+    for frame in buffer.frames_mut() {
+        audio.phase += 0.01;
+        audio.sign += 1.0;
+        if audio.sign >= 100.0 {
+            audio.phase = 0.0;
+            audio.sign = 0.0;
+        }
+        for channel in frame {
+            *channel = audio.phase as f32 * volume;
         }
     }
 }
