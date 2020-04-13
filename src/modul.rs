@@ -32,12 +32,12 @@ fn model(app: &App) -> Model {
     // Initialize the state that we want to live on the audio thread.
     let audio = Audio {
         phase: 0.0,
-        hz: 110.0,
+        hz: 440.0,
         sender,
     };
     let stream = audio_host
         .new_output_stream(audio)
-        .render(audio_sine)
+        .render(audio_triangle)
         .build()
         .unwrap();
     Model { stream, receiver }
@@ -64,37 +64,49 @@ fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
 fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
+    let mut frames = vec![];
     for frame in buffer.frames_mut() {
-        let amp = ((audio.phase % 2.0 - 2.0) + 1.0) as f32;
+        let amp = ((audio.phase % 2.0 - 2.0).abs() - 1.0) as f32;
         audio.phase += audio.hz / sample_rate;
+        frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
         }
     }
+
+    audio.sender.send(frames).unwrap();
 }
 
 fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
+    let mut frames = vec![];
     for frame in buffer.frames_mut() {
         let amp = if audio.phase % 2.0 < 1.0 { -1.0 } else { 1.0 };
         audio.phase += audio.hz / sample_rate;
+        frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
         }
     }
+
+    audio.sender.send(frames).unwrap();
 }
 
 fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
+    let mut frames = vec![];
     for frame in buffer.frames_mut() {
         let amp = (audio.phase % 2.0) as f32 - 1.0;
         audio.phase += audio.hz / sample_rate;
+        frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
         }
     }
+
+    audio.sender.send(frames).unwrap();
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
@@ -134,7 +146,7 @@ fn event(_app: &App, _model: &mut Model, _event: Event) {}
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
-    draw.background().color(BLACK); 
+    draw.background().color(BLACK);
 
     let mut x = -300.0;
     let frames = model.receiver.recv().unwrap();
