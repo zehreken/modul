@@ -6,7 +6,6 @@ use std::f64::consts::PI;
 struct Audio {
     phase: f64,
     hz: f64,
-    sign: f64,
 }
 struct Model {
     stream: audio::Stream<Audio>,
@@ -29,11 +28,10 @@ fn model(app: &App) -> Model {
     let model = Audio {
         phase: 0.0,
         hz: 440.0,
-        sign: 1.0,
     };
     let stream = audio_host
         .new_output_stream(model)
-        .render(audio_saw_tooth)
+        .render(audio_triangle)
         .build()
         .unwrap();
     Model { stream }
@@ -44,11 +42,11 @@ fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     for frame in buffer.frames_mut() {
-        let sine_amp = (2.0 * PI * audio.phase).sin() as f32;
+        let amp = (2.0 * PI * audio.phase).sin() as f32;
         audio.phase += audio.hz / sample_rate;
         audio.phase %= sample_rate;
         for channel in frame {
-            *channel = sine_amp * volume;
+            *channel = amp * volume;
         }
     }
 }
@@ -57,14 +55,10 @@ fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     for frame in buffer.frames_mut() {
-        audio.phase += 0.01 * audio.sign;
-        if audio.phase >= 1.0 {
-            audio.sign = -1.0;
-        } else if audio.phase <= -1.0 {
-            audio.sign = 1.0;
-        }
+        let amp = ((audio.phase % 2.0 - 2.0) + 1.0) as f32;
+        audio.phase += audio.hz / sample_rate;
         for channel in frame {
-            *channel = audio.phase as f32 * volume;
+            *channel = amp * volume;
         }
     }
 }
@@ -73,17 +67,10 @@ fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     for frame in buffer.frames_mut() {
-        if audio.sign < 120.0 {
-            audio.phase = -1.0;
-        } else if audio.sign < 240.0 {
-            audio.phase = 1.0;
-        }
-        audio.sign += 1.0;
-        if audio.sign >= 240.0 {
-            audio.sign = 0.0;
-        }
+        let amp = if audio.phase % 2.0 < 1.0 { -1.0 } else { 1.0 };
+        audio.phase += audio.hz / sample_rate;
         for channel in frame {
-            *channel = audio.phase as f32 * volume;
+            *channel = amp * volume;
         }
     }
 }
@@ -92,20 +79,20 @@ fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     for frame in buffer.frames_mut() {
-        audio.phase += 0.01;
-        audio.sign += 1.0;
-        if audio.sign >= 100.0 {
-            audio.phase = 0.0;
-            audio.sign = 0.0;
-        }
+        let amp = (audio.phase % 2.0) as f32 - 1.0;
+        audio.phase += audio.hz / sample_rate;
         for channel in frame {
-            *channel = audio.phase as f32 * volume;
+            *channel = amp * volume;
         }
     }
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
+        Key::Q => {}
+        Key::W => {}
+        Key::E => {}
+        Key::R => {}
         Key::Space => {
             if model.stream.is_playing() {
                 model.stream.pause().unwrap();
@@ -135,6 +122,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 
 fn event(_app: &App, _model: &mut Model, _event: Event) {}
 
-fn view(_app: &App, _model: &Model, frame: Frame) {
-    frame.clear(DIMGRAY);
+fn view(_app: &App, model: &Model, frame: Frame) {
+    // model.stream.send(|audio| {
+    //     println!("{:?}", audio.phase);
+    // }).unwrap();
+    frame.clear(BLACK);
 }
