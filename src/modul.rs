@@ -47,7 +47,7 @@ fn model(app: &App) -> Model {
 fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
-    let mut frames = vec![];
+    let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
         let amp = (2.0 * PI * audio.phase).sin() as f32;
         audio.phase += audio.hz / sample_rate;
@@ -64,10 +64,10 @@ fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
 fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
-    let mut frames = vec![];
+    let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
-        let amp = ((audio.phase % 2.0 - 2.0).abs() - 1.0) as f32;
-        audio.phase += audio.hz / sample_rate;
+        let amp = (((audio.phase % 2.0) - 1.0).abs() - 0.5) as f32;
+        audio.phase += 10.0 * audio.hz / sample_rate;
         frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
@@ -80,7 +80,7 @@ fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
 fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
-    let mut frames = vec![];
+    let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
         let amp = if audio.phase % 2.0 < 1.0 { -1.0 } else { 1.0 };
         audio.phase += audio.hz / sample_rate;
@@ -96,7 +96,7 @@ fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
 fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
-    let mut frames = vec![];
+    let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
         let amp = (audio.phase % 2.0) as f32 - 1.0;
         audio.phase += audio.hz / sample_rate;
