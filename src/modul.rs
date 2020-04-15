@@ -4,6 +4,7 @@ use nannou_audio::Buffer;
 use std::f64::consts::PI;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
+use app::Draw;
 
 struct Audio {
     phase: f64,
@@ -148,13 +149,27 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
-    let mut x = -300.0;
-    let frames = model.receiver.recv().unwrap();
-    let points = frames.into_iter().map(|y| {
-        x += 10.0;
-        (pt2(x, y * 30.0), WHITE)
-    });
-    draw.polyline().weight(1.0).colored_points(points);
+    // let mut x = -300.0;
+    // let frames = model.receiver.recv().unwrap();
+    // let points = frames.into_iter().map(|y| {
+    //     x += 10.0;
+    //     (pt2(x, y * 30.0), WHITE)
+    // });
+    // draw.polyline().weight(1.0).colored_points(points);
+
+    draw_sine(&draw);
 
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn draw_sine(draw: &Draw) {
+    let points = (0..360).map(|x| {
+        let angle = deg_to_rad(x as f32);
+        let mut val = angle.sin();
+        let mut x_ = x as f32 * 2.0 * PI as f32 / 360.0;
+        val = val * 50.0;
+        x_ = x_ * 50.0;
+        (pt2(x_, val), WHITE)
+    });
+    draw.polyline().weight(1.0).colored_points(points);
 }
