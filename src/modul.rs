@@ -1,10 +1,10 @@
+use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Buffer;
 use std::f64::consts::PI;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use app::Draw;
 
 struct Audio {
     phase: f64,
@@ -163,33 +163,37 @@ fn view(app: &App, model: &Model, frame: Frame) {
 }
 
 fn draw_sine(draw: &Draw) {
-    let wave_one:Vec<Point2> = (0..360).map(|x| {
-        let angle = deg_to_rad(x as f32);
-        let val = angle.sin();
-        let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-        pt2(x_, val)
-    }).collect();
+    let wave_one: Vec<Point2> = (0..360)
+        .map(|x| {
+            let angle = deg_to_rad(x as f32);
+            let val = angle.sin();
+            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
+            pt2(x_, val)
+        })
+        .collect();
 
-    let wave_two:Vec<Point2> = (0..360).map(|x| {
-        let angle = deg_to_rad(20.0 * x as f32);
-        let val = angle.sin();
-        let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-        pt2(x_, val)
-    }).collect();
+    let wave_two: Vec<Point2> = (0..360)
+        .map(|x| {
+            let angle = deg_to_rad(20.0 * x as f32);
+            let val = angle.sin();
+            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
+            pt2(x_, val)
+        })
+        .collect();
 
-    let wave_three:Vec<Point2> = (0..360).map(|x| {
-        let angle = deg_to_rad(40.0 * x as f32);
-        let val = angle.sin();
-        let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-        pt2(x_, val)
-    }).collect();
+    let wave_three: Vec<Point2> = (0..360)
+        .map(|x| {
+            let angle = deg_to_rad(40.0 * x as f32);
+            let val = angle.sin();
+            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
+            pt2(x_, val)
+        })
+        .collect();
 
-    let sum:Vec<Point2> = (0..360).map(|i| {
-        (wave_one[i] + wave_two[i] + wave_three[i]) * 20.0
-    }).collect();
+    let sum: Vec<Point2> = (0..360)
+        .map(|i| (wave_one[i] + wave_two[i] + wave_three[i]) * 20.0)
+        .collect();
 
-    let points = (0..360).map(|i| {
-        (sum[i], WHITE)
-    });
+    let points = (0..360).map(|i| (sum[i], WHITE));
     draw.polyline().weight(1.0).colored_points(points);
 }
