@@ -22,6 +22,8 @@ pub fn run_modul() {
 
 fn model(app: &App) -> Model {
     app.new_window()
+        .size(1024, 512)
+        .title("modul")
         .key_pressed(key_pressed)
         .view(view)
         .build()
