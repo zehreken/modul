@@ -2,6 +2,7 @@ use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Buffer;
+use nannou_audio::Host;
 use std::f64::consts::PI;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
@@ -9,11 +10,12 @@ use std::sync::mpsc::{Receiver, Sender};
 struct Audio {
     phase: f64,
     hz: f64,
-    sender: Sender<Vec<f32>>,
+    // sender: Sender<Vec<f32>>,
 }
 struct Model {
     stream: audio::Stream<Audio>,
-    receiver: Receiver<Vec<f32>>,
+    audio_host: Host,
+    // receiver: Receiver<Vec<f32>>,
 }
 
 pub fn run_modul() {
@@ -29,21 +31,25 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let (sender, receiver) = mpsc::channel();
+    // let (sender, receiver) = mpsc::channel();
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
     let audio = Audio {
         phase: 0.0,
         hz: 440.0,
-        sender,
+        // sender,
     };
     let stream = audio_host
         .new_output_stream(audio)
-        .render(audio_triangle)
+        .render(audio_sine)
         .build()
         .unwrap();
-    Model { stream, receiver }
+    Model {
+        stream,
+        audio_host,
+        // receiver,
+    }
 }
 
 // Cache the sine values for better performance
@@ -61,7 +67,7 @@ fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
         }
     }
 
-    audio.sender.send(frames).unwrap();
+    // audio.sender.send(frames).unwrap();
 }
 
 fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
@@ -77,7 +83,7 @@ fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
         }
     }
 
-    audio.sender.send(frames).unwrap();
+    // audio.sender.send(frames).unwrap();
 }
 
 fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
@@ -93,7 +99,7 @@ fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
         }
     }
 
-    audio.sender.send(frames).unwrap();
+    // audio.sender.send(frames).unwrap();
 }
 
 fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
@@ -109,12 +115,25 @@ fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
         }
     }
 
-    audio.sender.send(frames).unwrap();
+    // audio.sender.send(frames).unwrap();
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
-        Key::Q => {}
+        Key::Q => {
+            // let (sender, receiver) = mpsc::channel();
+            let audio = Audio {
+                phase: 0.0,
+                hz: 294.0,
+                // sender,
+            };
+            model.stream = model
+                .audio_host
+                .new_output_stream(audio)
+                .render(audio_sine)
+                .build()
+                .unwrap();
+        }
         Key::W => {}
         Key::E => {}
         Key::R => {}
@@ -151,51 +170,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
-    // let mut x = -300.0;
-    // let frames = model.receiver.recv().unwrap();
-    // let points = frames.into_iter().map(|y| {
-    //     x += 10.0;
-    //     (pt2(x, y * 30.0), WHITE)
-    // });
-    // draw.polyline().weight(1.0).colored_points(points);
-
     draw_sine(&draw);
 
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn draw_sine(draw: &Draw) {
-    let wave_one: Vec<Point2> = (0..360)
-        .map(|x| {
-            let angle = deg_to_rad(x as f32);
-            let val = angle.sin();
-            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-            pt2(x_, val)
-        })
-        .collect();
-
-    let wave_two: Vec<Point2> = (0..360)
-        .map(|x| {
-            let angle = deg_to_rad(20.0 * x as f32);
-            let val = angle.sin();
-            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-            pt2(x_, val)
-        })
-        .collect();
-
-    let wave_three: Vec<Point2> = (0..360)
-        .map(|x| {
-            let angle = deg_to_rad(40.0 * x as f32);
-            let val = angle.sin();
-            let x_ = x as f32 * 2.0 * PI as f32 / 360.0;
-            pt2(x_, val)
-        })
-        .collect();
-
-    let sum: Vec<Point2> = (0..360)
-        .map(|i| (wave_one[i] + wave_two[i] + wave_three[i]) * 20.0)
-        .collect();
-
-    let points = (0..360).map(|i| (sum[i], WHITE));
-    draw.polyline().weight(1.0).colored_points(points);
-}
+fn draw_sine(draw: &Draw) {}
