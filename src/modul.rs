@@ -3,6 +3,7 @@ use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Buffer;
 use nannou_audio::Host;
+use nannou_audio::Stream;
 use std::f64::consts::PI;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
@@ -121,22 +122,29 @@ fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Q => {
-            // let (sender, receiver) = mpsc::channel();
-            let audio = Audio {
-                phase: 0.0,
-                hz: 294.0,
-                // sender,
-            };
-            model.stream = model
-                .audio_host
-                .new_output_stream(audio)
-                .render(audio_sine)
-                .build()
-                .unwrap();
+            create_new_stream(model, 0);
         }
-        Key::W => {}
-        Key::E => {}
-        Key::R => {}
+        Key::W => {
+            create_new_stream(model, 1);
+        }
+        Key::E => {
+            create_new_stream(model, 2);
+        }
+        Key::R => {
+            create_new_stream(model, 3);
+        }
+        Key::A => {
+            create_new_stream(model, 4);
+        }
+        Key::S => {
+            create_new_stream(model, 5);
+        }
+        Key::D => {
+            create_new_stream(model, 6);
+        }
+        Key::F => {
+            create_new_stream(model, 7);
+        }
         Key::Space => {
             if model.stream.is_playing() {
                 model.stream.pause().unwrap();
@@ -161,6 +169,27 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
                 .unwrap();
         }
         _ => {}
+    }
+}
+
+fn create_new_stream(model: &mut Model, key: usize) {
+    let audio = get_audio_model(key);
+
+    model.stream = model
+        .audio_host
+        .new_output_stream(audio)
+        .render(audio_sine)
+        .build()
+        .unwrap();
+}
+
+fn get_audio_model(key: usize) -> Audio {
+    let keys = [
+        261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
+    ];
+    Audio {
+        phase: 0.0,
+        hz: keys[key % 8],
     }
 }
 
