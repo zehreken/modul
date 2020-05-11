@@ -3,10 +3,10 @@ use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Buffer;
 use nannou_audio::Host;
-use nannou_audio::Stream;
+// use nannou_audio::Stream;
 use std::f64::consts::PI;
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
+// use std::sync::mpsc;
+// use std::sync::mpsc::{Receiver, Sender};
 
 struct Audio {
     phase: f64,
@@ -195,7 +195,7 @@ fn get_audio_model(key: usize) -> Audio {
 
 fn event(_app: &App, _model: &mut Model, _event: Event) {}
 
-fn view(app: &App, model: &Model, frame: Frame) {
+fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
