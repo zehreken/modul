@@ -43,7 +43,7 @@ fn model(app: &App) -> Model {
     };
     let stream = audio_host
         .new_output_stream(audio)
-        .render(audio_sine)
+        .render(audio_square)
         .build()
         .unwrap();
     Model {
@@ -71,13 +71,17 @@ fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
     // audio.sender.send(frames).unwrap();
 }
 
-fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
+fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
-        let amp = (((audio.phase % 2.0) - 1.0).abs() - 0.5) as f32;
-        audio.phase += 10.0 * audio.hz / sample_rate;
+        let mut amp = 0f32;
+        for s in (1..50).step_by(2) {
+            amp += (2.0 * PI * audio.phase * s as f64).sin() as f32 / s as f32;
+        }
+        audio.phase += audio.hz / sample_rate;
+        audio.phase %= sample_rate;
         frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
@@ -87,13 +91,13 @@ fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
     // audio.sender.send(frames).unwrap();
 }
 
-fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
+fn audio_triangle(audio: &mut Audio, buffer: &mut Buffer) {
     let sample_rate = buffer.sample_rate() as f64;
     let volume = 0.5;
     let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames_mut() {
-        let amp = if audio.phase % 2.0 < 1.0 { -1.0 } else { 1.0 };
-        audio.phase += audio.hz / sample_rate;
+        let amp = (((audio.phase % 2.0) - 1.0).abs() - 0.5) as f32;
+        audio.phase += 10.0 * audio.hz / sample_rate;
         frames.push(amp);
         for channel in frame {
             *channel = amp * volume;
@@ -122,28 +126,28 @@ fn audio_saw_tooth(audio: &mut Audio, buffer: &mut Buffer) {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Q => {
-            create_new_stream(model, 0);
+            create_sine_stream(model, 4);
         }
         Key::W => {
-            create_new_stream(model, 1);
+            create_sine_stream(model, 5);
         }
         Key::E => {
-            create_new_stream(model, 2);
+            create_sine_stream(model, 6);
         }
         Key::R => {
-            create_new_stream(model, 3);
+            create_sine_stream(model, 7);
         }
         Key::A => {
-            create_new_stream(model, 4);
+            create_square_stream(model, 4);
         }
         Key::S => {
-            create_new_stream(model, 5);
+            create_square_stream(model, 5);
         }
         Key::D => {
-            create_new_stream(model, 6);
+            create_square_stream(model, 6);
         }
         Key::F => {
-            create_new_stream(model, 7);
+            create_square_stream(model, 7);
         }
         Key::Space => {
             if model.stream.is_playing() {
@@ -172,13 +176,24 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
-fn create_new_stream(model: &mut Model, key: usize) {
+fn create_sine_stream(model: &mut Model, key: usize) {
     let audio = get_audio_model(key);
 
     model.stream = model
         .audio_host
         .new_output_stream(audio)
         .render(audio_sine)
+        .build()
+        .unwrap();
+}
+
+fn create_square_stream(model: &mut Model, key: usize) {
+    let audio = get_audio_model(key);
+
+    model.stream = model
+        .audio_host
+        .new_output_stream(audio)
+        .render(audio_square)
         .build()
         .unwrap();
 }
