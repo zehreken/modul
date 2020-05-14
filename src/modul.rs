@@ -8,6 +8,8 @@ use std::f64::consts::PI;
 // use std::sync::mpsc;
 // use std::sync::mpsc::{Receiver, Sender};
 
+// use super::wave::*;
+
 struct Audio {
     phase: f64,
     hz: f64,
@@ -51,24 +53,6 @@ fn model(app: &App) -> Model {
         audio_host,
         // receiver,
     }
-}
-
-// Cache the sine values for better performance
-fn audio_sine(audio: &mut Audio, buffer: &mut Buffer) {
-    let sample_rate = buffer.sample_rate() as f64;
-    let volume = 0.5;
-    let mut frames = Vec::with_capacity(buffer.len());
-    for frame in buffer.frames_mut() {
-        let amp = (2.0 * PI * audio.phase).sin() as f32;
-        audio.phase += audio.hz / sample_rate;
-        audio.phase %= sample_rate;
-        frames.push(amp);
-        for channel in frame {
-            *channel = amp * volume;
-        }
-    }
-
-    // audio.sender.send(frames).unwrap();
 }
 
 fn audio_square(audio: &mut Audio, buffer: &mut Buffer) {
@@ -182,7 +166,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
     model.stream = model
         .audio_host
         .new_output_stream(audio)
-        .render(audio_sine)
+        .render(audio_saw_tooth)
         .build()
         .unwrap();
 }
