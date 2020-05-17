@@ -2,13 +2,14 @@ use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Host;
+use super::envelope::*;
 // use std::sync::mpsc;
 // use std::sync::mpsc::{Receiver, Sender};
 
 use super::wave::*;
 
 struct Model {
-    stream: audio::Stream<Audio>,
+    stream: audio::Stream<AudioE>,
     audio_host: Host,
     // receiver: Receiver<Vec<f32>>,
 }
@@ -30,14 +31,16 @@ fn model(app: &App) -> Model {
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
-    let audio = Audio {
-        phase: 0.0,
-        hz: 440.0,
-        // sender,
-    };
+    // let audio = Audio {
+    //     phase: 0.0,
+    //     hz: 440.0,
+    //     // sender,
+    // };
+    let envelopes = vec![];
+    let model = AudioE { envelopes };
     let stream = audio_host
-        .new_output_stream(audio)
-        .render(audio_square)
+        .new_output_stream(model)
+        .render(audioE)
         .build()
         .unwrap();
     Model {
@@ -81,20 +84,20 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             }
         }
         Key::Up => {
-            model
-                .stream
-                .send(|audio| {
-                    audio.hz += 10.0;
-                })
-                .unwrap();
+            // model
+            //     .stream
+            //     .send(|audio| {
+            //         audio.hz += 10.0;
+            //     })
+            //     .unwrap();
         }
         Key::Down => {
-            model
-                .stream
-                .send(|audio| {
-                    audio.hz -= 10.0;
-                })
-                .unwrap();
+            // model
+            //     .stream
+            //     .send(|audio| {
+            //         audio.hz -= 10.0;
+            //     })
+            //     .unwrap();
         }
         _ => {}
     }
@@ -103,23 +106,31 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 fn create_sine_stream(model: &mut Model, key: usize) {
     let audio = get_audio_model(key);
 
-    model.stream = model
-        .audio_host
-        .new_output_stream(audio)
-        .render(audio_sine)
-        .build()
-        .unwrap();
+    // model.stream = model
+    //     .audio_host
+    //     .new_output_stream(audio)
+    //     .render(audio_sine)
+    //     .build()
+    //     .unwrap();
+    let env = Envelope {
+        duration: 0,
+        phase: 0.0,
+        hz: 440.0,
+    };
+    model.stream.send(move |audio|{
+        audio.envelopes.push(env);
+    }).ok();
 }
 
 fn create_square_stream(model: &mut Model, key: usize) {
     let audio = get_audio_model(key);
 
-    model.stream = model
-        .audio_host
-        .new_output_stream(audio)
-        .render(audio_square)
-        .build()
-        .unwrap();
+    // model.stream = model
+    //     .audio_host
+    //     .new_output_stream(audio)
+    //     .render(audio_square)
+    //     .build()
+    //     .unwrap();
 }
 
 fn get_audio_model(key: usize) -> Audio {

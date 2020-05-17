@@ -11,18 +11,28 @@ pub struct AudioE {
     pub envelopes: Vec<Envelope>,
 }
 
-pub fn audio(audio: &mut AudioE, buffer: &mut Buffer) {
-    for env in &mut audio.envelopes {
+pub fn audioE(audio: &mut AudioE, buffer: &mut Buffer) {
+    let mut finished_env = Vec::new();
+    for (i, env) in &mut audio.envelopes.iter_mut().enumerate() {
         let sample_rate = buffer.sample_rate() as f64;
         let volume = 0.5;
         for frame in buffer.frames_mut() {
             let amp = (2.0 * PI * env.phase).sin() as f32;
             env.phase += env.hz / sample_rate;
             env.phase %= sample_rate;
+            env.duration += 1;
             for channel in frame {
-                *channel = amp;
+                *channel = amp * volume;
+            }
+
+            if env.duration == 10000 {
+                finished_env.push(i);
             }
         }
+    }
+
+    for i in finished_env.into_iter().rev() {
+        audio.envelopes.remove(i);
     }
 }
 
