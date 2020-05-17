@@ -1,20 +1,12 @@
 use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
-use nannou_audio::Buffer;
 use nannou_audio::Host;
-// use nannou_audio::Stream;
-use std::f64::consts::PI;
 // use std::sync::mpsc;
 // use std::sync::mpsc::{Receiver, Sender};
 
 use super::wave::*;
 
-// struct Audio {
-//     phase: f64,
-//     hz: f64,
-//     // sender: Sender<Vec<f32>>,
-// }
 struct Model {
     stream: audio::Stream<Audio>,
     audio_host: Host,
@@ -151,4 +143,4 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn draw_sine(draw: &Draw) {}
+fn draw_sine(_draw: &Draw) {}
