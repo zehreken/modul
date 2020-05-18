@@ -11,6 +11,7 @@ use super::wave::*;
 struct Model {
     stream: audio::Stream<AudioE>,
     audio_host: Host,
+    freqDivider: f64,
     // receiver: Receiver<Vec<f32>>,
 }
 
@@ -46,6 +47,7 @@ fn model(app: &App) -> Model {
     Model {
         stream,
         audio_host,
+        freqDivider: 1.0,
         // receiver,
     }
 }
@@ -90,6 +92,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             //         audio.hz += 10.0;
             //     })
             //     .unwrap();
+            model.freqDivider += 1.0;
         }
         Key::Down => {
             // model
@@ -98,6 +101,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             //         audio.hz -= 10.0;
             //     })
             //     .unwrap();
+            if model.freqDivider > 1.0 {
+                model.freqDivider -= 1.0;
+            }
         }
         _ => {}
     }
@@ -116,7 +122,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         start: std::time::Instant::now(),
         duration: 1.0,
         phase: audio.phase,
-        hz: audio.hz,
+        hz: audio.hz / model.freqDivider,
     };
     model
         .stream
