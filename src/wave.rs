@@ -20,13 +20,15 @@ pub fn audioE(audio: &mut AudioE, buffer: &mut Buffer) {
             let amp = (2.0 * PI * env.phase).sin() as f32;
             env.phase += env.hz / sample_rate;
             env.phase %= sample_rate;
-            env.duration += 1;
+            let passed = (std::time::Instant::now() - env.start).as_secs_f32();
             for channel in frame {
                 *channel = amp * volume;
             }
 
-            if env.duration == 10000 {
+            if passed >= env.duration {
                 finished_env.push(i);
+                // To prevent pushing the same index twice
+                break;
             }
         }
     }

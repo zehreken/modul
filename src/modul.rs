@@ -1,8 +1,8 @@
+use super::envelope::*;
 use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Host;
-use super::envelope::*;
 // use std::sync::mpsc;
 // use std::sync::mpsc::{Receiver, Sender};
 
@@ -53,28 +53,28 @@ fn model(app: &App) -> Model {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Q => {
-            create_sine_stream(model, 4);
+            create_sine_stream(model, 0);
         }
         Key::W => {
-            create_sine_stream(model, 5);
+            create_sine_stream(model, 1);
         }
         Key::E => {
-            create_sine_stream(model, 6);
+            create_sine_stream(model, 2);
         }
         Key::R => {
-            create_sine_stream(model, 7);
+            create_sine_stream(model, 3);
         }
         Key::A => {
-            create_square_stream(model, 4);
+            create_sine_stream(model, 4);
         }
         Key::S => {
-            create_square_stream(model, 5);
+            create_sine_stream(model, 5);
         }
         Key::D => {
-            create_square_stream(model, 6);
+            create_sine_stream(model, 6);
         }
         Key::F => {
-            create_square_stream(model, 7);
+            create_sine_stream(model, 7);
         }
         Key::Space => {
             if model.stream.is_playing() {
@@ -113,13 +113,17 @@ fn create_sine_stream(model: &mut Model, key: usize) {
     //     .build()
     //     .unwrap();
     let env = Envelope {
-        duration: 0,
-        phase: 0.0,
-        hz: 440.0,
+        start: std::time::Instant::now(),
+        duration: 1.0,
+        phase: audio.phase,
+        hz: audio.hz,
     };
-    model.stream.send(move |audio|{
-        audio.envelopes.push(env);
-    }).ok();
+    model
+        .stream
+        .send(move |audio| {
+            audio.envelopes.push(env);
+        })
+        .ok();
 }
 
 fn create_square_stream(model: &mut Model, key: usize) {
