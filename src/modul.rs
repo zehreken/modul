@@ -52,6 +52,23 @@ fn model(app: &App) -> Model {
     }
 }
 
+fn record(model: &mut Model) {
+    let audio = Audio {
+        phase: 0.0,
+        hz: 440.0,
+    };
+    let input_stream = model
+        .audio_host
+        .new_input_stream(audio)
+        .capture(_capture)
+        .build()
+        .unwrap();
+}
+
+fn _capture(audio: &mut Audio, buffer: &nannou_audio::Buffer) {
+
+}
+
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Q => {
@@ -77,6 +94,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         }
         Key::F => {
             create_sine_stream(model, 7);
+        }
+        Key::T => {
+            record(model);
         }
         Key::Space => {
             if model.stream.is_playing() {
