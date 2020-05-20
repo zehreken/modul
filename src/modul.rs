@@ -9,6 +9,7 @@ use super::wave::*;
 
 struct Model {
     stream: audio::Stream<AudioE>,
+    input_stream: audio::Stream<Audio>,
     audio_host: Host,
     freqDivider: f64,
     // receiver: Receiver<Vec<f32>>,
@@ -43,8 +44,21 @@ fn model(app: &App) -> Model {
         .render(audioE)
         .build()
         .unwrap();
+
+    let audio = Audio {
+        phase: 0.0,
+        hz: 440.0,
+    };
+
+    let input_stream = audio_host
+        .new_input_stream(audio)
+        .capture(_capture)
+        .build()
+        .unwrap();
+    input_stream.pause().unwrap();
     Model {
         stream,
+        input_stream,
         audio_host,
         freqDivider: 1.0,
         // receiver,
@@ -52,20 +66,16 @@ fn model(app: &App) -> Model {
 }
 
 fn record(model: &mut Model) {
-    let audio = Audio {
-        phase: 0.0,
-        hz: 440.0,
-    };
-    let input_stream = model
-        .audio_host
-        .new_input_stream(audio)
-        .capture(_capture)
-        .build()
-        .unwrap();
+    println!("record");
+    if model.input_stream.is_playing() {
+        model.input_stream.pause().unwrap();
+    } else {
+        model.input_stream.play().unwrap();
+    }
 }
 
 fn _capture(audio: &mut Audio, buffer: &nannou_audio::Buffer) {
-
+    println!("testing capture");
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
