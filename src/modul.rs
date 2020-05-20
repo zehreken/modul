@@ -1,5 +1,4 @@
 use super::envelope::*;
-use app::Draw;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Host;
