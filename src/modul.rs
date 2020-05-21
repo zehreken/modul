@@ -2,8 +2,8 @@ use super::envelope::*;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Host;
-// use std::sync::mpsc;
-// use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
 
 use super::wave::*;
 
@@ -12,7 +12,7 @@ struct Model {
     input_stream: audio::Stream<Audio>,
     audio_host: Host,
     freqDivider: f64,
-    // receiver: Receiver<Vec<f32>>,
+    receiver: Receiver<Vec<f32>>,
 }
 
 pub fn run_modul() {
@@ -28,7 +28,7 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    // let (sender, receiver) = mpsc::channel();
+    let (sender, receiver) = mpsc::channel();
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
@@ -48,6 +48,7 @@ fn model(app: &App) -> Model {
     let audio = Audio {
         phase: 0.0,
         hz: 440.0,
+        sender,
     };
 
     let input_stream = audio_host
@@ -55,13 +56,15 @@ fn model(app: &App) -> Model {
         .capture(_capture)
         .build()
         .unwrap();
-    input_stream.pause().unwrap();
+
+    // This blocks the receiver
+    // input_stream.pause().unwrap();
     Model {
         stream,
         input_stream,
         audio_host,
         freqDivider: 1.0,
-        // receiver,
+        receiver,
     }
 }
 
@@ -75,7 +78,12 @@ fn record(model: &mut Model) {
 }
 
 fn _capture(audio: &mut Audio, buffer: &nannou_audio::Buffer) {
-    println!("testing capture");
+    // println!("{:?}", buffer.frames().last());
+    let mut frames = Vec::with_capacity(buffer.len());
+    for frame in buffer.frames() {
+        frames.push(frame[1]);
+    }
+    audio.sender.send(frames).unwrap();
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
@@ -139,7 +147,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 }
 
 fn create_sine_stream(model: &mut Model, key: usize) {
-    let audio = get_audio_model(key);
+    let tone = get_audio_model(key);
 
     // model.stream = model
     //     .audio_host
@@ -150,8 +158,8 @@ fn create_sine_stream(model: &mut Model, key: usize) {
     let env = Envelope {
         start: std::time::Instant::now(),
         duration: 1.0,
-        phase: audio.phase,
-        hz: audio.hz / model.freqDivider,
+        phase: 0.0,
+        hz: tone / model.freqDivider,
     };
     model
         .stream
@@ -172,14 +180,15 @@ fn create_square_stream(model: &mut Model, key: usize) {
     //     .unwrap();
 }
 
-fn get_audio_model(key: usize) -> Audio {
+fn get_audio_model(key: usize) -> f64 {
     let keys = [
         261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
     ];
-    Audio {
-        phase: 0.0,
-        hz: keys[key % 8],
-    }
+    // Audio {
+    //     phase: 0.0,
+    //     hz: keys[key % 8],
+    // }
+    keys[key % 8]
 }
 
 fn event(_app: &App, _model: &mut Model, _event: Event) {}
@@ -187,6 +196,21 @@ fn event(_app: &App, _model: &mut Model, _event: Event) {}
 fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
+
+    let scale = 1000.0;
+    let mut frames: Vec<f32> = vec![];
+    for f in _model.receiver.try_iter() {
+        frames = f;
+    }
+    let mut index = -128.0;
+    let points = frames.iter().map(|i| {
+        let x = index;
+        let y = *i;
+        index += 4.0;
+        pt2(x, y * scale)
+    });
+
+    draw.polyline().points(points).color(GOLD);
 
     draw_sine(&draw);
 
