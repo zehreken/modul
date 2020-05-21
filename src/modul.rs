@@ -9,14 +9,16 @@ use super::wave::*;
 
 struct Model {
     stream: audio::Stream<AudioE>,
+    recording_stream: audio::Stream<RecordingAudio>,
     input_stream: audio::Stream<Audio>,
     audio_host: Host,
     freqDivider: f64,
     receiver: Receiver<Vec<f32>>,
+    recording: Vec<f32>,
 }
 
 pub fn run_modul() {
-    nannou::app(model).event(event).run();
+    nannou::app(model).update(update).run();
 }
 
 fn model(app: &App) -> Model {
@@ -45,6 +47,12 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
+    let recording_model = RecordingAudio { recordings: vec![] };
+    let recording_stream = audio_host
+        .new_output_stream(recording_model)
+        .render(audio)
+        .build()
+        .unwrap();
     let audio = Audio {
         phase: 0.0,
         hz: 440.0,
@@ -61,19 +69,27 @@ fn model(app: &App) -> Model {
     // input_stream.pause().unwrap();
     Model {
         stream,
+        recording_stream,
         input_stream,
         audio_host,
         freqDivider: 1.0,
         receiver,
+        recording: vec![],
     }
 }
 
 fn record(model: &mut Model) {
-    println!("record");
     if model.input_stream.is_playing() {
+        println!("play");
         model.input_stream.pause().unwrap();
+        clear_recordings(model);
+        create_playback_stream(model);
+        model.recording_stream.play().unwrap();
     } else {
+        println!("record");
+        model.recording_stream.pause().unwrap();
         model.input_stream.play().unwrap();
+        model.recording.clear();
     }
 }
 
@@ -169,15 +185,60 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         .ok();
 }
 
-fn create_square_stream(model: &mut Model, key: usize) {
-    let audio = get_audio_model(key);
+fn create_playback_stream(model: &mut Model) {
+    let r = model.recording.clone();
+    println!("{}", r.len());
+    model
+        .recording_stream
+        .send(move |audio| {
+            audio.recordings.push(r);
+        })
+        .ok();
+}
 
-    // model.stream = model
-    //     .audio_host
-    //     .new_output_stream(audio)
-    //     .render(audio_square)
-    //     .build()
-    //     .unwrap();
+fn clear_recordings(model: &mut Model) {
+    model
+        .recording_stream
+        .send(|audio| {
+            audio.recordings.clear();
+        })
+        .ok();
+}
+
+fn audio(audio: &mut RecordingAudio, buffer: &mut nannou_audio::Buffer) {
+    let mut have_ended = vec![];
+    let len_frames = buffer.len_frames();
+
+    // Sum all of the sounds onto the buffer.
+    // println!("{}", audio.recordings.len());
+    for (i, recording) in audio.recordings.iter_mut().enumerate() {
+        let mut frame_count = 0;
+        // let file_frames = recording.frames::<[f32; 2]>().filter_map(Result::ok);
+        let recording_copy = recording.clone();
+        for (frame, file_frame) in buffer.frames_mut().zip(recording_copy) {
+            for sample in frame.iter_mut() {
+                *sample = file_frame;
+            }
+            frame_count += 1;
+        }
+
+        if recording.len() < frame_count {
+            frame_count = recording.len();
+        }
+        for i in (0..frame_count).rev() {
+            recording.remove(i);
+        }
+
+        // If the sound yielded less samples than are in the buffer, it must have ended.
+        // if frame_count < len_frames {
+        //     have_ended.push(i);
+        // }
+    }
+
+    // Remove all sounds that have ended.
+    for i in have_ended.into_iter().rev() {
+        audio.recordings.remove(i);
+    }
 }
 
 fn get_audio_model(key: usize) -> f64 {
@@ -191,16 +252,26 @@ fn get_audio_model(key: usize) -> f64 {
     keys[key % 8]
 }
 
-fn event(_app: &App, _model: &mut Model, _event: Event) {}
+fn update(app: &App, model: &mut Model, _update: Update) {
+    for frames in model.receiver.try_iter() {
+        for i in frames {
+            model.recording.push(i);
+        }
+    }
+}
 
-fn view(app: &App, _model: &Model, frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
+    /*
     let scale = 1000.0;
     let mut frames: Vec<f32> = vec![];
-    for f in _model.receiver.try_iter() {
+    for f in model.receiver.try_iter() {
         frames = f;
+        for i in frames {
+            model.recording.push(i);
+        }
     }
     let mut index = -128.0;
     let points = frames.iter().map(|i| {
@@ -211,6 +282,7 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     });
 
     draw.polyline().points(points).color(GOLD);
+    */
 
     draw_sine(&draw);
 

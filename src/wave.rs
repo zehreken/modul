@@ -9,6 +9,10 @@ pub struct Audio {
     pub sender: Sender<Vec<f32>>,
 }
 
+pub struct RecordingAudio {
+    pub recordings: Vec<Vec<f32>>,
+}
+
 pub struct AudioE {
     pub envelopes: Vec<Envelope>,
 }
