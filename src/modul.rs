@@ -10,7 +10,7 @@ struct Model {
     output_stream: audio::Stream<AudioE>,
     recording_stream: audio::Stream<RecordingAudio>,
     input_stream: audio::Stream<RecordModel>,
-    freqDivider: f64,
+    freq_divider: f64,
     receiver: Receiver<Vec<f32>>,
     recording: Vec<f32>,
 }
@@ -58,7 +58,7 @@ fn model(app: &App) -> Model {
         output_stream: stream,
         recording_stream,
         input_stream,
-        freqDivider: 1.0,
+        freq_divider: 1.0,
         receiver,
         recording: vec![],
     }
@@ -122,7 +122,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             //         audio.hz += 10.0;
             //     })
             //     .unwrap();
-            model.freqDivider += 1.0;
+            model.freq_divider += 1.0;
         }
         Key::Down => {
             // model
@@ -131,8 +131,8 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             //         audio.hz -= 10.0;
             //     })
             //     .unwrap();
-            if model.freqDivider > 1.0 {
-                model.freqDivider -= 1.0;
+            if model.freq_divider > 1.0 {
+                model.freq_divider -= 1.0;
             }
         }
         _ => {}
@@ -152,7 +152,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         start: std::time::Instant::now(),
         duration: 1.0,
         phase: 0.0,
-        hz: tone / model.freqDivider,
+        hz: tone / model.freq_divider,
     };
     model
         .output_stream
@@ -189,7 +189,7 @@ fn get_key(key: usize) -> f64 {
     keys[key % 8]
 }
 
-fn update(app: &App, model: &mut Model, _update: Update) {
+fn update(_app: &App, model: &mut Model, _update: Update) {
     for frames in model.receiver.try_iter() {
         for i in frames {
             model.recording.push(i);
