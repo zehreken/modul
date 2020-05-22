@@ -1,16 +1,16 @@
 use super::envelope::*;
+use super::record::*;
+use super::wave::*;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Host;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 
-use super::wave::*;
-
 struct Model {
-    stream: audio::Stream<AudioE>,
+    output_stream: audio::Stream<AudioE>,
     recording_stream: audio::Stream<RecordingAudio>,
-    input_stream: audio::Stream<Audio>,
+    input_stream: audio::Stream<RecordModel>,
     audio_host: Host,
     freqDivider: f64,
     receiver: Receiver<Vec<f32>>,
@@ -53,22 +53,18 @@ fn model(app: &App) -> Model {
         .render(audio)
         .build()
         .unwrap();
-    let audio = Audio {
-        phase: 0.0,
-        hz: 440.0,
-        sender,
-    };
+    let model = RecordModel { sender };
 
     let input_stream = audio_host
-        .new_input_stream(audio)
-        .capture(_capture)
+        .new_input_stream(model)
+        .capture(capture)
         .build()
         .unwrap();
 
     // This blocks the receiver
     // input_stream.pause().unwrap();
     Model {
-        stream,
+        output_stream: stream,
         recording_stream,
         input_stream,
         audio_host,
@@ -91,15 +87,6 @@ fn record(model: &mut Model) {
         model.input_stream.play().unwrap();
         model.recording.clear();
     }
-}
-
-fn _capture(audio: &mut Audio, buffer: &nannou_audio::Buffer) {
-    // println!("{:?}", buffer.frames().last());
-    let mut frames = Vec::with_capacity(buffer.len());
-    for frame in buffer.frames() {
-        frames.push(frame[1]);
-    }
-    audio.sender.send(frames).unwrap();
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
@@ -132,10 +119,10 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             record(model);
         }
         Key::Space => {
-            if model.stream.is_playing() {
-                model.stream.pause().unwrap();
+            if model.output_stream.is_playing() {
+                model.output_stream.pause().unwrap();
             } else {
-                model.stream.play().unwrap();
+                model.output_stream.play().unwrap();
             }
         }
         Key::Up => {
@@ -178,7 +165,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         hz: tone / model.freqDivider,
     };
     model
-        .stream
+        .output_stream
         .send(move |audio| {
             audio.envelopes.push(env);
         })

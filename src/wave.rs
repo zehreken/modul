@@ -6,7 +6,6 @@ use std::sync::mpsc::Sender;
 pub struct Audio {
     pub phase: f64,
     pub hz: f64,
-    pub sender: Sender<Vec<f32>>,
 }
 
 pub struct RecordingAudio {
