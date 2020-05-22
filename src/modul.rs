@@ -3,7 +3,6 @@ use super::record::*;
 use super::wave::*;
 use nannou::prelude::*;
 use nannou_audio as audio;
-use nannou_audio::Host;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 
@@ -11,7 +10,6 @@ struct Model {
     output_stream: audio::Stream<AudioE>,
     recording_stream: audio::Stream<RecordingAudio>,
     input_stream: audio::Stream<RecordModel>,
-    audio_host: Host,
     freqDivider: f64,
     receiver: Receiver<Vec<f32>>,
     recording: Vec<f32>,
@@ -34,11 +32,6 @@ fn model(app: &App) -> Model {
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
-    // let audio = Audio {
-    //     phase: 0.0,
-    //     hz: 440.0,
-    //     // sender,
-    // };
     let envelopes = vec![];
     let model = AudioE { envelopes };
     let stream = audio_host
@@ -61,13 +54,10 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    // This blocks the receiver
-    // input_stream.pause().unwrap();
     Model {
         output_stream: stream,
         recording_stream,
         input_stream,
-        audio_host,
         freqDivider: 1.0,
         receiver,
         recording: vec![],
@@ -150,7 +140,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 }
 
 fn create_sine_stream(model: &mut Model, key: usize) {
-    let tone = get_audio_model(key);
+    let tone = get_key(key);
 
     // model.stream = model
     //     .audio_host
@@ -192,50 +182,10 @@ fn clear_recordings(model: &mut Model) {
         .ok();
 }
 
-fn audio(audio: &mut RecordingAudio, buffer: &mut nannou_audio::Buffer) {
-    let mut have_ended = vec![];
-    let len_frames = buffer.len_frames();
-
-    // Sum all of the sounds onto the buffer.
-    // println!("{}", audio.recordings.len());
-    for (i, recording) in audio.recordings.iter_mut().enumerate() {
-        let mut frame_count = 0;
-        // let file_frames = recording.frames::<[f32; 2]>().filter_map(Result::ok);
-        let recording_copy = recording.clone();
-        for (frame, file_frame) in buffer.frames_mut().zip(recording_copy) {
-            for sample in frame.iter_mut() {
-                *sample = file_frame;
-            }
-            frame_count += 1;
-        }
-
-        if recording.len() < frame_count {
-            frame_count = recording.len();
-        }
-        for i in (0..frame_count).rev() {
-            recording.remove(i);
-        }
-
-        // If the sound yielded less samples than are in the buffer, it must have ended.
-        // if frame_count < len_frames {
-        //     have_ended.push(i);
-        // }
-    }
-
-    // Remove all sounds that have ended.
-    for i in have_ended.into_iter().rev() {
-        audio.recordings.remove(i);
-    }
-}
-
-fn get_audio_model(key: usize) -> f64 {
+fn get_key(key: usize) -> f64 {
     let keys = [
         261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
     ];
-    // Audio {
-    //     phase: 0.0,
-    //     hz: keys[key % 8],
-    // }
     keys[key % 8]
 }
 
