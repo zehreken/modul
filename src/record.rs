@@ -1,15 +1,15 @@
 use nannou_audio::Buffer;
 use std::sync::mpsc::Sender;
 
-pub struct RecordModel {
+pub struct CaptureModel {
     pub sender: Sender<Vec<f32>>,
 }
 
-pub struct RecordingAudio {
+pub struct PlaybackModel {
     pub recordings: Vec<Vec<f32>>,
 }
 
-pub fn capture(model: &mut RecordModel, buffer: &Buffer) {
+pub fn capture(model: &mut CaptureModel, buffer: &Buffer) {
     let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames() {
         frames.push(frame[0]);
@@ -17,7 +17,7 @@ pub fn capture(model: &mut RecordModel, buffer: &Buffer) {
     model.sender.send(frames).unwrap();
 }
 
-pub fn audio(audio: &mut RecordingAudio, buffer: &mut Buffer) {
+pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {
     let mut have_ended = vec![];
     let len_frames = 0;
 

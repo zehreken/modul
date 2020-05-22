@@ -7,9 +7,9 @@ use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 
 struct Model {
-    output_stream: audio::Stream<AudioE>,
-    recording_stream: audio::Stream<RecordingAudio>,
-    input_stream: audio::Stream<RecordModel>,
+    wave_stream: audio::Stream<WaveModel>,
+    playback_stream: audio::Stream<PlaybackModel>,
+    capture_stream: audio::Stream<CaptureModel>,
     freq_divider: f64,
     receiver: Receiver<Vec<f32>>,
     recording: Vec<f32>,
@@ -32,32 +32,31 @@ fn model(app: &App) -> Model {
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
-    let envelopes = vec![];
-    let model = AudioE { envelopes };
-    let stream = audio_host
-        .new_output_stream(model)
+    let wave_model = WaveModel { envelopes: vec![] };
+    let wave_stream = audio_host
+        .new_output_stream(wave_model)
         .render(audioE)
         .build()
         .unwrap();
 
-    let recording_model = RecordingAudio { recordings: vec![] };
-    let recording_stream = audio_host
-        .new_output_stream(recording_model)
-        .render(audio)
+    let playback_model = PlaybackModel { recordings: vec![] };
+    let playback_stream = audio_host
+        .new_output_stream(playback_model)
+        .render(playback)
         .build()
         .unwrap();
-    let model = RecordModel { sender };
 
-    let input_stream = audio_host
-        .new_input_stream(model)
+    let capture_model = CaptureModel { sender };
+    let capture_stream = audio_host
+        .new_input_stream(capture_model)
         .capture(capture)
         .build()
         .unwrap();
 
     Model {
-        output_stream: stream,
-        recording_stream,
-        input_stream,
+        wave_stream,
+        playback_stream,
+        capture_stream,
         freq_divider: 1.0,
         receiver,
         recording: vec![],
@@ -65,16 +64,16 @@ fn model(app: &App) -> Model {
 }
 
 fn record(model: &mut Model) {
-    if model.input_stream.is_playing() {
+    if model.capture_stream.is_playing() {
         println!("play");
-        model.input_stream.pause().unwrap();
+        model.capture_stream.pause().unwrap();
         clear_recordings(model);
         create_playback_stream(model);
-        model.recording_stream.play().unwrap();
+        model.playback_stream.play().unwrap();
     } else {
         println!("record");
-        model.recording_stream.pause().unwrap();
-        model.input_stream.play().unwrap();
+        model.playback_stream.pause().unwrap();
+        model.capture_stream.play().unwrap();
         model.recording.clear();
     }
 }
@@ -109,10 +108,10 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             record(model);
         }
         Key::Space => {
-            if model.output_stream.is_playing() {
-                model.output_stream.pause().unwrap();
+            if model.wave_stream.is_playing() {
+                model.wave_stream.pause().unwrap();
             } else {
-                model.output_stream.play().unwrap();
+                model.wave_stream.play().unwrap();
             }
         }
         Key::Up => {
@@ -155,7 +154,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         hz: tone / model.freq_divider,
     };
     model
-        .output_stream
+        .wave_stream
         .send(move |audio| {
             audio.envelopes.push(env);
         })
@@ -166,7 +165,7 @@ fn create_playback_stream(model: &mut Model) {
     let r = model.recording.clone();
     println!("{}", r.len());
     model
-        .recording_stream
+        .playback_stream
         .send(move |audio| {
             audio.recordings.push(r);
         })
@@ -175,7 +174,7 @@ fn create_playback_stream(model: &mut Model) {
 
 fn clear_recordings(model: &mut Model) {
     model
-        .recording_stream
+        .playback_stream
         .send(|audio| {
             audio.recordings.clear();
         })
