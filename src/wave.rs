@@ -11,7 +11,7 @@ pub struct WaveModel {
     pub envelopes: Vec<Envelope>,
 }
 
-pub fn audioE(audio: &mut WaveModel, buffer: &mut Buffer) {
+pub fn audio_wave(audio: &mut WaveModel, buffer: &mut Buffer) {
     let mut finished_env = Vec::new();
     for (i, env) in &mut audio.envelopes.iter_mut().enumerate() {
         let sample_rate = buffer.sample_rate() as f64;

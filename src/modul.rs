@@ -11,8 +11,8 @@ struct Model {
     playback_stream: audio::Stream<PlaybackModel>,
     capture_stream: audio::Stream<CaptureModel>,
     freq_divider: f64,
-    receiver: Receiver<Vec<f32>>,
-    recording: Vec<f32>,
+    receiver: Receiver<Vec<[f32; 2]>>,
+    recording: Vec<[f32; 2]>,
 }
 
 pub fn run_modul() {
@@ -35,7 +35,7 @@ fn model(app: &App) -> Model {
     let wave_model = WaveModel { envelopes: vec![] };
     let wave_stream = audio_host
         .new_output_stream(wave_model)
-        .render(audioE)
+        .render(audio_wave)
         .build()
         .unwrap();
 
