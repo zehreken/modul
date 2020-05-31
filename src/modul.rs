@@ -5,6 +5,8 @@ use nannou::prelude::*;
 use nannou_audio as audio;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
+use std::thread;
+use std::time::Duration;
 
 struct Model {
     wave_stream: audio::Stream<WaveModel>,
@@ -68,7 +70,7 @@ fn record(model: &mut Model) {
         println!("play");
         model.capture_stream.pause().unwrap();
         clear_recordings(model);
-        create_playback_stream(model);
+        fill_playback_stream(model);
         model.playback_stream.play().unwrap();
     } else {
         println!("record");
@@ -138,7 +140,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
-fn create_sine_stream(model: &mut Model, key: usize) {
+fn create_sine_stream(model: &Model, key: usize) {
     let tone = get_key(key);
 
     // model.stream = model
@@ -161,7 +163,7 @@ fn create_sine_stream(model: &mut Model, key: usize) {
         .ok();
 }
 
-fn create_playback_stream(model: &mut Model) {
+fn fill_playback_stream(model: &Model) {
     let r = model.recording.clone();
     println!("{}", r.len());
     model
@@ -172,7 +174,7 @@ fn create_playback_stream(model: &mut Model) {
         .ok();
 }
 
-fn clear_recordings(model: &mut Model) {
+fn clear_recordings(model: &Model) {
     model
         .playback_stream
         .send(|audio| {
