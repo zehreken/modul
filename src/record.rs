@@ -23,9 +23,8 @@ pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {
 
     for (i, recording) in audio.recordings.iter_mut().enumerate() {
         let mut frame_count = 0;
-        let recording_copy = recording.clone();
-        for (frame, file_frame) in buffer.frames_mut().zip(recording_copy) {
-            for (sample, frame_sample) in frame.iter_mut().zip(&file_frame) {
+        for (frame, file_frame) in buffer.frames_mut().zip(recording.iter_mut()) {
+            for (sample, frame_sample) in frame.iter_mut().zip(file_frame) {
                 *sample = *frame_sample;
             }
             frame_count += 1;
