@@ -18,8 +18,8 @@ pub fn capture(model: &mut CaptureModel, buffer: &Buffer) {
 }
 
 pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {
-    let mut have_ended = vec![];
-    let len_frames = 0;
+    // let mut have_ended = vec![];
+    // let len_frames = 0;
 
     for (i, recording) in audio.recordings.iter_mut().enumerate() {
         let mut frame_count = 0;
@@ -34,13 +34,13 @@ pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {
             recording.remove(i);
         }
 
-        if frame_count < len_frames {
-            have_ended.push(i);
-        }
+        // if frame_count < len_frames {
+        //     have_ended.push(i);
+        // }
     }
 
     // Remove all sounds that have ended
-    for i in have_ended.into_iter().rev() {
-        audio.recordings.remove(i);
-    }
+    // for i in have_ended.into_iter().rev() {
+    //     audio.recordings.remove(i);
+    // }
 }
