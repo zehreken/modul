@@ -1,6 +1,7 @@
 use super::envelope::*;
 use super::record::*;
 use super::wave::*;
+use hound;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use std::sync::mpsc;
@@ -109,6 +110,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         Key::T => {
             record(model);
         }
+        Key::Y => {
+            write(model);
+        }
         Key::Space => {
             if model.wave_stream.is_playing() {
                 model.wave_stream.pause().unwrap();
@@ -137,6 +141,23 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             }
         }
         _ => {}
+    }
+}
+
+fn write(model: &Model) {
+    let spec = hound::WavSpec {
+        channels: 1,
+        sample_rate: 44100,
+        bits_per_sample: 16,
+        sample_format: hound::SampleFormat::Int,
+    };
+
+    println!("writing: {}", model.recording.len());
+    let mut writer = hound::WavWriter::create("recording.wav", spec).unwrap();
+    for frame in model.recording.iter() {
+        let sample = frame[1];
+        let amplitude = i16::MAX as f32;
+        writer.write_sample((sample * amplitude) as i16).unwrap();
     }
 }
 
