@@ -50,3 +50,4 @@ Cargo.lock
 .history
 
 /out
+*.wav

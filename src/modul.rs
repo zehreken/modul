@@ -67,18 +67,24 @@ fn model(app: &App) -> Model {
 }
 
 fn record(model: &mut Model) {
-    if model.capture_stream.is_playing() {
-        println!("play");
+    if model.capture_stream.is_paused() {
+        model.recording.clear();
+        model.capture_stream.play().unwrap();
+    } else {
         model.capture_stream.pause().unwrap();
+    }
+    println!("record start {}", model.capture_stream.is_playing());
+}
+
+fn play(model: &mut Model) {
+    if model.playback_stream.is_paused() {
         clear_recordings(model);
         fill_playback_stream(model);
         model.playback_stream.play().unwrap();
     } else {
-        println!("record");
         model.playback_stream.pause().unwrap();
-        model.capture_stream.play().unwrap();
-        model.recording.clear();
     }
+    println!("play start {}", model.playback_stream.is_playing());
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
@@ -109,6 +115,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         }
         Key::T => {
             record(model);
+        }
+        Key::G => {
+            play(model);
         }
         Key::Y => {
             write(model);
@@ -186,7 +195,7 @@ fn create_sine_stream(model: &Model, key: usize) {
 
 fn fill_playback_stream(model: &Model) {
     let r = model.recording.clone();
-    println!("{}", r.len());
+    println!("buffer length: {}", r.len());
     model
         .playback_stream
         .send(move |audio| {
