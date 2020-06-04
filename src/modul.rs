@@ -42,7 +42,10 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let playback_model = PlaybackModel { recordings: vec![] };
+    let playback_model = PlaybackModel {
+        index: 0,
+        recordings: vec![],
+    };
     let playback_stream = audio_host
         .new_output_stream(playback_model)
         .render(playback)
