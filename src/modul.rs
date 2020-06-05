@@ -1,5 +1,7 @@
+use super::beat_controller::BeatController;
 use super::envelope::*;
 use super::record::*;
+use super::traits::Nannou;
 use super::wave::*;
 use hound;
 use nannou::prelude::*;
@@ -16,6 +18,7 @@ struct Model {
     freq_divider: f64,
     receiver: Receiver<Vec<[f32; 2]>>,
     recording: Vec<[f32; 2]>,
+    beat_controller: BeatController,
 }
 
 pub fn run_modul() {
@@ -66,6 +69,7 @@ fn model(app: &App) -> Model {
         freq_divider: 1.0,
         receiver,
         recording: vec![],
+        beat_controller: BeatController::new(140),
     }
 }
 
@@ -229,11 +233,14 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
             model.recording.push(i);
         }
     }
+    model.beat_controller.update();
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
+
+    model.beat_controller.draw(&draw);
 
     /*
     let scale = 1000.0;
