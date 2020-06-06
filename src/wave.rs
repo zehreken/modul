@@ -16,20 +16,23 @@ pub fn audio_wave(audio: &mut WaveModel, buffer: &mut Buffer) {
     for (i, env) in &mut audio.envelopes.iter_mut().enumerate() {
         let sample_rate = buffer.sample_rate() as f64;
         let volume = 0.5;
+
         for frame in buffer.frames_mut() {
             let amp = (2.0 * PI * env.phase).sin() as f32;
             env.phase += env.hz / sample_rate;
             env.phase %= sample_rate;
             for channel in frame {
-                *channel = amp * volume;
+                *channel += amp * volume;
             }
+            env.frame += 1;
+        }
 
-            let passed = (std::time::Instant::now() - env.start).as_millis() as u32;
-            if passed >= env.duration {
-                finished_env.push(i);
-                // To prevent pushing the same index twice
-                break;
-            }
+        let passed = (std::time::Instant::now() - env.start).as_millis() as u32;
+        if passed >= env.duration {
+            println!("frame: {} phase: {}", env.frame, env.phase);
+            finished_env.push(i);
+            // To prevent pushing the same index twice
+            break;
         }
     }
 

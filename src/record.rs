@@ -1,6 +1,12 @@
 use nannou_audio::Buffer;
 use std::sync::mpsc::Sender;
 
+pub struct TapeModel {
+    pub index: usize,
+    pub selected_tape: u8,
+    pub tapes: Vec<Vec<[f32; 2]>>,
+}
+
 pub struct CaptureModel {
     pub sender: Sender<Vec<[f32; 2]>>,
 }
@@ -16,6 +22,23 @@ pub fn capture(model: &mut CaptureModel, buffer: &Buffer) {
         frames.push([frame[0], frame[1]]);
     }
     model.sender.send(frames).unwrap();
+}
+
+pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
+    for (i, tape) in audio.tapes.iter_mut().enumerate() {
+        for frame in buffer.frames_mut() {
+            let tape_frame = tape[audio.index];
+            for (sample, tape_sample) in frame.iter_mut().zip(&tape_frame) {
+                *sample += *tape_sample;
+            }
+
+            audio.index += 1;
+            // 44100 samples equal to 1 second
+            if audio.index == 44100 * 4 {
+                audio.index = 0;
+            }
+        }
+    }
 }
 
 pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {

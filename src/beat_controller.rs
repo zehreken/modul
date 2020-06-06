@@ -16,6 +16,7 @@ pub struct BeatController {
 impl BeatController {
     pub fn new(bpm: u16) -> Self {
         let period = MINUTE_IN_MS / bpm as u128;
+        println!("period: {} ms", period);
         let time = Instant::now();
         Self {
             bpm,

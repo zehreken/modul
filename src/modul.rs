@@ -1,5 +1,6 @@
 use super::beat_controller::BeatController;
 use super::envelope::*;
+use super::graphics::*;
 use super::record::*;
 use super::traits::Nannou;
 use super::wave::*;
@@ -14,14 +15,16 @@ use std::time::Duration;
 struct Model {
     wave_stream: audio::Stream<WaveModel>,
     playback_stream: audio::Stream<PlaybackModel>,
+    tape_stream: audio::Stream<TapeModel>,
     capture_stream: audio::Stream<CaptureModel>,
     freq_divider: f64,
     receiver: Receiver<Vec<[f32; 2]>>,
     recording: Vec<[f32; 2]>,
     beat_controller: BeatController,
+    tape_graphs: Vec<Tape>,
 }
 
-pub fn run_modul() {
+pub fn start() {
     nannou::app(model).update(update).run();
 }
 
@@ -44,6 +47,7 @@ fn model(app: &App) -> Model {
         .render(audio_wave)
         .build()
         .unwrap();
+    wave_stream.pause().unwrap();
 
     let playback_model = PlaybackModel {
         index: 0,
@@ -54,6 +58,18 @@ fn model(app: &App) -> Model {
         .render(playback)
         .build()
         .unwrap();
+    playback_stream.pause().unwrap();
+
+    let tape_model = TapeModel {
+        index: 0,
+        selected_tape: 0,
+        tapes: Vec::with_capacity(4),
+    };
+    let tape_stream = audio_host
+        .new_output_stream(tape_model)
+        .render(playback_tape)
+        .build()
+        .unwrap();
 
     let capture_model = CaptureModel { sender };
     let capture_stream = audio_host
@@ -62,14 +78,24 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
+    let mut tape_graphs = vec![];
+    for i in 0..4 {
+        tape_graphs.push(Tape {
+            pos_x: -384.0 + i as f32 * 256.0,
+            pos_y: 0.0,
+        });
+    }
+
     Model {
         wave_stream,
         playback_stream,
+        tape_stream,
         capture_stream,
         freq_divider: 1.0,
         receiver,
         recording: vec![],
         beat_controller: BeatController::new(120),
+        tape_graphs,
     }
 }
 
@@ -96,6 +122,38 @@ fn play(model: &mut Model) {
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
+        Key::Key1 => {
+            model
+                .tape_stream
+                .send(|audio| {
+                    audio.selected_tape = 0;
+                })
+                .unwrap();
+        }
+        Key::Key2 => {
+            model
+                .tape_stream
+                .send(|audio| {
+                    audio.selected_tape = 1;
+                })
+                .unwrap();
+        }
+        Key::Key3 => {
+            model
+                .tape_stream
+                .send(|audio| {
+                    audio.selected_tape = 2;
+                })
+                .unwrap();
+        }
+        Key::Key4 => {
+            model
+                .tape_stream
+                .send(|audio| {
+                    audio.selected_tape = 3;
+                })
+                .unwrap();
+        }
         Key::Q => {
             create_sine_stream(model, 0);
         }
@@ -188,9 +246,10 @@ fn create_sine_stream(model: &Model, key: usize) {
     //     .unwrap();
     let env = Envelope {
         start: std::time::Instant::now(),
-        duration: 50,
+        duration: 1000,
         phase: 0.0,
         hz: tone / model.freq_divider,
+        frame: 0,
     };
     model
         .wave_stream
@@ -240,6 +299,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
+    for tape in model.tape_graphs.iter() {
+        tape.draw(&draw);
+    }
     model.beat_controller.draw(&draw);
 
     /*
