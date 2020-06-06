@@ -8,7 +8,7 @@ pub enum EnvStage {
 
 pub struct Envelope {
     pub start: std::time::Instant,
-    pub duration: f32,
+    pub duration: u32,
     pub phase: f64,
     pub hz: f64,
 }

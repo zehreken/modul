@@ -69,7 +69,7 @@ fn model(app: &App) -> Model {
         freq_divider: 1.0,
         receiver,
         recording: vec![],
-        beat_controller: BeatController::new(140),
+        beat_controller: BeatController::new(120),
     }
 }
 
@@ -188,7 +188,7 @@ fn create_sine_stream(model: &Model, key: usize) {
     //     .unwrap();
     let env = Envelope {
         start: std::time::Instant::now(),
-        duration: 1.0,
+        duration: 50,
         phase: 0.0,
         hz: tone / model.freq_divider,
     };
