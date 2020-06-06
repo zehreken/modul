@@ -94,7 +94,7 @@ fn model(app: &App) -> Model {
         freq_divider: 1.0,
         receiver,
         recording: vec![],
-        beat_controller: BeatController::new(120),
+        beat_controller: BeatController::new(120, 4, 1),
         tape_graphs,
     }
 }
@@ -300,7 +300,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.background().color(BLACK);
 
     for tape in model.tape_graphs.iter() {
-        tape.draw(&draw);
+        tape.draw(&draw, &model.beat_controller);
     }
     model.beat_controller.draw(&draw);
 

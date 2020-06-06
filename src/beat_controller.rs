@@ -6,23 +6,29 @@ use std::time::{Duration, Instant};
 const MINUTE_IN_MS: u128 = 60000;
 
 pub struct BeatController {
-    bpm: u16,
-    period: u128,
+    beat_per_minute: u16,
+    pub beat_count: u8,
+    pub bar_count: u8,
+    pub beat_period: u128,
     time: Instant,
-    counter: u128,
+    pub beat_timer: u128,
+    pub bar_timer: u128,
     can_draw: bool,
 }
 
 impl BeatController {
-    pub fn new(bpm: u16) -> Self {
-        let period = MINUTE_IN_MS / bpm as u128;
-        println!("period: {} ms", period);
+    pub fn new(beat_per_minute: u16, beat_count: u8, bar_count: u8) -> Self {
+        let beat_period = MINUTE_IN_MS / beat_per_minute as u128;
+        println!("period: {} ms", beat_period);
         let time = Instant::now();
         Self {
-            bpm,
-            period,
+            beat_per_minute,
+            beat_count,
+            bar_count,
+            beat_period,
             time,
-            counter: 0,
+            beat_timer: 0,
+            bar_timer: 0,
             can_draw: false,
         }
     }
@@ -31,7 +37,7 @@ impl BeatController {
 impl Nannou for BeatController {
     fn draw(&self, draw: &Draw) {
         if self.can_draw {
-            draw.ellipse().w_h(300.0, 300.0).x_y(0.0, 0.0).color(GOLD);
+            draw.ellipse().w_h(32.0, 32.0).x_y(0.0, 128.0).color(GOLD);
         }
     }
 
@@ -39,10 +45,15 @@ impl Nannou for BeatController {
         self.can_draw = false;
         let diff: Duration = Instant::now() - self.time;
         self.time = Instant::now();
-        self.counter += diff.as_millis();
-        if self.counter > self.period {
+        let millis = diff.as_millis();
+        self.beat_timer += millis;
+        self.bar_timer += millis;
+        if self.beat_timer >= self.beat_period {
             self.can_draw = true;
-            self.counter = 0;
+            self.beat_timer = 0;
+            if self.bar_timer >= self.beat_period * self.beat_count as u128 {
+                self.bar_timer = 0;
+            }
         }
     }
 }
