@@ -3,8 +3,7 @@ use std::sync::mpsc::Sender;
 
 pub struct TapeModel {
     pub index: usize,
-    pub selected_tape: u8,
-    pub tapes: Vec<Vec<[f32; 2]>>,
+    pub tapes: Vec<[[f32; 2]; 44100]>,
 }
 
 pub struct CaptureModel {
@@ -34,7 +33,7 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
 
             audio.index += 1;
             // 44100 samples equal to 1 second
-            if audio.index == 44100 * 4 {
+            if audio.index == 44100 {
                 audio.index = 0;
             }
         }

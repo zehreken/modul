@@ -21,6 +21,7 @@ struct Model {
     receiver: Receiver<Vec<[f32; 2]>>,
     recording: Vec<[f32; 2]>,
     beat_controller: BeatController,
+    selected_tape: u8,
     tape_graphs: Vec<Tape>,
 }
 
@@ -62,8 +63,7 @@ fn model(app: &App) -> Model {
 
     let tape_model = TapeModel {
         index: 0,
-        selected_tape: 0,
-        tapes: Vec::with_capacity(4),
+        tapes: vec![[[0.0; 2]; 44100]; 4],
     };
     let tape_stream = audio_host
         .new_output_stream(tape_model)
@@ -96,6 +96,7 @@ fn model(app: &App) -> Model {
         receiver,
         recording: vec![],
         beat_controller: BeatController::new(120, 4, 1),
+        selected_tape: 0,
         tape_graphs,
     }
 }
@@ -268,12 +269,7 @@ fn get_key(key: usize) -> f64 {
 }
 
 fn select_tape(index: u8, model: &mut Model) {
-    model
-        .tape_stream
-        .send(move |audio| {
-            audio.selected_tape = index;
-        })
-        .unwrap();
+    model.selected_tape = index;
     for (i, tape) in model.tape_graphs.iter_mut().enumerate() {
         tape.is_selected = i == index as usize;
     }
@@ -285,6 +281,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
             model.recording.push(i);
         }
     }
+    
     model.beat_controller.update();
 }
 
