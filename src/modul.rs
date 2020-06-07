@@ -83,6 +83,7 @@ fn model(app: &App) -> Model {
         tape_graphs.push(Tape {
             pos_x: -384.0 + i as f32 * 256.0,
             pos_y: 0.0,
+            is_selected: false,
         });
     }
 
@@ -123,36 +124,16 @@ fn play(model: &mut Model) {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Key1 => {
-            model
-                .tape_stream
-                .send(|audio| {
-                    audio.selected_tape = 0;
-                })
-                .unwrap();
+            select_tape(0, model);
         }
         Key::Key2 => {
-            model
-                .tape_stream
-                .send(|audio| {
-                    audio.selected_tape = 1;
-                })
-                .unwrap();
+            select_tape(1, model);
         }
         Key::Key3 => {
-            model
-                .tape_stream
-                .send(|audio| {
-                    audio.selected_tape = 2;
-                })
-                .unwrap();
+            select_tape(2, model);
         }
         Key::Key4 => {
-            model
-                .tape_stream
-                .send(|audio| {
-                    audio.selected_tape = 3;
-                })
-                .unwrap();
+            select_tape(3, model);
         }
         Key::Q => {
             create_sine_stream(model, 0);
@@ -284,6 +265,18 @@ fn get_key(key: usize) -> f64 {
         261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
     ];
     keys[key % 8]
+}
+
+fn select_tape(index: u8, model: &mut Model) {
+    model
+        .tape_stream
+        .send(move |audio| {
+            audio.selected_tape = index;
+        })
+        .unwrap();
+    for (i, tape) in model.tape_graphs.iter_mut().enumerate() {
+        tape.is_selected = i == index as usize;
+    }
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {

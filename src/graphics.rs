@@ -4,6 +4,7 @@ use nannou::Draw;
 pub struct Tape {
     pub pos_x: f32,
     pub pos_y: f32,
+    pub is_selected: bool,
 }
 
 impl Tape {
@@ -16,12 +17,12 @@ impl Tape {
         draw.ellipse()
             .w_h(128.0, 128.0)
             .x_y(self.pos_x, self.pos_y)
-            .color(DARKCYAN);
+            .color(if self.is_selected { RED } else { DARKCYAN });
         draw.ellipse()
             .w_h(32.0, 32.0)
             .x_y(
-                self.pos_x + radian.cos() * 48.0,
-                self.pos_y + radian.sin() * 48.0,
+                self.pos_x + radian.cos() * 44.0,
+                self.pos_y + radian.sin() * 44.0,
             )
             .color(BLACK);
     }
