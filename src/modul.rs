@@ -61,9 +61,14 @@ fn model(app: &App) -> Model {
         .unwrap();
     playback_stream.pause().unwrap();
 
+    let mut tapes = vec![[[0.0; 2]; 44100]; 4];
+    for i in 0..22050 {
+        let amp = (2.0 * PI * i as f32).sin() as f32;
+        tapes[0][i] = [amp, amp];
+    }
     let tape_model = TapeModel {
         index: 0,
-        tapes: vec![[[0.0; 2]; 44100]; 4],
+        tapes,
     };
     let tape_stream = audio_host
         .new_output_stream(tape_model)
