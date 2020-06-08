@@ -281,7 +281,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
             model.recording.push(i);
         }
     }
-    
+
     model.beat_controller.update();
 }
 
