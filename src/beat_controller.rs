@@ -41,11 +41,12 @@ impl Nannou for BeatController {
         }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, delta_time: i32) {
         self.can_draw = false;
         let diff: Duration = Instant::now() - self.time;
         self.time = Instant::now();
-        let millis = diff.as_millis();
+        // let millis = diff.as_millis();
+        let millis = delta_time as u128;
         self.beat_timer += millis;
         self.bar_timer += millis;
         if self.beat_timer >= self.beat_period {

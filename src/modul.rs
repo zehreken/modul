@@ -13,11 +13,13 @@ use std::thread;
 use std::time::Duration;
 
 struct Model {
+    global_time: u32,
     wave_stream: audio::Stream<WaveModel>,
     playback_stream: audio::Stream<PlaybackModel>,
     tape_stream: audio::Stream<TapeModel>,
     capture_stream: audio::Stream<CaptureModel>,
     freq_divider: f64,
+    time_receiver: Receiver<u32>,
     receiver: Receiver<Vec<[f32; 2]>>,
     recording: Vec<[f32; 2]>,
     beat_controller: BeatController,
@@ -39,6 +41,7 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     let (sender, receiver) = mpsc::channel();
+    let (time_sender, time_receiver) = mpsc::channel();
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
     // Initialize the state that we want to live on the audio thread.
@@ -66,10 +69,7 @@ fn model(app: &App) -> Model {
         let amp = (2.0 * PI * i as f32).sin() as f32;
         tapes[0][i] = [amp, amp];
     }
-    let tape_model = TapeModel {
-        index: 0,
-        tapes,
-    };
+    let tape_model = TapeModel { time_sender, index: 0, tapes };
     let tape_stream = audio_host
         .new_output_stream(tape_model)
         .render(playback_tape)
@@ -93,11 +93,13 @@ fn model(app: &App) -> Model {
     }
 
     Model {
+        global_time: 0,
         wave_stream,
         playback_stream,
         tape_stream,
         capture_stream,
         freq_divider: 1.0,
+        time_receiver,
         receiver,
         recording: vec![],
         beat_controller: BeatController::new(120, 4, 1),
@@ -112,6 +114,16 @@ fn record(model: &mut Model) {
         model.capture_stream.play().unwrap();
     } else {
         model.capture_stream.pause().unwrap();
+        let mut new = [[0.0; 2]; 44100];
+        for i in 0..44100 {
+            new[i] = model.recording[i];
+        }
+        model
+            .tape_stream
+            .send(move |audio| {
+                audio.tapes[0] = new;
+            })
+            .unwrap();
     }
     println!("record start {}", model.capture_stream.is_playing());
 }
@@ -287,7 +299,17 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         }
     }
 
-    model.beat_controller.update();
+    let previous_time = model.global_time;
+    for t in model.time_receiver.try_iter() {
+        model.global_time = t;
+    }
+    let mut delta_time = model.global_time as i32 - previous_time as i32;
+    if delta_time < 0 { delta_time += 44100;}
+
+    // println!("diff: {}", delta_time);
+    delta_time = (delta_time as f32 / 44100.0 * 1000.0) as i32;
+
+    model.beat_controller.update(delta_time);
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {

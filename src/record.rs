@@ -2,6 +2,7 @@ use nannou_audio::Buffer;
 use std::sync::mpsc::Sender;
 
 pub struct TapeModel {
+    pub time_sender: Sender<u32>,
     pub index: usize,
     pub tapes: Vec<[[f32; 2]; 44100]>,
 }
@@ -35,9 +36,10 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
         audio.index += 1;
         // 44100 samples equal to 1 second
         if audio.index == 44100 {
-            println!("1 second");
+            // println!("1 second");
             audio.index = 0;
         }
+        audio.time_sender.send(audio.index as u32).unwrap();
     }
 }
 
