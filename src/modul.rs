@@ -65,11 +65,15 @@ fn model(app: &App) -> Model {
     playback_stream.pause().unwrap();
 
     let mut tapes = vec![[[0.0; 2]; 44100]; 4];
-    for i in 0..22050 {
-        let amp = (2.0 * PI * i as f32).sin() as f32;
-        tapes[0][i] = [amp, amp];
-    }
-    let tape_model = TapeModel { time_sender, index: 0, tapes };
+    // for i in 0..22050 {
+    //     let amp = (2.0 * PI * i as f32).sin() as f32;
+    //     tapes[0][i] = [amp, amp];
+    // }
+    let tape_model = TapeModel {
+        time_sender,
+        index: 0,
+        tapes,
+    };
     let tape_stream = audio_host
         .new_output_stream(tape_model)
         .render(playback_tape)
@@ -114,16 +118,15 @@ fn record(model: &mut Model) {
         model.capture_stream.play().unwrap();
     } else {
         model.capture_stream.pause().unwrap();
-        let mut new = [[0.0; 2]; 44100];
         for i in 0..44100 {
-            new[i] = model.recording[i];
+            let frame = model.recording[i];
+            model
+                .tape_stream
+                .send(move |audio| {
+                    audio.tapes[0][i] = frame;
+                })
+                .unwrap();
         }
-        model
-            .tape_stream
-            .send(move |audio| {
-                audio.tapes[0] = new;
-            })
-            .unwrap();
     }
     println!("record start {}", model.capture_stream.is_playing());
 }
@@ -304,7 +307,9 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         model.global_time = t;
     }
     let mut delta_time = model.global_time as i32 - previous_time as i32;
-    if delta_time < 0 { delta_time += 44100;}
+    if delta_time < 0 {
+        delta_time += 44100;
+    }
 
     // println!("diff: {}", delta_time);
     delta_time = (delta_time as f32 / 44100.0 * 1000.0) as i32;
