@@ -90,7 +90,7 @@ fn model(app: &App) -> Model {
         tape_graphs.push(Tape {
             pos_x: -384.0 + i as f32 * 256.0,
             pos_y: 0.0,
-            is_selected: false,
+            is_selected: i == 0,
         });
     }
 
@@ -118,7 +118,10 @@ fn record(model: &mut Model) {
         model.capture_stream.pause().unwrap();
         let selected_tape = model.selected_tape as usize;
         for i in 0..44100 {
-            let frame = model.recording[i];
+            let mut frame = [0.0, 0.0];
+            if i < model.recording.len() {
+                frame = model.recording[i];
+            }
             model
                 .tape_stream
                 .send(move |audio| {
