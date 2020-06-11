@@ -65,13 +65,10 @@ fn model(app: &App) -> Model {
     playback_stream.pause().unwrap();
 
     let mut tapes = vec![[[0.0; 2]; 44100]; 4];
-    // for i in 0..22050 {
-    //     let amp = (2.0 * PI * i as f32).sin() as f32;
-    //     tapes[0][i] = [amp, amp];
-    // }
     let tape_model = TapeModel {
         time_sender,
         index: 0,
+        volume: 0.5,
         tapes,
     };
     let tape_stream = audio_host
@@ -86,6 +83,7 @@ fn model(app: &App) -> Model {
         .capture(capture)
         .build()
         .unwrap();
+    capture_stream.pause().unwrap();
 
     let mut tape_graphs = vec![];
     for i in 0..4 {
@@ -118,12 +116,13 @@ fn record(model: &mut Model) {
         model.capture_stream.play().unwrap();
     } else {
         model.capture_stream.pause().unwrap();
+        let selected_tape = model.selected_tape as usize;
         for i in 0..44100 {
             let frame = model.recording[i];
             model
                 .tape_stream
                 .send(move |audio| {
-                    audio.tapes[0][i] = frame;
+                    audio.tapes[selected_tape][i] = frame;
                 })
                 .unwrap();
         }
@@ -189,6 +188,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         Key::Y => {
             write(model);
         }
+        Key::M => {
+            toggle_volume(model);
+        }
         Key::Space => {
             if model.wave_stream.is_playing() {
                 model.wave_stream.pause().unwrap();
@@ -218,6 +220,19 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         }
         _ => {}
     }
+}
+
+fn toggle_volume(model: &Model) {
+    model
+        .tape_stream
+        .send(|audio| {
+            if audio.volume > 0.0 {
+                audio.volume = 0.0;
+            } else {
+                audio.volume = 0.5;
+            }
+        })
+        .unwrap();
 }
 
 fn write(model: &Model) {

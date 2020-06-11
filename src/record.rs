@@ -4,6 +4,7 @@ use std::sync::mpsc::Sender;
 pub struct TapeModel {
     pub time_sender: Sender<u32>,
     pub index: usize,
+    pub volume: f32,
     pub tapes: Vec<[[f32; 2]; 44100]>,
 }
 
@@ -29,7 +30,7 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
         for (i, tape) in audio.tapes.iter_mut().enumerate() {
             let tape_frame = tape[audio.index];
             for (sample, tape_sample) in frame.iter_mut().zip(&tape_frame) {
-                *sample += *tape_sample;
+                *sample += *tape_sample * audio.volume;
             }
         }
 
