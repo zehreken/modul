@@ -5,7 +5,7 @@ pub struct TapeModel {
     pub time_sender: Sender<u32>,
     pub index: usize,
     pub volume: f32,
-    pub tapes: Vec<[[f32; 2]; 44100]>,
+    pub tapes: Vec<Vec<[f32; 2]>>,
 }
 
 pub struct CaptureModel {

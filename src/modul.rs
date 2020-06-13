@@ -12,6 +12,8 @@ use std::sync::mpsc::Receiver;
 use std::thread;
 use std::time::Duration;
 
+const SAMPLE_RATE: usize = 44100;
+
 struct Model {
     global_time: u32,
     wave_stream: audio::Stream<WaveModel>,
@@ -64,7 +66,7 @@ fn model(app: &App) -> Model {
         .unwrap();
     playback_stream.pause().unwrap();
 
-    let mut tapes = vec![[[0.0; 2]; 44100]; 4];
+    let mut tapes = vec![vec![[0.0; 2]; SAMPLE_RATE]; 4];
     let tape_model = TapeModel {
         time_sender,
         index: 0,
@@ -117,7 +119,7 @@ fn record(model: &mut Model) {
     } else {
         model.capture_stream.pause().unwrap();
         let selected_tape = model.selected_tape as usize;
-        for i in 0..44100 {
+        for i in 0..SAMPLE_RATE {
             let mut frame = [0.0, 0.0];
             if i < model.recording.len() {
                 frame = model.recording[i];
@@ -241,7 +243,7 @@ fn toggle_volume(model: &Model) {
 fn write(model: &Model) {
     let spec = hound::WavSpec {
         channels: 1,
-        sample_rate: 44100,
+        sample_rate: SAMPLE_RATE as u32,
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
@@ -326,11 +328,11 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     }
     let mut delta_time = model.global_time as i32 - previous_time as i32;
     if delta_time < 0 {
-        delta_time += 44100;
+        delta_time += SAMPLE_RATE as i32;
     }
 
     // println!("diff: {}", delta_time);
-    delta_time = (delta_time as f32 / 44100.0 * 1000.0) as i32;
+    delta_time = (delta_time as f32 / SAMPLE_RATE as f32 * 1000.0) as i32;
 
     model.beat_controller.update(delta_time);
 }
