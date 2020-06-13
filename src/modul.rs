@@ -12,7 +12,9 @@ use std::sync::mpsc::Receiver;
 use std::thread;
 use std::time::Duration;
 
-const SAMPLE_RATE: usize = 44100;
+pub const SAMPLE_RATE: usize = 44100;
+pub const TAPE_SECONDS: usize = 1;
+pub const TAPE_SAMPLES: usize = SAMPLE_RATE * TAPE_SECONDS;
 
 struct Model {
     global_time: u32,
@@ -66,7 +68,8 @@ fn model(app: &App) -> Model {
         .unwrap();
     playback_stream.pause().unwrap();
 
-    let mut tapes = vec![vec![[0.0; 2]; SAMPLE_RATE]; 4];
+    // A tape is 4 seconds long
+    let tapes = vec![vec![[0.0; 2]; TAPE_SAMPLES]; 4];
     let tape_model = TapeModel {
         time_sender,
         index: 0,
@@ -119,7 +122,7 @@ fn record(model: &mut Model) {
     } else {
         model.capture_stream.pause().unwrap();
         let selected_tape = model.selected_tape as usize;
-        for i in 0..SAMPLE_RATE {
+        for i in 0..TAPE_SAMPLES {
             let mut frame = [0.0, 0.0];
             if i < model.recording.len() {
                 frame = model.recording[i];

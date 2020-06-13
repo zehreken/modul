@@ -37,7 +37,7 @@ impl BeatController {
 impl Nannou for BeatController {
     fn draw(&self, draw: &Draw) {
         if self.can_draw {
-            draw.ellipse().w_h(32.0, 32.0).x_y(0.0, 128.0).color(GOLD);
+            draw.rect().w_h(1024.0, 4.0).x_y(0.0, 224.0).color(GOLD);
         }
     }
 

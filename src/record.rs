@@ -36,7 +36,7 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
 
         audio.index += 1;
         // 44100 samples equal to 1 second
-        if audio.index == 44100 {
+        if audio.index == super::modul::TAPE_SAMPLES {
             // println!("1 second");
             audio.index = 0;
         }
