@@ -8,16 +8,17 @@ pub struct TapeModel {
     pub tapes: Vec<Vec<[f32; 2]>>,
 }
 
-pub struct CaptureModel {
+pub struct InputModel {
     pub sender: Sender<Vec<[f32; 2]>>,
 }
 
+#[deprecated = "obsolete"]
 pub struct PlaybackModel {
     pub index: usize,
     pub recordings: Vec<Vec<[f32; 2]>>,
 }
 
-pub fn capture(model: &mut CaptureModel, buffer: &Buffer) {
+pub fn capture(model: &mut InputModel, buffer: &Buffer) {
     let mut frames = Vec::with_capacity(buffer.len());
     for frame in buffer.frames() {
         frames.push([frame[0], frame[1]]);
@@ -44,6 +45,7 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
     }
 }
 
+#[deprecated = "obsolete"]
 pub fn playback(audio: &mut PlaybackModel, buffer: &mut Buffer) {
     let mut have_ended = vec![];
 

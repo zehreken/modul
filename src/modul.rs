@@ -13,19 +13,18 @@ use std::thread;
 use std::time::Duration;
 
 pub const SAMPLE_RATE: usize = 44100;
-pub const TAPE_SECONDS: usize = 1;
+pub const TAPE_SECONDS: usize = 4;
 pub const TAPE_SAMPLES: usize = SAMPLE_RATE * TAPE_SECONDS;
 
 struct Model {
     global_time: u32,
     wave_stream: audio::Stream<WaveModel>,
-    playback_stream: audio::Stream<PlaybackModel>,
     tape_stream: audio::Stream<TapeModel>,
-    capture_stream: audio::Stream<CaptureModel>,
+    input_stream: audio::Stream<InputModel>,
     freq_divider: f64,
     time_receiver: Receiver<u32>,
     receiver: Receiver<Vec<[f32; 2]>>,
-    recording: Vec<[f32; 2]>,
+    temp_tape: Vec<[f32; 2]>,
     beat_controller: BeatController,
     selected_tape: u8,
     tape_graphs: Vec<Tape>,
@@ -82,7 +81,7 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let capture_model = CaptureModel { sender };
+    let capture_model = InputModel { sender };
     let capture_stream = audio_host
         .new_input_stream(capture_model)
         .capture(capture)
@@ -102,13 +101,12 @@ fn model(app: &App) -> Model {
     Model {
         global_time: 0,
         wave_stream,
-        playback_stream,
         tape_stream,
-        capture_stream,
+        input_stream: capture_stream,
         freq_divider: 1.0,
         time_receiver,
         receiver,
-        recording: vec![],
+        temp_tape: vec![],
         beat_controller: BeatController::new(120, 4, 1),
         selected_tape: 0,
         tape_graphs,
@@ -116,16 +114,16 @@ fn model(app: &App) -> Model {
 }
 
 fn record(model: &mut Model) {
-    if model.capture_stream.is_paused() {
-        model.recording.clear();
-        model.capture_stream.play().unwrap();
+    if model.input_stream.is_paused() {
+        model.temp_tape.clear();
+        model.input_stream.play().unwrap();
     } else {
-        model.capture_stream.pause().unwrap();
+        model.input_stream.pause().unwrap();
         let selected_tape = model.selected_tape as usize;
         for i in 0..TAPE_SAMPLES {
             let mut frame = [0.0, 0.0];
-            if i < model.recording.len() {
-                frame = model.recording[i];
+            if i < model.temp_tape.len() {
+                frame = model.temp_tape[i];
             }
             model
                 .tape_stream
@@ -135,18 +133,18 @@ fn record(model: &mut Model) {
                 .unwrap();
         }
     }
-    println!("record start {}", model.capture_stream.is_playing());
+    println!("record start {}", model.input_stream.is_playing());
 }
 
 fn play(model: &mut Model) {
-    if model.playback_stream.is_paused() {
-        clear_recordings(model);
-        fill_playback_stream(model);
-        model.playback_stream.play().unwrap();
-    } else {
-        model.playback_stream.pause().unwrap();
-    }
-    println!("play start {}", model.playback_stream.is_playing());
+    // if model.playback_stream.is_paused() {
+    //     clear_recordings(model);
+    //     fill_playback_stream(model);
+    //     model.playback_stream.play().unwrap();
+    // } else {
+    //     model.playback_stream.pause().unwrap();
+    // }
+    // println!("play start {}", model.playback_stream.is_playing());
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
@@ -251,9 +249,9 @@ fn write(model: &Model) {
         sample_format: hound::SampleFormat::Int,
     };
 
-    println!("writing: {}", model.recording.len());
+    println!("writing: {}", model.temp_tape.len());
     let mut writer = hound::WavWriter::create("recording.wav", spec).unwrap();
-    for frame in model.recording.iter() {
+    for frame in model.temp_tape.iter() {
         let sample = frame[1];
         let amplitude = i16::MAX as f32;
         writer.write_sample((sample * amplitude) as i16).unwrap();
@@ -284,26 +282,6 @@ fn create_sine_stream(model: &Model, key: usize) {
         .ok();
 }
 
-fn fill_playback_stream(model: &Model) {
-    let r = model.recording.clone();
-    println!("buffer length: {}", r.len());
-    model
-        .playback_stream
-        .send(move |audio| {
-            audio.recordings.push(r);
-        })
-        .ok();
-}
-
-fn clear_recordings(model: &Model) {
-    model
-        .playback_stream
-        .send(|audio| {
-            audio.recordings.clear();
-        })
-        .ok();
-}
-
 fn get_key(key: usize) -> f64 {
     let keys = [
         261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
@@ -321,7 +299,7 @@ fn select_tape(index: u8, model: &mut Model) {
 fn update(_app: &App, model: &mut Model, _update: Update) {
     for frames in model.receiver.try_iter() {
         for i in frames {
-            model.recording.push(i);
+            model.temp_tape.push(i);
         }
     }
 
