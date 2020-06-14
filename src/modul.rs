@@ -94,7 +94,7 @@ fn model(app: &App) -> Model {
         time_receiver,
         receiver,
         temp_tape: vec![],
-        beat_controller: BeatController::new(60, 4, 1),
+        beat_controller: BeatController::new(120, 4, 1),
         selected_tape: 0,
         tape_graphs,
     }

@@ -2,7 +2,7 @@ use super::traits::Nannou;
 use nannou::draw::Draw;
 use nannou::prelude::*;
 
-const SAMPLES_PER_MINUTE:usize = super::modul::SAMPLE_RATE * 60;
+const SAMPLES_PER_MINUTE: usize = super::modul::SAMPLE_RATE * 60;
 
 pub struct BeatController {
     beat_per_minute: u16,
