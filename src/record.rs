@@ -38,10 +38,19 @@ pub fn playback_tape(audio: &mut TapeModel, buffer: &mut Buffer) {
         audio.index += 1;
         // 44100 samples equal to 1 second
         if audio.index == super::modul::TAPE_SAMPLES {
-            // println!("1 second");
+            println!("{} seconds", super::modul::TAPE_SECONDS);
+            // println!(
+            //     "{:?}",
+            //     std::time::SystemTime::now()
+            //         .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            //         .unwrap()
+            //         .as_millis()
+            // );
             audio.index = 0;
         }
-        audio.time_sender.send(audio.index as u32).unwrap();
+
+        let time = audio.index % super::modul::SAMPLE_RATE;
+        audio.time_sender.send(time as u32).unwrap();
     }
 }
 

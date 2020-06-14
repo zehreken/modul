@@ -9,11 +9,9 @@ use nannou::prelude::*;
 use nannou_audio as audio;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
-use std::thread;
-use std::time::Duration;
 
 pub const SAMPLE_RATE: usize = 44100;
-pub const TAPE_SECONDS: usize = 4;
+pub const TAPE_SECONDS: usize = 1;
 pub const TAPE_SAMPLES: usize = SAMPLE_RATE * TAPE_SECONDS;
 
 struct Model {
@@ -56,17 +54,6 @@ fn model(app: &App) -> Model {
         .unwrap();
     wave_stream.pause().unwrap();
 
-    let playback_model = PlaybackModel {
-        index: 0,
-        recordings: vec![],
-    };
-    let playback_stream = audio_host
-        .new_output_stream(playback_model)
-        .render(playback)
-        .build()
-        .unwrap();
-    playback_stream.pause().unwrap();
-
     // A tape is 4 seconds long
     let tapes = vec![vec![[0.0; 2]; TAPE_SAMPLES]; 4];
     let tape_model = TapeModel {
@@ -107,7 +94,7 @@ fn model(app: &App) -> Model {
         time_receiver,
         receiver,
         temp_tape: vec![],
-        beat_controller: BeatController::new(120, 4, 1),
+        beat_controller: BeatController::new(60, 4, 1),
         selected_tape: 0,
         tape_graphs,
     }
@@ -283,6 +270,7 @@ fn create_sine_stream(model: &Model, key: usize) {
 }
 
 fn get_key(key: usize) -> f64 {
+    // C, D, E, F, G, A, B, C
     let keys = [
         261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25,
     ];
@@ -313,7 +301,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     }
 
     // println!("diff: {}", delta_time);
-    delta_time = (delta_time as f32 / SAMPLE_RATE as f32 * 1000.0) as i32;
+    // delta_time = (delta_time as f32 / SAMPLE_RATE as f32 * 1000.0) as i32;
 
     model.beat_controller.update(delta_time);
 }
