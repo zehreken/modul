@@ -1,4 +1,5 @@
 use super::beat_controller::BeatController;
+use super::bypass::*;
 use super::envelope::*;
 use super::graphics::*;
 use super::record::*;
@@ -26,10 +27,36 @@ struct Model {
     beat_controller: BeatController,
     selected_tape: u8,
     tape_graphs: Vec<Tape>,
+    //
+    in_stream: audio::Stream<InModel>,
+    out_stream: audio::Stream<OutModel>,
 }
 
 pub fn start() {
     nannou::app(model).update(update).run();
+    return;
+    let audio_host = audio::Host::new();
+    println!(
+        "input device count: {:?}",
+        audio_host.input_devices().unwrap().count()
+    );
+    println!(
+        "default input device: {:?}",
+        audio_host.default_input_device().unwrap().name()
+    );
+    let mut input_devices = audio_host.input_devices().unwrap().into_iter();
+    let first_device = input_devices.next().unwrap();
+    let second_device = input_devices.next().unwrap();
+    println!("first input device: {:?}", first_device.name());
+    println!("second input device: {:?}", second_device.name());
+    println!(
+        "second input device max supported input channels: {:?}",
+        second_device.max_supported_input_channels()
+    );
+    println!(
+        "second input device supported input formats count: {:?}",
+        second_device.supported_input_formats().unwrap().count()
+    );
 }
 
 fn model(app: &App) -> Model {
@@ -45,6 +72,19 @@ fn model(app: &App) -> Model {
     let (time_sender, time_receiver) = mpsc::channel();
     // Initialize the audio API so we can spawn an audio stream.
     let audio_host = audio::Host::new();
+
+    let mut input_devices = audio_host.input_devices().unwrap().into_iter();
+    let first_device = input_devices.next().unwrap();
+    // let second_device = input_devices.next().unwrap();
+    let capture_model = InputModel { sender };
+    let capture_stream = audio_host
+        .new_input_stream(capture_model)
+        .capture(capture)
+        .device(first_device)
+        .build()
+        .unwrap();
+    capture_stream.pause().unwrap();
+
     // Initialize the state that we want to live on the audio thread.
     let wave_model = WaveModel { envelopes: vec![] };
     let wave_stream = audio_host
@@ -54,7 +94,6 @@ fn model(app: &App) -> Model {
         .unwrap();
     wave_stream.pause().unwrap();
 
-    // A tape is 4 seconds long
     let tapes = vec![vec![[0.0; 2]; TAPE_SAMPLES]; 4];
     let tape_model = TapeModel {
         time_sender,
@@ -68,13 +107,17 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let capture_model = InputModel { sender };
-    let capture_stream = audio_host
-        .new_input_stream(capture_model)
-        .capture(capture)
-        .build()
-        .unwrap();
-    capture_stream.pause().unwrap();
+    // let mut input_devices = audio_host.input_devices().unwrap().into_iter();
+    // let first_device = input_devices.next().unwrap();
+    // let second_device = input_devices.next().unwrap();
+    // let capture_model = InputModel { sender };
+    // let capture_stream = audio_host
+    //     .new_input_stream(capture_model)
+    //     .capture(capture)
+    //     .device(second_device)
+    //     .build()
+    //     .unwrap();
+    // capture_stream.pause().unwrap();
 
     let mut tape_graphs = vec![];
     for i in 0..4 {
@@ -84,6 +127,23 @@ fn model(app: &App) -> Model {
             is_selected: i == 0,
         });
     }
+
+    let (sender2, receiver2) = mpsc::channel();
+    let in_model = InModel { sender: sender2 };
+    let in_stream = audio_host
+        .new_input_stream(in_model)
+        .capture(pass_in)
+        .build()
+        .unwrap();
+
+    let out_model = OutModel {
+        receiver: receiver2,
+    };
+    let out_stream = audio_host
+        .new_output_stream(out_model)
+        .render(pass_out)
+        .build()
+        .unwrap();
 
     Model {
         global_time: 0,
@@ -97,6 +157,8 @@ fn model(app: &App) -> Model {
         beat_controller: BeatController::new(120, 4, 1),
         selected_tape: 0,
         tape_graphs,
+        in_stream,
+        out_stream,
     }
 }
 
@@ -184,6 +246,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         Key::M => {
             toggle_volume(model);
         }
+        Key::B => {}
         Key::Space => {
             if model.wave_stream.is_playing() {
                 model.wave_stream.pause().unwrap();
@@ -227,6 +290,8 @@ fn toggle_volume(model: &Model) {
         })
         .unwrap();
 }
+
+fn toggle_bypass(model: &Model) {}
 
 fn write(model: &Model) {
     let spec = hound::WavSpec {

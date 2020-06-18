@@ -1,4 +1,5 @@
 mod beat_controller;
+mod bypass;
 mod envelope;
 mod graphics;
 mod modul;
