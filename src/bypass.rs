@@ -24,7 +24,7 @@ pub fn pass_out(model: &mut OutModel, buffer: &mut Buffer) {
     }
     for (frame, recording_frame) in buffer.frames_mut().zip(recording) {
         for (sample, recording_sample) in frame.iter_mut().zip(&recording_frame) {
-            *sample = *recording_sample;
+            *sample = *recording_sample * 0.5;
         }
     }
 }
