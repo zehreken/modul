@@ -14,6 +14,9 @@ use std::sync::mpsc::Receiver;
 pub const SAMPLE_RATE: usize = 44100;
 pub const TAPE_SECONDS: usize = 1;
 pub const TAPE_SAMPLES: usize = SAMPLE_RATE * TAPE_SECONDS;
+pub const BPM: u16 = 120;
+pub const BEAT_COUNT: u8 = 4; // This is the time signature, 4/4, 3/4, 2/2 etc.
+pub const BAR_COUNT: u8 = 1; // Probably obsolete
 
 struct Model {
     global_time: u32,
@@ -154,7 +157,7 @@ fn model(app: &App) -> Model {
         time_receiver,
         receiver,
         temp_tape: vec![],
-        beat_controller: BeatController::new(120, 4, 1),
+        beat_controller: BeatController::new(BPM, BEAT_COUNT, BAR_COUNT),
         selected_tape: 0,
         tape_graphs,
         in_stream,
