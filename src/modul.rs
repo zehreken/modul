@@ -10,6 +10,7 @@ use nannou::prelude::*;
 use nannou_audio as audio;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
+use ringbuf::RingBuffer;
 
 pub const SAMPLE_RATE: usize = 44100;
 pub const TAPE_SECONDS: usize = 1;
@@ -38,6 +39,7 @@ struct Model {
 pub fn start() {
     nannou::app(model).update(update).run();
     return;
+
     let audio_host = audio::Host::new();
     println!(
         "input device count: {:?}",
@@ -131,8 +133,9 @@ fn model(app: &App) -> Model {
         });
     }
 
-    let (sender2, receiver2) = mpsc::channel();
-    let in_model = InModel { sender: sender2 };
+    let rb = RingBuffer::<[f32; 2]>::new(200);
+    let (mut prod, mut cons) = rb.split();  
+    let in_model = InModel { sender: prod };
     let in_stream = audio_host
         .new_input_stream(in_model)
         .capture(pass_in)
@@ -140,7 +143,7 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     let out_model = OutModel {
-        receiver: receiver2,
+        receiver: cons,
     };
     let out_stream = audio_host
         .new_output_stream(out_model)
