@@ -133,8 +133,11 @@ fn model(app: &App) -> Model {
         });
     }
 
-    let rb = RingBuffer::<[f32; 2]>::new(200);
-    let (mut prod, mut cons) = rb.split();  
+    let rb = RingBuffer::<[f32; 2]>::new(44100);
+    let (mut prod, cons) = rb.split();
+    for _ in 0..10 {
+        prod.push([0.0, 0.0]).unwrap();
+    }
     let in_model = InModel { sender: prod };
     let in_stream = audio_host
         .new_input_stream(in_model)
