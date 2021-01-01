@@ -8,9 +8,9 @@ use super::wave::*;
 use hound;
 use nannou::prelude::*;
 use nannou_audio as audio;
+use ringbuf::RingBuffer;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
-use ringbuf::RingBuffer;
 
 pub const SAMPLE_RATE: usize = 44100;
 pub const TAPE_SECONDS: usize = 1;
@@ -144,15 +144,15 @@ fn model(app: &App) -> Model {
         .capture(pass_in)
         .build()
         .unwrap();
+    in_stream.pause().unwrap();
 
-    let out_model = OutModel {
-        receiver: cons,
-    };
+    let out_model = OutModel { receiver: cons };
     let out_stream = audio_host
         .new_output_stream(out_model)
         .render(pass_out)
         .build()
         .unwrap();
+    out_stream.pause().unwrap();
 
     Model {
         global_time: 0,
