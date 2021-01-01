@@ -1,10 +1,13 @@
 use super::traits::Nannou;
 use nannou::draw::Draw;
 use nannou::prelude::*;
+use std::thread;
+use std::time::Instant;
 
 const SAMPLES_PER_MINUTE: usize = super::modul::SAMPLE_RATE * 60;
 
 pub struct BeatController {
+    instant: Instant,
     beat_per_minute: u16,
     pub beat_count: u8,
     pub bar_count: u8,
@@ -19,6 +22,7 @@ impl BeatController {
         let beat_period = SAMPLES_PER_MINUTE as u128 / beat_per_minute as u128;
         println!("period: {} samples", beat_period);
         Self {
+            instant: Instant::now(),
             beat_per_minute,
             beat_count,
             bar_count,
@@ -27,6 +31,12 @@ impl BeatController {
             bar_timer: 0,
             can_draw: false,
         }
+    }
+
+    pub fn start(self) {
+        // thread::spawn(move || loop {
+        //     println!("{:?}", self.instant.elapsed());
+        // });
     }
 }
 

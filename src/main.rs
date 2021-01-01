@@ -4,8 +4,9 @@ mod envelope;
 mod graphics;
 mod modul;
 mod record;
+mod tape;
 mod traits;
-mod wave;
+mod wave_generator;
 
 fn main() {
     modul::start();

@@ -4,7 +4,7 @@ use super::envelope::*;
 use super::graphics::*;
 use super::record::*;
 use super::traits::Nannou;
-use super::wave::*;
+use super::wave_generator::*;
 use hound;
 use nannou::prelude::*;
 use nannou_audio as audio;
@@ -153,6 +153,9 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
     out_stream.pause().unwrap();
+
+    let test_beat_controller = BeatController::new(BPM, BEAT_COUNT, BAR_COUNT);
+    test_beat_controller.start();
 
     Model {
         global_time: 0,
