@@ -19,7 +19,7 @@ struct Modul {
     tape_model: TapeModel,
 }
 
-pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
+pub fn start(time_sender: Sender<f32>, key_receiver: Receiver<u8>) {
     println!("Starting modul_cpal");
     let host = cpal::default_host();
 
@@ -42,7 +42,7 @@ pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
     }
 
     let input_stream = create_input_stream(&input_device, &config, producer);
-    let output_stream = create_output_stream(&output_device, &config, consumer);
+    let output_stream = create_output_stream(&output_device, &config, consumer, time_sender);
 
     let modul = Modul {
         tape_model: TapeModel {
@@ -55,14 +55,7 @@ pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
         },
     };
 
-    let instant = std::time::Instant::now();
-
     loop {
-        let r = sender.send(instant.elapsed().as_secs_f32());
-        if r.is_err() {
-            dbg!(r.err());
-        }
-
         let r = key_receiver.try_recv();
         match r {
             Ok(v) => {
@@ -109,6 +102,7 @@ fn create_output_stream(
     output_device: &Device,
     config: &StreamConfig,
     mut consumer: Consumer<f32>,
+    time_sender: Sender<f32>,
 ) -> Stream {
     let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;
@@ -121,6 +115,8 @@ fn create_output_stream(
                 }
             };
         }
+
+        time_sender.send(512 as f32 / 44100 as f32).unwrap();
 
         if input_fell_behind {
             eprintln!("input stream fell behind: try increasing latency");

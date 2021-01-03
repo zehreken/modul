@@ -1,14 +1,19 @@
 use super::modul_cpal;
 use nannou::prelude::*;
-use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
+use std::{
+    sync::mpsc::{channel, Receiver, Sender},
+    time::Instant,
+};
 struct Model {
     receiver: Receiver<f32>,
     key_sender: Sender<u8>,
+    instant: Instant,
+    buffer_time: f32,
 }
 
 pub fn start() {
-    nannou::app(model).run();
+    nannou::app(model).update(update).run();
 }
 
 fn model(app: &App) -> Model {
@@ -29,6 +34,8 @@ fn model(app: &App) -> Model {
     Model {
         receiver,
         key_sender,
+        instant: Instant::now(),
+        buffer_time: 0.0,
     }
 }
 
@@ -44,20 +51,31 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
+fn update(app: &App, model: &mut Model, _update: Update) {
+    for v in model.receiver.try_iter() {
+        model.buffer_time += v;
+    }
+    // let r = model.receiver.recv();
+    // match r {
+    //     Ok(v) => model.buffer_time += v,
+    //     Err(e) => println!("{}", e),
+    // }
+}
+
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
-    let r = model.receiver.recv();
-    match r {
-        Ok(v) => {
-            draw.text(&format!("time {:0.1}", v))
-                .font_size(50)
-                .x_y(0.0, 0.0)
-                .color(YELLOW);
-        }
-        Err(e) => println!("{}", e),
-    }
+    let elapsed_secs = model.instant.elapsed().as_secs_f32();
+    draw.text(&format!(
+        "real time: {:0.1}\nbuffer time {:0.1}\ndiff {:0.5}",
+        elapsed_secs,
+        model.buffer_time,
+        elapsed_secs - model.buffer_time,
+    ))
+    .font_size(50)
+    .x_y(0.0, 0.0)
+    .color(YELLOW);
 
     draw.to_frame(app, &frame).unwrap();
 
