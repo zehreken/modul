@@ -6,7 +6,7 @@ use std::{
     time::Instant,
 };
 struct Model {
-    receiver: Receiver<f32>,
+    time_receiver: Receiver<f32>,
     key_sender: Sender<u8>,
     instant: Instant,
     buffer_time: f32,
@@ -25,14 +25,14 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let (sender, receiver) = channel();
+    let (time_sender, time_receiver) = channel();
     let (key_sender, key_receiver) = channel();
 
     thread::spawn(move || {
-        modul_cpal::start(sender, key_receiver);
+        modul_cpal::start(time_sender, key_receiver);
     });
     Model {
-        receiver,
+        time_receiver,
         key_sender,
         instant: Instant::now(),
         buffer_time: 0.0,
@@ -52,7 +52,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 }
 
 fn update(app: &App, model: &mut Model, _update: Update) {
-    for v in model.receiver.try_iter() {
+    for v in model.time_receiver.try_iter() {
         model.buffer_time += v;
     }
     // let r = model.receiver.recv();
