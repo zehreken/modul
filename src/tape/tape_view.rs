@@ -1,13 +1,13 @@
 use super::beat_controller::*;
 use nannou::prelude::*;
 use nannou::Draw;
-pub struct Tape {
+pub struct TapeView {
     pub pos_x: f32,
     pub pos_y: f32,
     pub is_selected: bool,
 }
 
-impl Tape {
+impl TapeView {
     pub fn draw(&self, draw: &Draw, beat_controller: &BeatController) {
         let radian = -2.0 * std::f32::consts::PI
             + (beat_controller.bar_timer as f32

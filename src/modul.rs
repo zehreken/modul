@@ -1,8 +1,8 @@
 use super::beat_controller::BeatController;
 use super::bypass::*;
 use super::envelope::*;
-use super::graphics::*;
-use super::record::*;
+use super::recorder::*;
+use super::tape::{tape::Tape, tape_view::TapeView};
 use super::traits::Nannou;
 use super::wave_generator::*;
 use hound;
@@ -30,7 +30,7 @@ struct Model {
     temp_tape: Vec<[f32; 2]>,
     beat_controller: BeatController,
     selected_tape: u8,
-    tape_graphs: Vec<Tape>,
+    tape_graphs: Vec<TapeView>,
     //
     in_stream: audio::Stream<InModel>,
     out_stream: audio::Stream<OutModel>,
@@ -99,11 +99,10 @@ fn model(app: &App) -> Model {
         .unwrap();
     wave_stream.pause().unwrap();
 
-    let tapes = vec![vec![[0.0; 2]; TAPE_SAMPLES]; 4];
+    let tapes = vec![Tape::new(TAPE_SAMPLES); 4];
     let tape_model = TapeModel {
         time_sender,
         index: 0,
-        volume: 0.5,
         tapes,
     };
     let tape_stream = audio_host
@@ -126,7 +125,7 @@ fn model(app: &App) -> Model {
 
     let mut tape_graphs = vec![];
     for i in 0..4 {
-        tape_graphs.push(Tape {
+        tape_graphs.push(TapeView {
             pos_x: -384.0 + i as f32 * 256.0,
             pos_y: 0.0,
             is_selected: i == 0,
@@ -189,7 +188,7 @@ fn record(model: &mut Model) {
             model
                 .tape_stream
                 .send(move |audio| {
-                    audio.tapes[selected_tape][i] = frame;
+                    audio.tapes[selected_tape].audio[i] = frame;
                 })
                 .unwrap();
         }
@@ -294,10 +293,12 @@ fn toggle_volume(model: &Model) {
     model
         .tape_stream
         .send(|audio| {
-            if audio.volume > 0.0 {
-                audio.volume = 0.0;
-            } else {
-                audio.volume = 0.5;
+            for tape in audio.tapes.iter_mut() {
+                if tape.volume > 0.0 {
+                    tape.volume = 0.0;
+                } else {
+                    tape.volume = 1.0;
+                }
             }
         })
         .unwrap();

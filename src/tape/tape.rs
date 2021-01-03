@@ -1,4 +1,5 @@
-struct Tape {
+#[derive(Clone)]
+pub struct Tape {
     pub volume: f32,
     pub audio: Vec<[f32; 2]>,
 }
@@ -7,7 +8,7 @@ impl Tape {
     pub fn new(length: usize) -> Self {
         Self {
             volume: 1.0,
-            audio: Vec::with_capacity(44100 * length),
+            audio: vec![[0.0; 2]; length],
         }
     }
 
