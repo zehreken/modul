@@ -44,12 +44,22 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
-fn view(_app: &App, model: &Model, _frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
+    let draw = app.draw();
+    draw.background().color(BLACK);
+
     let r = model.receiver.recv();
     match r {
-        Ok(v) => {} //println!("{:?}", v),
+        Ok(v) => {
+            draw.text(&format!("time {:0.1}", v))
+                .font_size(50)
+                .x_y(0.0, 0.0)
+                .color(YELLOW);
+        }
         Err(e) => println!("{}", e),
     }
+
+    draw.to_frame(app, &frame).unwrap();
 
     thread::sleep(std::time::Duration::from_millis(33));
 }

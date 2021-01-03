@@ -9,9 +9,14 @@ use cpal::{
     Device, StreamConfig,
 };
 use ringbuf::{Consumer, Producer, RingBuffer};
-struct Model {
-    in_stream: Stream,
-    out_stream: Stream,
+
+use crate::tape::tape::Tape;
+
+struct TapeModel {
+    pub tapes: [Tape<f32>; 4],
+}
+struct Modul {
+    tape_model: TapeModel,
 }
 
 pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
@@ -39,8 +44,21 @@ pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
     let input_stream = create_input_stream(&input_device, &config, producer);
     let output_stream = create_output_stream(&output_device, &config, consumer);
 
+    let modul = Modul {
+        tape_model: TapeModel {
+            tapes: [
+                Tape::<f32>::new(0.0, 4096),
+                Tape::<f32>::new(0.0, 4096),
+                Tape::<f32>::new(0.0, 4096),
+                Tape::<f32>::new(0.0, 4096),
+            ],
+        },
+    };
+
+    let instant = std::time::Instant::now();
+
     loop {
-        let r = sender.send(1.0);
+        let r = sender.send(instant.elapsed().as_secs_f32());
         if r.is_err() {
             dbg!(r.err());
         }
@@ -60,8 +78,6 @@ pub fn start(sender: Sender<f32>, key_receiver: Receiver<u8>) {
             Err(_) => {}
         }
 
-        // input_stream.play().unwrap();
-        // output_stream.play().unwrap();
         thread::sleep(std::time::Duration::from_millis(33));
     }
 }

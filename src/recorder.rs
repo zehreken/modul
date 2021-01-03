@@ -5,7 +5,7 @@ use std::sync::mpsc::Sender;
 pub struct TapeModel {
     pub time_sender: Sender<u32>,
     pub index: usize,
-    pub tapes: Vec<Tape>,
+    pub tapes: Vec<Tape<[f32; 2]>>,
 }
 
 pub struct InputModel {

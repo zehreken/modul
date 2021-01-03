@@ -1,14 +1,14 @@
 #[derive(Clone)]
-pub struct Tape {
+pub struct Tape<T> {
     pub volume: f32,
-    pub audio: Vec<[f32; 2]>,
+    pub audio: Vec<T>,
 }
 
-impl Tape {
-    pub fn new(length: usize) -> Self {
+impl<T: Clone> Tape<T> {
+    pub fn new(default: T, length: usize) -> Self {
         Self {
             volume: 1.0,
-            audio: vec![[0.0; 2]; length],
+            audio: vec![default; length],
         }
     }
 

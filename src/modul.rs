@@ -99,7 +99,7 @@ fn model(app: &App) -> Model {
         .unwrap();
     wave_stream.pause().unwrap();
 
-    let tapes = vec![Tape::new(TAPE_SAMPLES); 4];
+    let tapes = vec![Tape::<[f32; 2]>::new([0.0; 2], TAPE_SAMPLES); 4];
     let tape_model = TapeModel {
         time_sender,
         index: 0,
