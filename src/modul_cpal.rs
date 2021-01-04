@@ -33,28 +33,33 @@ pub fn start(time_sender: Sender<f32>, key_receiver: Receiver<u8>) {
     let config: StreamConfig = input_device.default_input_config().unwrap().into();
 
     const BUFFER_CAPACITY: usize = 4096;
+    const TAPE_LENGTH: usize = 44100 * 4; // 4 seconds
     let latency_samples = 100;
-    let ring = RingBuffer::new(BUFFER_CAPACITY);
-    let (mut producer, consumer) = ring.split();
+    let ring_one = RingBuffer::new(BUFFER_CAPACITY);
+    let (mut producer_one, mut consumer_one) = ring_one.split();
+
+    let ring_two = RingBuffer::new(BUFFER_CAPACITY);
+    let (mut producer_two, consumer_two) = ring_two.split();
 
     for _ in 0..latency_samples {
-        producer.push(0.0).unwrap();
+        producer_one.push(0.0).unwrap();
     }
 
-    let input_stream = create_input_stream(&input_device, &config, producer);
-    let output_stream = create_output_stream(&output_device, &config, consumer, time_sender);
+    let input_stream = create_input_stream(&input_device, &config, producer_one);
+    let output_stream = create_output_stream(&output_device, &config, consumer_two, time_sender);
 
-    let modul = Modul {
+    let mut modul = Modul {
         tape_model: TapeModel {
             tapes: [
-                Tape::<f32>::new(0.0, 4096),
-                Tape::<f32>::new(0.0, 4096),
-                Tape::<f32>::new(0.0, 4096),
-                Tape::<f32>::new(0.0, 4096),
+                Tape::<f32>::new(0.0, TAPE_LENGTH),
+                Tape::<f32>::new(0.0, TAPE_LENGTH),
+                Tape::<f32>::new(0.0, TAPE_LENGTH),
+                Tape::<f32>::new(0.0, TAPE_LENGTH),
             ],
         },
     };
 
+    let mut audio_index = 0;
     loop {
         let r = key_receiver.try_recv();
         match r {
@@ -69,6 +74,20 @@ pub fn start(time_sender: Sender<f32>, key_receiver: Receiver<u8>) {
                 }
             }
             Err(_) => {}
+        }
+
+        while consumer_one.remaining() > 0 {
+            for s in consumer_one.pop() {
+                modul.tape_model.tapes[0].audio[audio_index] = s;
+                audio_index += 1;
+                if audio_index == TAPE_LENGTH {
+                    audio_index = 0;
+                }
+            }
+        }
+
+        for i in 0..44100 {
+            producer_two.push(modul.tape_model.tapes[0].audio[i]).unwrap();
         }
 
         thread::sleep(std::time::Duration::from_millis(33));
