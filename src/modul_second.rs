@@ -1,10 +1,9 @@
 use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, Stream, StreamConfig};
-use nannou_audio::sample::ring_buffer;
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::{
-    sync::mpsc::{Receiver, Sender},
+    sync::mpsc::{channel, Receiver, Sender},
     thread,
 };
 
@@ -19,6 +18,8 @@ pub struct Modul {
     tapes: TapeModel,
     input_stream: Stream,
     output_stream: Stream,
+    time_receiver: Receiver<f32>,
+    time: f32,
 }
 
 impl Modul {
@@ -42,18 +43,28 @@ impl Modul {
         let ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (producer, consumer) = ring_buffer.split();
 
+        let (time_sender, time_receiver) = channel();
+
         let input_stream = create_input_stream(&input_device, &config, producer);
-        let output_stream = create_output_stream(&output_device, &config, consumer);
+        let output_stream = create_output_stream(&output_device, &config, consumer, time_sender);
 
         Modul {
             tapes,
             input_stream,
             output_stream,
+            time_receiver,
+            time: 0.0,
+        }
+    }
+
+    pub fn update(&mut self) {
+        for v in self.time_receiver.try_iter() {
+            self.time += v;
         }
     }
 
     pub fn get_time(&self) -> f32 {
-        0.0
+        self.time
     }
 
     pub fn play_streams(&self) {
@@ -94,7 +105,7 @@ fn create_output_stream(
     output_device: &Device,
     config: &StreamConfig,
     mut consumer: Consumer<f32>,
-    // time_sender: Sender<f32>,
+    time_sender: Sender<f32>,
 ) -> Stream {
     let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;
@@ -108,7 +119,7 @@ fn create_output_stream(
             };
         }
 
-        // time_sender.send(512 as f32 / 44100 as f32).unwrap();
+        time_sender.send(512 as f32 / 44100 as f32).unwrap();
 
         if input_fell_behind {
             eprintln!("input stream fell behind: try increasing latency");
