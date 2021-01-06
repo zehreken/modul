@@ -1,4 +1,3 @@
-use super::modul_cpal;
 use super::modul_second;
 use nannou::prelude::*;
 use std::thread;
@@ -8,7 +7,6 @@ use std::{
 };
 struct Model {
     time_receiver: Receiver<f32>,
-    key_sender: Sender<u8>,
     instant: Instant,
     buffer_time: f32,
     modul: modul_second::Modul,
@@ -28,15 +26,11 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     let (time_sender, time_receiver) = channel();
-    let (key_sender, key_receiver) = channel();
 
     let modul = modul_second::Modul::new();
-    // thread::spawn(move || {
-    //     modul_cpal::start(time_sender, key_receiver);
-    // });
+
     Model {
         time_receiver,
-        key_sender,
         instant: Instant::now(),
         buffer_time: 0.0,
         modul,

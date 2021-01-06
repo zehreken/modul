@@ -40,7 +40,7 @@ impl Modul {
         let config: StreamConfig = input_device.default_input_config().unwrap().into();
 
         let ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
-        let (mut producer, mut consumer) = ring_buffer.split();
+        let (producer, consumer) = ring_buffer.split();
 
         let input_stream = create_input_stream(&input_device, &config, producer);
         let output_stream = create_output_stream(&output_device, &config, consumer);
@@ -50,6 +50,10 @@ impl Modul {
             input_stream,
             output_stream,
         }
+    }
+
+    pub fn get_time(&self) -> f32 {
+        0.0
     }
 
     pub fn play_streams(&self) {
