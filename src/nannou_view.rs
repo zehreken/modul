@@ -1,4 +1,5 @@
 use super::modul_cpal;
+use super::modul_second;
 use nannou::prelude::*;
 use std::thread;
 use std::{
@@ -10,6 +11,7 @@ struct Model {
     key_sender: Sender<u8>,
     instant: Instant,
     buffer_time: f32,
+    modul: modul_second::Modul,
 }
 
 pub fn start() {
@@ -28,24 +30,26 @@ fn model(app: &App) -> Model {
     let (time_sender, time_receiver) = channel();
     let (key_sender, key_receiver) = channel();
 
-    thread::spawn(move || {
-        modul_cpal::start(time_sender, key_receiver);
-    });
+    let modul = modul_second::Modul::new();
+    // thread::spawn(move || {
+    //     modul_cpal::start(time_sender, key_receiver);
+    // });
     Model {
         time_receiver,
         key_sender,
         instant: Instant::now(),
         buffer_time: 0.0,
+        modul,
     }
 }
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Key1 => {
-            model.key_sender.send(1).unwrap();
+            model.modul.play_streams();
         }
         Key::Key2 => {
-            model.key_sender.send(2).unwrap();
+            model.modul.pause_streams();
         }
         _ => {}
     }

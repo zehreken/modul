@@ -3,6 +3,7 @@ mod bypass;
 mod envelope;
 mod modul;
 mod modul_cpal;
+mod modul_second;
 mod nannou_view;
 mod recorder;
 mod tape;

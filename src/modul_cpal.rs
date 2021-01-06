@@ -87,7 +87,9 @@ pub fn start(time_sender: Sender<f32>, key_receiver: Receiver<u8>) {
         }
 
         for i in 0..44100 {
-            producer_two.push(modul.tape_model.tapes[0].audio[i]).unwrap();
+            producer_two
+                .push(modul.tape_model.tapes[0].audio[i])
+                .unwrap();
         }
 
         thread::sleep(std::time::Duration::from_millis(33));
