@@ -18,5 +18,6 @@ impl<T: Clone> Tape<T> {
 
     pub fn clear(&mut self) {
         // Clear audio vector
+        self.audio.clear();
     }
 }

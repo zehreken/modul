@@ -31,10 +31,10 @@ fn model(app: &App) -> Model {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Key1 => {
-            model.modul.play_streams();
+            model.modul.record();
         }
         Key::Key2 => {
-            model.modul.pause_streams();
+            model.modul.play();
         }
         _ => {}
     }
@@ -42,11 +42,6 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
     model.modul.update();
-    // let r = model.receiver.recv();
-    // match r {
-    //     Ok(v) => model.buffer_time += v,
-    //     Err(e) => println!("{}", e),
-    // }
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
