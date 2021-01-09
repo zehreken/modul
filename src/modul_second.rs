@@ -22,8 +22,8 @@ pub struct Modul {
     tapes: TapeModel,
     input_stream: Stream,
     output_stream: Stream,
-    consumer_input: Consumer<f32>,
-    producer_output: Producer<f32>,
+    input_consumer: Consumer<f32>,
+    output_producer: Producer<f32>,
     tape_sender: Sender<Tape<f32>>,
     time_receiver: Receiver<f32>,
     time: f32,
@@ -49,20 +49,21 @@ impl Modul {
 
         let config: StreamConfig = input_device.default_input_config().unwrap().into();
 
-        let ring_buffer_input = RingBuffer::new(BUFFER_CAPACITY);
-        let (producer_input, consumer_input) = ring_buffer_input.split();
+        let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let (input_producer, input_consumer) = input_ring_buffer.split();
 
-        let ring_buffer_output = RingBuffer::new(BUFFER_CAPACITY);
-        let (producer_output, consumer_output) = ring_buffer_output.split();
+        let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let (output_producer, output_consumer) = output_ring_buffer.split();
 
         let (tape_sender, tape_receiver) = channel();
 
         let (time_sender, time_receiver) = channel();
 
-        let input_stream = create_input_stream(&input_device, &config, producer_input);
+        let input_stream = create_input_stream(&input_device, &config, input_producer);
         // let output_stream =
         //     create_output_stream(&output_device, &config, consumer_output, time_sender);
-        let output_stream = create_output_stream_2(&output_device, &config, tape_receiver);
+        let output_stream =
+            create_output_stream_2(&output_device, &config, tape_receiver, time_sender);
 
         input_stream.pause().unwrap();
         // output_stream.pause().unwrap();
@@ -72,8 +73,8 @@ impl Modul {
             tapes,
             input_stream,
             output_stream,
-            consumer_input,
-            producer_output,
+            input_consumer,
+            output_producer,
             tape_sender,
             time_receiver,
             time: 0.0,
@@ -90,8 +91,8 @@ impl Modul {
         }
 
         // println!("remaining space: {}", self.consumer_input.remaining());
-        while !self.consumer_input.is_empty() {
-            for frame in self.consumer_input.pop() {
+        while !self.input_consumer.is_empty() {
+            for frame in self.input_consumer.pop() {
                 self.recording_tape.audio.push(frame);
             }
         }
@@ -103,11 +104,19 @@ impl Modul {
 
     pub fn record(&mut self) {
         if self.modul_state.is_input_playing {
+            // println!("recorded frames: {}", self.recording_tape.audio.len());
             self.input_stream.pause().unwrap();
             self.modul_state.is_input_playing = false;
-            self.tape_sender.send(self.recording_tape.clone()).unwrap();
+
+            let mut audio = vec![0.0; TAPE_LENGTH];
+            for i in 0..TAPE_LENGTH {
+                if i < self.recording_tape.audio.len() {
+                    audio[i] += self.recording_tape.audio[i];
+                }
+            }
+            let temp_tape = Tape { volume: 1.0, audio };
+            self.tape_sender.send(temp_tape).unwrap();
         } else {
-            println!("recorded frames: {}", self.recording_tape.audio.len());
             self.recording_tape.clear();
             self.input_stream.play().unwrap();
             self.modul_state.is_input_playing = true;
