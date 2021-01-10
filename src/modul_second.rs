@@ -1,12 +1,9 @@
-use crate::modul_utils::utils::*;
+use crate::modul_utils::{self, utils::*};
 use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::mpsc::{channel, Receiver, Sender};
-
-const BUFFER_CAPACITY: usize = 4096;
-const TAPE_LENGTH: usize = 44100 * 4;
 
 struct ModulState {
     is_input_playing: bool,
@@ -19,11 +16,12 @@ pub struct TapeModel {
 
 pub struct Modul {
     recording_tape: Tape<f32>,
-    tapes: TapeModel,
+    tape_model: TapeModel,
     input_stream: Stream,
     output_stream: Stream,
     input_consumer: Consumer<f32>,
     output_producer: Producer<f32>,
+    selected_tape: usize,
     tape_sender: Sender<Tape<f32>>,
     time_receiver: Receiver<f32>,
     time: f32,
@@ -33,7 +31,7 @@ pub struct Modul {
 impl Modul {
     pub fn new() -> Self {
         let recording_tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
-        let tapes = TapeModel {
+        let tape_model = TapeModel {
             tapes: [
                 Tape::<f32>::new(0.0, TAPE_LENGTH),
                 Tape::<f32>::new(0.0, TAPE_LENGTH),
@@ -70,11 +68,12 @@ impl Modul {
 
         Modul {
             recording_tape,
-            tapes,
+            tape_model,
             input_stream,
             output_stream,
             input_consumer,
             output_producer,
+            selected_tape: 0,
             tape_sender,
             time_receiver,
             time: 0.0,
@@ -102,6 +101,10 @@ impl Modul {
         self.time
     }
 
+    pub fn set_selected_tape(&mut self, selected_tape: usize) {
+        self.selected_tape = selected_tape;
+    }
+
     pub fn record(&mut self) {
         if self.modul_state.is_input_playing {
             // println!("recorded frames: {}", self.recording_tape.audio.len());
@@ -114,7 +117,8 @@ impl Modul {
                     audio[i] += self.recording_tape.audio[i];
                 }
             }
-            let temp_tape = Tape { volume: 1.0, audio };
+            self.tape_model.tapes[self.selected_tape].audio = audio;
+            let temp_tape = merge_tapes(&self.tape_model.tapes);
             self.tape_sender.send(temp_tape).unwrap();
         } else {
             self.recording_tape.clear();
@@ -124,4 +128,9 @@ impl Modul {
     }
 
     pub fn play(&self) {}
+
+    pub fn write(&self) {
+        let tape = merge_tapes(&self.tape_model.tapes);
+        write_tape(&tape, "test");
+    }
 }

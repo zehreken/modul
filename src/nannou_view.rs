@@ -31,10 +31,25 @@ fn model(app: &App) -> Model {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Key1 => {
-            model.modul.record();
+            model.modul.set_selected_tape(0);
         }
         Key::Key2 => {
+            model.modul.set_selected_tape(1);
+        }
+        Key::Key3 => {
+            model.modul.set_selected_tape(2);
+        }
+        Key::Key4 => {
+            model.modul.set_selected_tape(3);
+        }
+        Key::R => {
+            model.modul.record();
+        }
+        Key::P => {
             model.modul.play();
+        }
+        Key::W => {
+            model.modul.write();
         }
         _ => {}
     }
