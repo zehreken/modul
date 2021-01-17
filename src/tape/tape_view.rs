@@ -8,12 +8,15 @@ pub struct TapeView {
 }
 
 impl TapeView {
-    pub fn draw(&self, draw: &Draw, beat_controller: &BeatController) {
-        let radian = -2.0 * std::f32::consts::PI
-            + (beat_controller.bar_timer as f32
-                / (beat_controller.beat_period as f32 * beat_controller.beat_count as f32))
-                * std::f32::consts::PI
-                * 2.0;
+    pub fn new(pos_x: f32, pos_y: f32) -> Self {
+        Self {
+            pos_x,
+            pos_y,
+            is_selected: false,
+        }
+    }
+    pub fn draw(&self, draw: &Draw, position: f32) {
+        let radian = -2.0 * std::f32::consts::PI + position * std::f32::consts::PI * 2.0;
         draw.ellipse()
             .w_h(128.0, 128.0)
             .x_y(self.pos_x, self.pos_y)

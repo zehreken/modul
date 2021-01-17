@@ -153,8 +153,8 @@ fn model(app: &App) -> Model {
         .unwrap();
     out_stream.pause().unwrap();
 
-    let test_beat_controller = BeatController::new(BPM, BEAT_COUNT, BAR_COUNT);
-    test_beat_controller.start();
+    let test_beat_controller = BeatController::new(44100, BPM, BEAT_COUNT, BAR_COUNT);
+    // test_beat_controller.start();
 
     Model {
         global_time: 0,
@@ -165,7 +165,7 @@ fn model(app: &App) -> Model {
         time_receiver,
         receiver,
         temp_tape: vec![],
-        beat_controller: BeatController::new(BPM, BEAT_COUNT, BAR_COUNT),
+        beat_controller: BeatController::new(44100, BPM, BEAT_COUNT, BAR_COUNT),
         selected_tape: 0,
         tape_graphs,
         in_stream,
@@ -381,7 +381,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     // println!("diff: {}", delta_time);
     // delta_time = (delta_time as f32 / SAMPLE_RATE as f32 * 1000.0) as i32;
 
-    model.beat_controller.update(delta_time);
+    // model.beat_controller.update(delta_time);
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
@@ -389,7 +389,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.background().color(BLACK);
 
     for tape in model.tape_graphs.iter() {
-        tape.draw(&draw, &model.beat_controller);
+        tape.draw(&draw, 0.0);
     }
     model.beat_controller.draw(&draw);
 

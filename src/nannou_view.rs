@@ -1,10 +1,21 @@
+use crate::tape::tape_view::TapeView;
+
 use super::modul_second;
 use nannou::prelude::*;
 use std::thread;
 use std::time::Instant;
 struct Model {
     instant: Instant,
+    tape_views: [TapeView; 4],
     modul: modul_second::Modul,
+}
+
+impl Model {
+    fn set_selected_tape(&mut self, selected_tape: usize) {
+        for i in 0..self.tape_views.len() {
+            self.tape_views[i].is_selected = i == selected_tape;
+        }
+    }
 }
 
 pub fn start() {
@@ -22,8 +33,16 @@ fn model(app: &App) -> Model {
 
     let modul = modul_second::Modul::new();
 
+    let tape_views = [
+        TapeView::new(-300.0, 0.0),
+        TapeView::new(-100.0, 0.0),
+        TapeView::new(100.0, 0.0),
+        TapeView::new(300.0, 0.0),
+    ];
+
     Model {
         instant: Instant::now(),
+        tape_views,
         modul,
     }
 }
@@ -32,15 +51,19 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Key1 => {
             model.modul.set_selected_tape(0);
+            model.set_selected_tape(0);
         }
         Key::Key2 => {
             model.modul.set_selected_tape(1);
+            model.set_selected_tape(1);
         }
         Key::Key3 => {
             model.modul.set_selected_tape(2);
+            model.set_selected_tape(2);
         }
         Key::Key4 => {
             model.modul.set_selected_tape(3);
+            model.set_selected_tape(3);
         }
         Key::R => {
             model.modul.record();
@@ -65,14 +88,19 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     let elapsed_secs = model.instant.elapsed().as_secs_f32();
     draw.text(&format!(
-        "real time: {:0.1}\nmodul    time {:0.1}\ndiff {:0.5}",
+        "real time: {:0.1}\nmodul time {:0.1}\ndiff {:0.5}",
         elapsed_secs,
-        model.modul.get_audio_index(),
+        model.modul.get_time(),
         elapsed_secs - model.modul.get_time(),
     ))
-    .font_size(50)
-    .x_y(0.0, 0.0)
+    .font_size(20)
+    .x_y(0.0, 200.0)
     .color(YELLOW);
+
+    let cursor_position = model.modul.get_audio_index() as f32 / 88200.0;
+    for view in model.tape_views.iter() {
+        view.draw(&draw, cursor_position)
+    }
 
     draw.to_frame(app, &frame).unwrap();
 
