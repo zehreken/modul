@@ -67,7 +67,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.text(&format!(
         "real time: {:0.1}\nmodul    time {:0.1}\ndiff {:0.5}",
         elapsed_secs,
-        model.modul.get_time(),
+        model.modul.get_audio_index(),
         elapsed_secs - model.modul.get_time(),
     ))
     .font_size(50)

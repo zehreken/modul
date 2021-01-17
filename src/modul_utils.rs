@@ -5,19 +5,28 @@ pub mod utils {
     use ringbuf::{Consumer, Producer, RingBuffer};
     use std::sync::mpsc::{channel, Receiver, Sender};
 
-    pub const TAPE_LENGTH: usize = 44100 * 2 * 4; // sample_rate * channels * seconds
+    pub const TAPE_LENGTH: usize = 44100 * 2 * 1; // sample_rate * channels * seconds
     pub const BUFFER_CAPACITY: usize = 4096;
 
+    // think about sending the time also from the input_stream
+    // something like this Producer<(usize, f32)>
+    // you can use this also for output_stream Consumer<(usize, f32)>
     pub fn create_input_stream(
         input_device: &Device,
         config: &StreamConfig,
-        mut producer: Producer<f32>,
+        mut producer: Producer<(usize, f32)>,
     ) -> Stream {
+        let mut index = 0;
         let input_data = move |data: &[f32], _: &cpal::InputCallbackInfo| {
             let mut output_fell_behind = false;
             for &sample in data {
-                if producer.push(sample).is_err() {
+                if producer.push((index, sample)).is_err() {
                     output_fell_behind = true;
+                } else {
+                    index += 1;
+                    if index == TAPE_LENGTH {
+                        index = 0;
+                    }
                 }
             }
 
@@ -28,6 +37,39 @@ pub mod utils {
 
         input_device
             .build_input_stream(config, input_data, err_fn)
+            .unwrap()
+    }
+
+    pub fn create_output_stream_3(
+        output_device: &Device,
+        config: &StreamConfig,
+        mut consumer: Consumer<(usize, f32)>,
+        // time_sender: Sender<f32>,
+        index_sender: Sender<usize>,
+    ) -> Stream {
+        let mut tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
+        let mut index = 0;
+        let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+            for sample in data {
+                *sample = tape.audio[index];
+                index += 1;
+
+                if index == tape.audio.len() {
+                    index = 0;
+                }
+
+                match consumer.pop() {
+                    Some(t) => tape.audio[t.0] = t.1,
+                    None => {}
+                }
+            }
+
+            // time_sender.send(512 as f32 / 44100 as f32).unwrap();
+            index_sender.send(512).unwrap();
+        };
+
+        output_device
+            .build_output_stream(config, output_data, err_fn)
             .unwrap()
     }
 
@@ -80,7 +122,8 @@ pub mod utils {
                 };
             }
 
-            time_sender.send(512 as f32 / 44100 as f32).unwrap();
+            // time_sender.send(512 as f32 / 44100 as f32).unwrap();
+            time_sender.send(0.01160997732).unwrap();
 
             if input_fell_behind {
                 // eprintln!("input stream fell behind: try increasing latency");
