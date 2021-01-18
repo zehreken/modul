@@ -5,7 +5,7 @@ pub mod utils {
     use ringbuf::{Consumer, Producer, RingBuffer};
     use std::sync::mpsc::{channel, Receiver, Sender};
 
-    pub const TAPE_LENGTH: usize = 44100 * 2 * 1; // sample_rate * channels * seconds
+    pub const TAPE_LENGTH: usize = 44100 * 2 * 4; // sample_rate * channels * seconds
     pub const BUFFER_CAPACITY: usize = 4096;
 
     // think about sending the time also from the input_stream
@@ -65,7 +65,7 @@ pub mod utils {
             }
 
             // time_sender.send(512 as f32 / 44100 as f32).unwrap();
-            index_sender.send(512).unwrap();
+            index_sender.send(1024).unwrap();
         };
 
         output_device

@@ -15,8 +15,8 @@ impl TapeView {
             is_selected: false,
         }
     }
-    pub fn draw(&self, draw: &Draw, position: f32) {
-        let radian = -2.0 * std::f32::consts::PI + position * std::f32::consts::PI * 2.0;
+    pub fn draw(&self, draw: &Draw, cursor_position: f32) {
+        let radian = -2.0 * std::f32::consts::PI + cursor_position * std::f32::consts::PI * 2.0;
         draw.ellipse()
             .w_h(128.0, 128.0)
             .x_y(self.pos_x, self.pos_y)

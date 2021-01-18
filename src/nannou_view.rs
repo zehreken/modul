@@ -1,4 +1,4 @@
-use crate::tape::tape_view::TapeView;
+use crate::{modul_utils, tape::tape_view::TapeView};
 
 use super::modul_second;
 use nannou::prelude::*;
@@ -97,7 +97,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
     .x_y(0.0, 200.0)
     .color(YELLOW);
 
-    let cursor_position = model.modul.get_audio_index() as f32 / 88200.0;
+    let cursor_position =
+        model.modul.get_audio_index() as f32 / modul_utils::utils::TAPE_LENGTH as f32;
     for view in model.tape_views.iter() {
         view.draw(&draw, cursor_position)
     }
