@@ -25,7 +25,7 @@ pub struct Modul {
     tape_model: TapeModel,
     input_stream: Stream,
     output_stream: Stream,
-    input_consumer: Consumer<(usize, f32)>,
+    input_consumer: Consumer<f32>,
     // output_producer: Producer<(usize, f32)>,
     selected_tape: usize,
     tape_sender: Sender<Tape<f32>>,
@@ -111,16 +111,21 @@ impl Modul {
         // }
 
         for v in self.index_receiver.try_iter() {
-            self.audio_index += v;
-            if self.audio_index > TAPE_LENGTH {
-                self.audio_index = 0;
-            }
+            self.audio_index = v;
+            // if self.audio_index >= TAPE_LENGTH {
+            //     self.audio_index = 0;
+            // }
         }
 
         // println!("remaining space: {}", self.consumer_input.remaining());
+        let mut index = self.audio_index;
         while !self.input_consumer.is_empty() {
-            for element in self.input_consumer.pop() {
-                self.recording_tape.audio[element.0] = element.1;
+            for sample in self.input_consumer.pop() {
+                self.recording_tape.audio[index] = sample;
+                index += 1;
+                if index == TAPE_LENGTH {
+                    index = 0;
+                }
             }
         }
 
@@ -170,7 +175,6 @@ impl Modul {
             self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
             self.output_model.audio_index = 0;
         } else {
-            // self.recording_tape.clear();
             self.input_stream.play().unwrap();
             self.modul_state.is_input_playing = true;
         }

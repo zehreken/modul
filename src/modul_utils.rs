@@ -14,19 +14,13 @@ pub mod utils {
     pub fn create_input_stream(
         input_device: &Device,
         config: &StreamConfig,
-        mut producer: Producer<(usize, f32)>,
+        mut producer: Producer<f32>,
     ) -> Stream {
-        let mut index = 0;
         let input_data = move |data: &[f32], _: &cpal::InputCallbackInfo| {
             let mut output_fell_behind = false;
             for &sample in data {
-                if producer.push((index, sample)).is_err() {
+                if producer.push(sample).is_err() {
                     output_fell_behind = true;
-                } else {
-                    index += 1;
-                    if index == TAPE_LENGTH {
-                        index = 0;
-                    }
                 }
             }
 
@@ -44,7 +38,6 @@ pub mod utils {
         output_device: &Device,
         config: &StreamConfig,
         mut consumer: Consumer<(usize, f32)>,
-        // time_sender: Sender<f32>,
         index_sender: Sender<usize>,
     ) -> Stream {
         let mut tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
@@ -52,6 +45,7 @@ pub mod utils {
         let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 *sample = tape.audio[index];
+                index_sender.send(index).unwrap();
                 index += 1;
 
                 if index == tape.audio.len() {
@@ -63,9 +57,6 @@ pub mod utils {
                     None => {}
                 }
             }
-
-            // time_sender.send(512 as f32 / 44100 as f32).unwrap();
-            index_sender.send(1024).unwrap();
         };
 
         output_device
