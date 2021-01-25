@@ -2,6 +2,7 @@ use crate::modul_utils::utils::*;
 use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, Stream, StreamConfig};
+use nannou_audio::stream::output;
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
@@ -21,15 +22,13 @@ pub struct OutputModel {
 }
 
 pub struct Modul {
-    recording_tape: Tape<f32>,
+    recording_tape: Vec<f32>,
     tape_model: TapeModel,
     input_stream: Stream,
     output_stream: Stream,
     input_consumer: Consumer<f32>,
     // output_producer: Producer<(usize, f32)>,
     selected_tape: usize,
-    tape_sender: Sender<Tape<f32>>,
-    time_receiver: Receiver<f32>,
     index_receiver: Receiver<usize>,
     time: f32,
     audio_index: usize,
@@ -39,7 +38,8 @@ pub struct Modul {
 
 impl Modul {
     pub fn new() -> Self {
-        let recording_tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
+        // let recording_tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
+        let recording_tape = vec![];
         let tape_model = TapeModel {
             tapes: [
                 Tape::<f32>::new(0.0, TAPE_LENGTH),
@@ -55,6 +55,7 @@ impl Modul {
         let output_device = host.default_output_device().unwrap();
 
         let config: StreamConfig = input_device.default_input_config().unwrap().into();
+        println!("sample rate: {:?}", config.sample_rate);
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
@@ -62,20 +63,12 @@ impl Modul {
         let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
-        let (tape_sender, tape_receiver) = channel();
-
-        let (time_sender, time_receiver) = channel();
         let (index_sender, index_receiver) = channel();
 
         let input_stream = create_input_stream(&input_device, &config, input_producer);
-        // let output_stream =
-        //     create_output_stream(&output_device, &config, consumer_output, time_sender);
-
-        // let output_stream =
-        //     create_output_stream_2(&output_device, &config, tape_receiver, time_sender);
 
         let output_stream =
-            create_output_stream_3(&output_device, &config, output_consumer, index_sender);
+            create_output_stream(&output_device, &config, output_consumer, index_sender);
 
         input_stream.pause().unwrap();
         // output_stream.pause().unwrap();
@@ -88,8 +81,6 @@ impl Modul {
             input_consumer,
             // output_producer,
             selected_tape: 0,
-            tape_sender,
-            time_receiver,
             index_receiver,
             time: 0.0,
             audio_index: 0,
@@ -118,29 +109,31 @@ impl Modul {
         }
 
         // println!("remaining space: {}", self.consumer_input.remaining());
-        let mut index = self.audio_index;
+        // let mut index = self.audio_index;
         while !self.input_consumer.is_empty() {
             for sample in self.input_consumer.pop() {
-                self.recording_tape.audio[index] = sample;
-                index += 1;
-                if index == TAPE_LENGTH {
-                    index = 0;
-                }
+                // self.recording_tape.audio[index] = sample;
+                self.recording_tape.push(sample);
+                // println!("{}", sample);
+                // index += 1;
+                // if index == TAPE_LENGTH {
+                //     index = 0;
+                // }
             }
         }
 
-        if self.output_model.audio_index < TAPE_LENGTH {
-            for _ in 0..4096 {
-                if self.output_model.audio_index < TAPE_LENGTH {
-                    let r = self.output_model.output_producer.push((
-                        self.output_model.audio_index,
-                        self.output_model.temp_tape.audio[self.output_model.audio_index],
-                    ));
-                    match r {
-                        Ok(_) => self.output_model.audio_index += 1,
-                        Err(_) => {}
-                    }
+        for _ in 0..4096 {
+            if self.output_model.audio_index < TAPE_LENGTH {
+                let r = self.output_model.output_producer.push((
+                    self.output_model.audio_index,
+                    self.output_model.temp_tape.audio[self.output_model.audio_index],
+                ));
+                match r {
+                    Ok(_) => self.output_model.audio_index += 1,
+                    Err(_) => {}
                 }
+            } else {
+                self.output_model.audio_index = 0;
             }
         }
     }
@@ -159,22 +152,30 @@ impl Modul {
 
     pub fn record(&mut self) {
         if self.modul_state.is_input_playing {
+            println!("stop recording");
             // println!("recorded frames: {}", self.recording_tape.audio.len());
             self.input_stream.pause().unwrap();
             self.modul_state.is_input_playing = false;
 
             let mut audio = vec![0.0; TAPE_LENGTH];
-            for i in 0..TAPE_LENGTH {
-                if i < self.recording_tape.audio.len() {
-                    audio[i] += self.recording_tape.audio[i];
+            // for i in 0..TAPE_LENGTH {
+            //     if i < self.recording_tape.audio.len() {
+            //         audio[i] += self.recording_tape.audio[i];
+            //     }
+            // }
+            for i in 0..self.recording_tape.len() {
+                if i < TAPE_LENGTH {
+                    audio[i] += self.recording_tape[i];
                 }
             }
             self.tape_model.tapes[self.selected_tape].audio = audio;
+            self.recording_tape.clear();
             // let temp_tape = merge_tapes(&self.tape_model.tapes);
             // self.tape_sender.send(temp_tape).unwrap();
             self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
-            self.output_model.audio_index = 0;
+            self.output_model.audio_index = self.audio_index + 44100;
         } else {
+            println!("start recording");
             self.input_stream.play().unwrap();
             self.modul_state.is_input_playing = true;
         }

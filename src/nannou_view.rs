@@ -97,6 +97,12 @@ fn view(app: &App, model: &Model, frame: Frame) {
     .x_y(0.0, 200.0)
     .color(YELLOW);
 
+    let x = model.modul.get_audio_index() / 44100;
+    draw.rect()
+        .w_h(100.0, 20.0)
+        .x_y(x as f32 * 100.0 - 350.0, 100.0)
+        .color(CRIMSON);
+
     let cursor_position =
         model.modul.get_audio_index() as f32 / modul_utils::utils::TAPE_LENGTH as f32;
     for view in model.tape_views.iter() {

@@ -6,7 +6,10 @@ pub mod utils {
     use std::sync::mpsc::{channel, Receiver, Sender};
 
     pub const TAPE_LENGTH: usize = 44100 * 2 * 4; // sample_rate * channels * seconds
-    pub const BUFFER_CAPACITY: usize = 4096;
+    /// ATTENTION:
+    /// If buffer capacity and update frequency is related, if update frequency is low
+    /// then the buffer will not be emptied fast enough and some input will be lost
+    pub const BUFFER_CAPACITY: usize = 4096 * 8;
 
     // think about sending the time also from the input_stream
     // something like this Producer<(usize, f32)>
@@ -25,7 +28,7 @@ pub mod utils {
             }
 
             if output_fell_behind {
-                // eprintln!("output stream fell behind: try increasing latency");
+                eprintln!("output stream fell behind: try increasing latency");
             }
         };
 
@@ -34,7 +37,7 @@ pub mod utils {
             .unwrap()
     }
 
-    pub fn create_output_stream_3(
+    pub fn create_output_stream(
         output_device: &Device,
         config: &StreamConfig,
         mut consumer: Consumer<(usize, f32)>,
@@ -45,79 +48,20 @@ pub mod utils {
         let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 *sample = tape.audio[index];
-                index_sender.send(index).unwrap();
                 index += 1;
 
                 if index == tape.audio.len() {
                     index = 0;
                 }
+            }
 
+            index_sender.send(index).unwrap();
+
+            while !consumer.is_empty() {
                 match consumer.pop() {
                     Some(t) => tape.audio[t.0] = t.1,
                     None => {}
                 }
-            }
-        };
-
-        output_device
-            .build_output_stream(config, output_data, err_fn)
-            .unwrap()
-    }
-
-    pub fn create_output_stream_2(
-        output_device: &Device,
-        config: &StreamConfig,
-        receiver: Receiver<Tape<f32>>,
-        time_sender: Sender<f32>,
-    ) -> Stream {
-        let mut tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
-        let mut index = 0;
-        let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-            for sample in data {
-                *sample = tape.audio[index];
-                index += 1;
-
-                if index == tape.audio.len() {
-                    index = 0;
-                }
-            }
-
-            time_sender.send(512 as f32 / 44100 as f32).unwrap();
-
-            for r in receiver.try_recv() {
-                println!("received: {}", r.audio.len());
-                tape = r;
-            }
-        };
-
-        output_device
-            .build_output_stream(config, output_data, err_fn)
-            .unwrap()
-    }
-
-    pub fn create_output_stream(
-        output_device: &Device,
-        config: &StreamConfig,
-        mut consumer: Consumer<f32>,
-        time_sender: Sender<f32>,
-    ) -> Stream {
-        let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-            let mut input_fell_behind = false;
-            for sample in data {
-                *sample = match consumer.pop() {
-                    Some(s) => s,
-                    None => {
-                        input_fell_behind = true;
-                        0.0
-                    }
-                };
-            }
-
-            // time_sender.send(512 as f32 / 44100 as f32).unwrap();
-            time_sender.send(0.01160997732).unwrap();
-
-            if input_fell_behind {
-                // eprintln!("input stream fell behind: try increasing latency");
             }
         };
 
