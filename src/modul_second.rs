@@ -1,8 +1,7 @@
 use crate::modul_utils::utils::*;
 use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{Device, Stream, StreamConfig};
-use nannou_audio::stream::output;
+use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
@@ -25,7 +24,7 @@ pub struct Modul {
     recording_tape: Vec<f32>,
     tape_model: TapeModel,
     input_stream: Stream,
-    output_stream: Stream,
+    _output_stream: Stream,
     input_consumer: Consumer<f32>,
     // output_producer: Producer<(usize, f32)>,
     selected_tape: usize,
@@ -78,7 +77,7 @@ impl Modul {
             recording_tape,
             tape_model,
             input_stream,
-            output_stream,
+            _output_stream: output_stream,
             input_consumer,
             selected_tape: 0,
             index_receiver,
@@ -111,18 +110,18 @@ impl Modul {
             }
         }
 
-        for _ in 0..4096 {
-            if self.output_model.audio_index < TAPE_LENGTH {
-                let r = self.output_model.output_producer.push((
-                    self.output_model.audio_index,
-                    self.output_model.temp_tape.audio[self.output_model.audio_index],
-                ));
-                match r {
-                    Ok(_) => self.output_model.audio_index += 1,
-                    Err(_) => {}
+        if self.output_model.audio_index < TAPE_LENGTH {
+            for _ in 0..4096 {
+                if self.output_model.audio_index < TAPE_LENGTH {
+                    let r = self.output_model.output_producer.push((
+                        self.output_model.audio_index,
+                        self.output_model.temp_tape.audio[self.output_model.audio_index],
+                    ));
+                    match r {
+                        Ok(_) => self.output_model.audio_index += 1,
+                        Err(_) => {}
+                    }
                 }
-            } else {
-                self.output_model.audio_index = 0;
             }
         }
     }
@@ -149,12 +148,12 @@ impl Modul {
             for i in 0..self.recording_tape.len() {
                 let mut index = self.start_index + i;
                 index %= TAPE_LENGTH;
-                // if index < TAPE_LENGTH {
                 audio[index] = self.recording_tape[i];
             }
             self.tape_model.tapes[self.selected_tape].audio = audio;
             self.recording_tape.clear();
             self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
+            self.output_model.audio_index = 0;
         } else {
             self.modul_state.is_input_playing = true;
             self.start_index = self.audio_index % TAPE_LENGTH;
