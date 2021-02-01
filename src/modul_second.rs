@@ -74,13 +74,13 @@ impl Modul {
         // output_stream.pause().unwrap();
 
         Modul {
-            recording_tape,
-            tape_model,
-            input_stream,
-            _output_stream: output_stream,
+            recording_tape, // new thread
+            tape_model, // new thread
+            input_stream, // should be connected to the new thread and main thread
+            _output_stream: output_stream, // should be connected to new thread
             input_consumer,
             selected_tape: 0,
-            index_receiver,
+            index_receiver, // new thread
             time: 0.0,
             audio_index: 0,
             start_index: 0,
