@@ -91,7 +91,7 @@ pub mod utils {
 
     pub fn write_tape(tape: &Tape<f32>, name: &str) {
         let spec = hound::WavSpec {
-            channels: 2,
+            channels: 4,
             sample_rate: 44100,
             bits_per_sample: 16,
             sample_format: hound::SampleFormat::Int,

@@ -1,14 +1,9 @@
 use crate::modul_utils::utils::*;
 use crate::tape::tape::Tape;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::mpsc::{channel, Receiver, Sender};
-
-struct ModulState {
-    is_recording: bool,
-    is_output_playing: bool,
-}
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; 4],
@@ -16,13 +11,13 @@ pub struct TapeModel {
 
 pub struct OutputModel {
     pub output_producer: Producer<(usize, f32)>,
-    pub temp_tape: Tape<f32>,
+    // pub temp_tape: Tape<f32>,
     pub audio_index: usize,
 }
 
-/// Used to transfer necessary data to the audio thread
+/// Used to transfer data to the audio thread
 /// In this context audio thread is the thread that
-/// communicates with input and output streams(they are also threads)
+/// communicates with input and output streams(each has its own thread)
 struct AudioModel {
     recording_tape: Vec<f32>,
     tape_model: TapeModel,
@@ -31,7 +26,7 @@ struct AudioModel {
     audio_index: usize,
     output_model: OutputModel,
     key_receiver: Receiver<char>,
-    modul_state: ModulState,
+    is_recording: bool,
     selected_tape: usize,
     start_index: usize,
 }
@@ -45,7 +40,7 @@ impl AudioModel {
 
         while !self.input_consumer.is_empty() {
             for sample in self.input_consumer.pop() {
-                if self.modul_state.is_recording {
+                if self.is_recording {
                     self.recording_tape.push(sample);
                 }
             }
@@ -54,10 +49,14 @@ impl AudioModel {
         if self.audio_index < TAPE_LENGTH {
             for _ in 0..4096 {
                 if self.output_model.audio_index < TAPE_LENGTH {
-                    let r = self.output_model.output_producer.push((
-                        self.output_model.audio_index,
-                        self.output_model.temp_tape.audio[self.output_model.audio_index],
-                    ));
+                    let mut s: f32 = 0.0;
+                    for t in self.tape_model.tapes.iter() {
+                        s += t.audio[self.output_model.audio_index] * t.volume;
+                    }
+                    let r = self
+                        .output_model
+                        .output_producer
+                        .push((self.output_model.audio_index, s));
                     match r {
                         Ok(_) => self.output_model.audio_index += 1,
                         Err(_) => {}
@@ -69,9 +68,9 @@ impl AudioModel {
         for c in self.key_receiver.try_iter() {
             match c {
                 'R' => {
-                    if self.modul_state.is_recording {
+                    if self.is_recording {
                         // println!("stop recording");
-                        self.modul_state.is_recording = false;
+                        self.is_recording = false;
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
                         for i in 0..self.recording_tape.len() {
@@ -82,10 +81,10 @@ impl AudioModel {
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
-                        self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
+                        // self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
                         self.output_model.audio_index = 0;
                     } else {
-                        self.modul_state.is_recording = true;
+                        self.is_recording = true;
                         self.recording_tape.clear();
                         self.start_index = self.audio_index % TAPE_LENGTH;
                         // println!(
@@ -93,6 +92,25 @@ impl AudioModel {
                         //     self.start_index as f32 / TAPE_LENGTH as f32
                         // );
                     }
+                }
+                'W' => {
+                    let tape = merge_tapes(&self.tape_model.tapes);
+                    write_tape(&tape, "test");
+                }
+                'C' => {
+                    for tape in self.tape_model.tapes.iter_mut() {
+                        tape.clear();
+                    }
+                }
+                'M' => {
+                    self.output_model.audio_index = 0; // This is to trigger sending audio
+                    println!("mute {}", self.selected_tape);
+                    self.tape_model.tapes[self.selected_tape].mute();
+                }
+                'N' => {
+                    self.output_model.audio_index = 0; // This is to trigger sending audio
+                    println!("unmute {}", self.selected_tape);
+                    self.tape_model.tapes[self.selected_tape].unmute();
                 }
                 '0' => self.selected_tape = 0,
                 '1' => self.selected_tape = 1,
@@ -149,12 +167,9 @@ impl Modul {
         let output_stream =
             create_output_stream(&output_device, &config, output_consumer, index_sender);
 
-        // input_stream.pause().unwrap();
-        // output_stream.pause().unwrap();
-
         let output_model = OutputModel {
             output_producer,
-            temp_tape: Tape::<f32>::new(0.0, TAPE_LENGTH),
+            // temp_tape: Tape::<f32>::new(0.0, TAPE_LENGTH),
             audio_index: 0,
         };
 
@@ -166,10 +181,7 @@ impl Modul {
             audio_index: 0,
             output_model,
             key_receiver,
-            modul_state: ModulState {
-                is_recording: false,
-                is_output_playing: false,
-            },
+            is_recording: false,
             selected_tape: 0,
             start_index: 0,
         };
@@ -208,9 +220,18 @@ impl Modul {
     pub fn play(&self) {}
 
     pub fn write(&self) {
-        /*
-        let tape = merge_tapes(&self.tape_model.tapes);
-        write_tape(&tape, "test");
-        */
+        self.key_sender.send('W').unwrap();
+    }
+
+    pub fn clear_all(&self) {
+        self.key_sender.send('C').unwrap();
+    }
+
+    pub fn mute(&self) {
+        self.key_sender.send('M').unwrap();
+    }
+
+    pub fn unmute(&self) {
+        self.key_sender.send('N').unwrap();
     }
 }

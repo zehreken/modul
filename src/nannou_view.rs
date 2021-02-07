@@ -74,6 +74,15 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         Key::W => {
             model.modul.write();
         }
+        Key::C => {
+            model.modul.clear_all();
+        }
+        Key::M => {
+            model.modul.mute();
+        }
+        Key::N => {
+            model.modul.unmute();
+        }
         _ => {}
     }
 }
