@@ -70,7 +70,7 @@ impl AudioModel {
             match c {
                 'R' => {
                     if self.modul_state.is_recording {
-                        println!("stop recording");
+                        // println!("stop recording");
                         self.modul_state.is_recording = false;
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
@@ -88,10 +88,10 @@ impl AudioModel {
                         self.modul_state.is_recording = true;
                         self.recording_tape.clear();
                         self.start_index = self.audio_index % TAPE_LENGTH;
-                        println!(
-                            "start recording at {0:.2}",
-                            self.start_index as f32 / TAPE_LENGTH as f32
-                        );
+                        // println!(
+                        //     "start recording at {0:.2}",
+                        //     self.start_index as f32 / TAPE_LENGTH as f32
+                        // );
                     }
                 }
                 '0' => self.selected_tape = 0,
@@ -107,18 +107,11 @@ impl AudioModel {
 }
 
 pub struct Modul {
-    // recording_tape: Vec<f32>, // gone
-    // tape_model: TapeModel,    // gone
     _input_stream: Stream,
     _output_stream: Stream,
-    // input_consumer: Consumer<f32>, // gone
-    // selected_tape: usize,
-    // index_receiver: Receiver<usize>, // gone
     time: f32,
     audio_index: usize, // obsolete
-    // start_index: usize,
     key_sender: Sender<char>,
-    // output_model: OutputModel, // gone
 }
 
 impl Modul {
@@ -186,55 +179,12 @@ impl Modul {
         });
 
         Modul {
-            // recording_tape,
-            // tape_model,
             _input_stream: input_stream,
             _output_stream: output_stream,
-            // input_consumer,
-            // selected_tape: 0,
-            // index_receiver,
             time: 0.0,
             audio_index: 0,
-            // start_index: 0,
             key_sender,
-            // output_model: OutputModel {
-            //     output_producer,
-            //     temp_tape: Tape::<f32>::new(0.0, TAPE_LENGTH),
-            //     audio_index: 0,
-            // },
         }
-    }
-
-    pub fn update(&mut self) {
-        /*
-        for v in self.index_receiver.try_iter() {
-            self.audio_index = v;
-            // if self.audio_index >= TAPE_LENGTH {
-            //     self.audio_index = 0;
-            // }
-        }
-
-        while !self.input_consumer.is_empty() {
-            for sample in self.input_consumer.pop() {
-                self.recording_tape.push(sample);
-            }
-        }
-
-        if self.output_model.audio_index < TAPE_LENGTH {
-            for _ in 0..4096 {
-                if self.output_model.audio_index < TAPE_LENGTH {
-                    let r = self.output_model.output_producer.push((
-                        self.output_model.audio_index,
-                        self.output_model.temp_tape.audio[self.output_model.audio_index],
-                    ));
-                    match r {
-                        Ok(_) => self.output_model.audio_index += 1,
-                        Err(_) => {}
-                    }
-                }
-            }
-        }
-        */
     }
 
     pub fn get_time(&self) -> f32 {
@@ -246,7 +196,6 @@ impl Modul {
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
-        // self.selected_tape = selected_tape;
         self.key_sender
             .send(std::char::from_digit(selected_tape as u32, 10).unwrap())
             .unwrap();
@@ -254,32 +203,6 @@ impl Modul {
 
     pub fn record(&mut self) {
         self.key_sender.send('R').unwrap();
-        /*
-        if self.modul_state.is_input_playing {
-            println!("stop recording");
-            self.input_stream.pause().unwrap();
-            self.modul_state.is_input_playing = false;
-
-            let mut audio = vec![0.0; TAPE_LENGTH];
-            for i in 0..self.recording_tape.len() {
-                let mut index = self.start_index + i;
-                index %= TAPE_LENGTH;
-                audio[index] = self.recording_tape[i];
-            }
-            self.tape_model.tapes[self.selected_tape].audio = audio;
-            self.recording_tape.clear();
-            self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
-            self.output_model.audio_index = 0;
-        } else {
-            self.modul_state.is_input_playing = true;
-            self.start_index = self.audio_index % TAPE_LENGTH;
-            println!(
-                "start recording at {0:.2}",
-                self.start_index as f32 / TAPE_LENGTH as f32
-            );
-            self.input_stream.play().unwrap();
-        }
-        */
     }
 
     pub fn play(&self) {}

@@ -19,7 +19,7 @@ impl Model {
 }
 
 pub fn start() {
-    nannou::app(model).update(update).run();
+    nannou::app(model).run();
 }
 
 fn model(app: &App) -> Model {
@@ -76,10 +76,6 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         }
         _ => {}
     }
-}
-
-fn update(_app: &App, model: &mut Model, _update: Update) {
-    model.modul.update();
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
