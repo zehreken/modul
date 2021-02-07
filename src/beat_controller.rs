@@ -1,5 +1,3 @@
-use nannou::draw::Draw;
-use nannou::prelude::*;
 use std::time::Instant;
 
 pub struct BeatController {
