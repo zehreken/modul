@@ -1,5 +1,3 @@
-use super::traits::Nannou;
-use cpal::SampleRate;
 use nannou::draw::Draw;
 use nannou::prelude::*;
 use std::time::Instant;
@@ -43,14 +41,6 @@ impl BeatController {
             if self.bar_timer >= self.beat_period * self.beat_count as u32 {
                 self.bar_timer = 0;
             }
-        }
-    }
-}
-
-impl Nannou for BeatController {
-    fn draw(&self, draw: &Draw) {
-        if self.can_draw {
-            draw.rect().w_h(1024.0, 20.0).x_y(0.0, 224.0).color(GOLD);
         }
     }
 }

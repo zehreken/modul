@@ -1,14 +1,14 @@
 mod beat_controller;
-mod bypass;
-mod envelope;
+// mod bypass;
+// mod envelope;
+// mod modul;
 mod modul;
-mod modul_second;
 mod modul_utils;
 mod nannou_view;
-mod recorder;
+// mod recorder;
 mod tape;
-mod traits;
-mod wave_generator;
+// mod traits;
+// mod wave_generator;
 
 fn main() {
     // modul::start();

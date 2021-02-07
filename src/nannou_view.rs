@@ -1,13 +1,13 @@
 use crate::{modul_utils, tape::tape_view::TapeView};
 
-use super::modul_second;
+use super::modul;
 use nannou::prelude::*;
 use std::thread;
 use std::time::Instant;
 struct Model {
     instant: Instant,
     tape_views: [TapeView; 4],
-    modul: modul_second::Modul,
+    modul: modul::Modul,
 }
 
 impl Model {
@@ -31,7 +31,7 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let modul = modul_second::Modul::new();
+    let modul = modul::Modul::new();
 
     let tape_views = [
         TapeView::new(-300.0, 0.0),
