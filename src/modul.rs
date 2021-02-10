@@ -25,10 +25,20 @@ struct AudioModel {
     index_receiver: Receiver<usize>,
     audio_index: usize,
     output_model: OutputModel,
-    key_receiver: Receiver<char>,
+    key_receiver: Receiver<ModulAction>,
     is_recording: bool,
     selected_tape: usize,
     start_index: usize,
+}
+
+enum ModulAction {
+    SelectTape(usize),
+    Record,
+    Play,
+    Write,
+    ClearAll,
+    Mute,
+    Unmute,
 }
 
 impl AudioModel {
@@ -67,7 +77,7 @@ impl AudioModel {
 
         for c in self.key_receiver.try_iter() {
             match c {
-                'R' => {
+                ModulAction::Record => {
                     if self.is_recording {
                         // println!("stop recording");
                         self.is_recording = false;
@@ -93,29 +103,28 @@ impl AudioModel {
                         // );
                     }
                 }
-                'W' => {
+                ModulAction::Write => {
                     let tape = merge_tapes(&self.tape_model.tapes);
                     write_tape(&tape, "test");
                 }
-                'C' => {
+                ModulAction::ClearAll => {
                     for tape in self.tape_model.tapes.iter_mut() {
                         tape.clear();
                     }
                 }
-                'M' => {
+                ModulAction::Mute => {
                     self.output_model.audio_index = 0; // This is to trigger sending audio
                     println!("mute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].mute();
                 }
-                'N' => {
+                ModulAction::Unmute => {
                     self.output_model.audio_index = 0; // This is to trigger sending audio
                     println!("unmute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].unmute();
                 }
-                '0' => self.selected_tape = 0,
-                '1' => self.selected_tape = 1,
-                '2' => self.selected_tape = 2,
-                '3' => self.selected_tape = 3,
+                ModulAction::SelectTape(tape) => {
+                    self.selected_tape = tape;
+                }
                 _ => {}
             }
         }
@@ -129,7 +138,7 @@ pub struct Modul {
     _output_stream: Stream,
     time: f32,
     audio_index: usize, // obsolete
-    key_sender: Sender<char>,
+    key_sender: Sender<ModulAction>,
 }
 
 impl Modul {
@@ -209,29 +218,29 @@ impl Modul {
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
         self.key_sender
-            .send(std::char::from_digit(selected_tape as u32, 10).unwrap())
+            .send(ModulAction::SelectTape(selected_tape))
             .unwrap();
     }
 
     pub fn record(&mut self) {
-        self.key_sender.send('R').unwrap();
+        self.key_sender.send(ModulAction::Record).unwrap();
     }
 
     pub fn play(&self) {}
 
     pub fn write(&self) {
-        self.key_sender.send('W').unwrap();
+        self.key_sender.send(ModulAction::Write).unwrap();
     }
 
     pub fn clear_all(&self) {
-        self.key_sender.send('C').unwrap();
+        self.key_sender.send(ModulAction::ClearAll).unwrap();
     }
 
     pub fn mute(&self) {
-        self.key_sender.send('M').unwrap();
+        self.key_sender.send(ModulAction::Mute).unwrap();
     }
 
     pub fn unmute(&self) {
-        self.key_sender.send('N').unwrap();
+        self.key_sender.send(ModulAction::Unmute).unwrap();
     }
 }
