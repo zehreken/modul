@@ -20,9 +20,9 @@ impl<T: Clone> Tape<T> {
         self.volume = 1.0;
     }
 
-    // Don't use this, very bad for memory
-    pub fn clear(&mut self) {
-        // Clear audio vector
-        self.audio.clear();
+    pub fn clear(&mut self, default: T) {
+        for i in 0..self.audio.len() {
+            self.audio[i] = default.clone();
+        }
     }
 }

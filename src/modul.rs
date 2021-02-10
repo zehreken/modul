@@ -37,6 +37,7 @@ enum ModulAction {
     Play,
     Write,
     ClearAll,
+    Clear,
     Mute,
     Unmute,
 }
@@ -108,19 +109,26 @@ impl AudioModel {
                     write_tape(&tape, "test");
                 }
                 ModulAction::ClearAll => {
+                    println!("clear all");
                     for tape in self.tape_model.tapes.iter_mut() {
-                        tape.clear();
+                        tape.clear(0.0);
                     }
+                    self.output_model.audio_index = 0;
+                }
+                ModulAction::Clear => {
+                    println!("clear {}", self.selected_tape);
+                    self.tape_model.tapes[self.selected_tape].clear(0.0);
+                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::Mute => {
-                    self.output_model.audio_index = 0; // This is to trigger sending audio
                     println!("mute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].mute();
+                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::Unmute => {
-                    self.output_model.audio_index = 0; // This is to trigger sending audio
                     println!("unmute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].unmute();
+                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::SelectTape(tape) => {
                     self.selected_tape = tape;
@@ -234,6 +242,10 @@ impl Modul {
 
     pub fn clear_all(&self) {
         self.key_sender.send(ModulAction::ClearAll).unwrap();
+    }
+
+    pub fn clear(&self) {
+        self.key_sender.send(ModulAction::Clear).unwrap();
     }
 
     pub fn mute(&self) {
