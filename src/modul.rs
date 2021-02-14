@@ -4,6 +4,7 @@ use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; 4],
@@ -11,7 +12,6 @@ pub struct TapeModel {
 
 pub struct OutputModel {
     pub output_producer: Producer<(usize, f32)>,
-    // pub temp_tape: Tape<f32>,
     pub audio_index: usize,
 }
 
@@ -23,7 +23,7 @@ struct AudioModel {
     tape_model: TapeModel,
     input_consumer: Consumer<f32>,
     index_receiver: Receiver<usize>,
-    audio_index: usize,
+    audio_index: Arc<Mutex<usize>>,
     output_model: OutputModel,
     key_receiver: Receiver<ModulAction>,
     is_recording: bool,
@@ -45,7 +45,7 @@ enum ModulAction {
 impl AudioModel {
     pub fn update(&mut self) {
         for v in self.index_receiver.try_iter() {
-            self.audio_index = v;
+            *self.audio_index.lock().unwrap() = v;
         }
         // println!("audio_index: {}", self.audio_index);
 
@@ -57,7 +57,7 @@ impl AudioModel {
             }
         }
 
-        if self.audio_index < TAPE_LENGTH {
+        if *self.audio_index.lock().unwrap() < TAPE_LENGTH {
             for _ in 0..4096 {
                 if self.output_model.audio_index < TAPE_LENGTH {
                     let mut s: f32 = 0.0;
@@ -97,7 +97,7 @@ impl AudioModel {
                     } else {
                         self.is_recording = true;
                         self.recording_tape.clear();
-                        self.start_index = self.audio_index % TAPE_LENGTH;
+                        self.start_index = *self.audio_index.lock().unwrap() % TAPE_LENGTH;
                         // println!(
                         //     "start recording at {0:.2}",
                         //     self.start_index as f32 / TAPE_LENGTH as f32
@@ -137,15 +137,13 @@ impl AudioModel {
             }
         }
     }
-
-    fn record(&mut self) {}
 }
 
 pub struct Modul {
     _input_stream: Stream,
     _output_stream: Stream,
     time: f32,
-    audio_index: usize, // obsolete
+    audio_index: Arc<Mutex<usize>>,
     key_sender: Sender<ModulAction>,
 }
 
@@ -190,12 +188,14 @@ impl Modul {
             audio_index: 0,
         };
 
+        let audio_index = Arc::new(Mutex::new(0));
+
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
             tape_model,
             input_consumer,
             index_receiver,
-            audio_index: 0,
+            audio_index: Arc::clone(&audio_index),
             output_model,
             key_receiver,
             is_recording: false,
@@ -211,7 +211,7 @@ impl Modul {
             _input_stream: input_stream,
             _output_stream: output_stream,
             time: 0.0,
-            audio_index: 0,
+            audio_index: Arc::clone(&audio_index),
             key_sender,
         }
     }
@@ -221,7 +221,7 @@ impl Modul {
     }
 
     pub fn get_audio_index(&self) -> usize {
-        self.audio_index
+        *self.audio_index.lock().unwrap()
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
