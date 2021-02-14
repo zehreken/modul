@@ -3,8 +3,9 @@ use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; 4],
@@ -23,7 +24,7 @@ struct AudioModel {
     tape_model: TapeModel,
     input_consumer: Consumer<f32>,
     index_receiver: Receiver<usize>,
-    audio_index: Arc<Mutex<usize>>,
+    audio_index: Arc<AtomicUsize>,
     output_model: OutputModel,
     key_receiver: Receiver<ModulAction>,
     is_recording: bool,
@@ -45,7 +46,7 @@ enum ModulAction {
 impl AudioModel {
     pub fn update(&mut self) {
         for v in self.index_receiver.try_iter() {
-            *self.audio_index.lock().unwrap() = v;
+            self.audio_index.store(v, Ordering::SeqCst);
         }
         // println!("audio_index: {}", self.audio_index);
 
@@ -57,7 +58,7 @@ impl AudioModel {
             }
         }
 
-        if *self.audio_index.lock().unwrap() < TAPE_LENGTH {
+        if self.audio_index.load(Ordering::SeqCst) < TAPE_LENGTH {
             for _ in 0..4096 {
                 if self.output_model.audio_index < TAPE_LENGTH {
                     let mut s: f32 = 0.0;
@@ -97,7 +98,7 @@ impl AudioModel {
                     } else {
                         self.is_recording = true;
                         self.recording_tape.clear();
-                        self.start_index = *self.audio_index.lock().unwrap() % TAPE_LENGTH;
+                        self.start_index = self.audio_index.load(Ordering::SeqCst) % TAPE_LENGTH;
                         // println!(
                         //     "start recording at {0:.2}",
                         //     self.start_index as f32 / TAPE_LENGTH as f32
@@ -143,7 +144,7 @@ pub struct Modul {
     _input_stream: Stream,
     _output_stream: Stream,
     time: f32,
-    audio_index: Arc<Mutex<usize>>,
+    audio_index: Arc<AtomicUsize>,
     key_sender: Sender<ModulAction>,
 }
 
@@ -188,7 +189,7 @@ impl Modul {
             audio_index: 0,
         };
 
-        let audio_index = Arc::new(Mutex::new(0));
+        let audio_index = Arc::new(AtomicUsize::new(0));
 
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
@@ -221,7 +222,7 @@ impl Modul {
     }
 
     pub fn get_audio_index(&self) -> usize {
-        *self.audio_index.lock().unwrap()
+        self.audio_index.load(Ordering::SeqCst)
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
