@@ -92,7 +92,6 @@ impl AudioModel {
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
-                        // self.output_model.temp_tape = merge_tapes(&self.tape_model.tapes);
                         self.output_model.audio_index = 0;
                     } else {
                         self.is_recording = true;
@@ -149,7 +148,6 @@ pub struct Modul {
 
 impl Modul {
     pub fn new() -> Self {
-        // let recording_tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
         let recording_tape = vec![];
         let tape_model = TapeModel {
             tapes: [
@@ -189,7 +187,6 @@ impl Modul {
 
         let output_model = OutputModel {
             output_producer,
-            // temp_tape: Tape::<f32>::new(0.0, TAPE_LENGTH),
             audio_index: 0,
         };
 
