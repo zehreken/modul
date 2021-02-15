@@ -3,9 +3,12 @@ use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
+use std::{
+    sync::atomic::{AtomicUsize, Ordering},
+    time::Duration,
+};
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; 4],
@@ -204,6 +207,7 @@ impl Modul {
 
         std::thread::spawn(move || loop {
             audio_model.update();
+            std::thread::sleep(Duration::from_millis(1));
         });
 
         Modul {
