@@ -3,7 +3,9 @@ pub mod utils {
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{Consumer, Producer, RingBuffer};
+    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::mpsc::{channel, Receiver, Sender};
+    use std::sync::Arc;
 
     pub const TAPE_LENGTH: usize = 44100 * 2 * 4; // sample_rate * channels * seconds
     /// ATTENTION:
@@ -41,7 +43,7 @@ pub mod utils {
         output_device: &Device,
         config: &StreamConfig,
         mut consumer: Consumer<(usize, f32)>,
-        index_sender: Sender<usize>,
+        audio_index: Arc<AtomicUsize>,
     ) -> Stream {
         let mut tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
         let mut index = 0;
@@ -55,7 +57,7 @@ pub mod utils {
                 }
             }
 
-            index_sender.send(index).unwrap();
+            audio_index.store(index, Ordering::SeqCst);
 
             while !consumer.is_empty() {
                 match consumer.pop() {

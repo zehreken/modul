@@ -23,7 +23,6 @@ struct AudioModel {
     recording_tape: Vec<f32>,
     tape_model: TapeModel,
     input_consumer: Consumer<f32>,
-    index_receiver: Receiver<usize>,
     audio_index: Arc<AtomicUsize>,
     output_model: OutputModel,
     key_receiver: Receiver<ModulAction>,
@@ -45,9 +44,6 @@ enum ModulAction {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        for v in self.index_receiver.try_iter() {
-            self.audio_index.store(v, Ordering::SeqCst);
-        }
         // println!("audio_index: {}", self.audio_index);
 
         while !self.input_consumer.is_empty() {
@@ -175,13 +171,18 @@ impl Modul {
         let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
-        let (index_sender, index_receiver) = channel();
         let (key_sender, key_receiver) = channel();
 
         let input_stream = create_input_stream(&input_device, &config, input_producer);
 
-        let output_stream =
-            create_output_stream(&output_device, &config, output_consumer, index_sender);
+        let audio_index = Arc::new(AtomicUsize::new(0));
+
+        let output_stream = create_output_stream(
+            &output_device,
+            &config,
+            output_consumer,
+            Arc::clone(&audio_index),
+        );
 
         let output_model = OutputModel {
             output_producer,
@@ -189,13 +190,10 @@ impl Modul {
             audio_index: 0,
         };
 
-        let audio_index = Arc::new(AtomicUsize::new(0));
-
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
             tape_model,
             input_consumer,
-            index_receiver,
             audio_index: Arc::clone(&audio_index),
             output_model,
             key_receiver,
