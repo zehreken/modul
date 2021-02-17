@@ -1,4 +1,3 @@
-use super::beat_controller::*;
 use nannou::prelude::*;
 use nannou::Draw;
 pub struct TapeView {
@@ -15,6 +14,7 @@ impl TapeView {
             is_selected: false,
         }
     }
+
     pub fn draw(&self, draw: &Draw, cursor_position: f32) {
         let radian = -2.0 * std::f32::consts::PI + cursor_position * std::f32::consts::PI * 2.0;
         draw.ellipse()

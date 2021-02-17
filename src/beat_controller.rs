@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-pub struct BeatController {
+pub struct _BeatController {
     instant: Instant,
     beat_per_minute: u16,
     pub beat_count: u8,
@@ -11,8 +11,8 @@ pub struct BeatController {
     can_draw: bool,
 }
 
-impl BeatController {
-    pub fn new(sample_rate: u32, beat_per_minute: u16, beat_count: u8, bar_count: u8) -> Self {
+impl _BeatController {
+    pub fn _new(sample_rate: u32, beat_per_minute: u16, beat_count: u8, bar_count: u8) -> Self {
         let beat_period = (sample_rate * 60) / beat_per_minute as u32;
         println!("period: {} samples", beat_period);
         Self {
@@ -27,7 +27,7 @@ impl BeatController {
         }
     }
 
-    pub fn update(&mut self, delta_samples: u32) {
+    pub fn _update(&mut self, delta_samples: u32) {
         self.can_draw = false;
         let samples = delta_samples;
         self.beat_timer += samples;

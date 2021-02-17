@@ -37,9 +37,9 @@ struct AudioModel {
 enum ModulAction {
     SelectTape(usize),
     Record,
-    Play,
+    _Play,
     Write,
-    ClearAll,
+    _ClearAll,
     Clear,
     Mute,
     Unmute,
@@ -76,6 +76,10 @@ impl AudioModel {
             }
         }
 
+        self.check_input();
+    }
+
+    fn check_input(&mut self) {
         for c in self.key_receiver.try_iter() {
             match c {
                 ModulAction::Record => {
@@ -111,7 +115,7 @@ impl AudioModel {
                     let tape = merge_tapes(&self.tape_model.tapes);
                     write_tape(&tape, "test");
                 }
-                ModulAction::ClearAll => {
+                ModulAction::_ClearAll => {
                     println!("clear all");
                     for tape in self.tape_model.tapes.iter_mut() {
                         tape.clear(0.0);
@@ -245,8 +249,8 @@ impl Modul {
         self.key_sender.send(ModulAction::Write).unwrap();
     }
 
-    pub fn clear_all(&self) {
-        self.key_sender.send(ModulAction::ClearAll).unwrap();
+    pub fn _clear_all(&self) {
+        self.key_sender.send(ModulAction::_ClearAll).unwrap();
     }
 
     pub fn clear(&self) {

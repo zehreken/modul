@@ -1,13 +1,12 @@
 pub mod utils {
     use crate::tape::tape::Tape;
-    use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+    use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
-    use ringbuf::{Consumer, Producer, RingBuffer};
+    use ringbuf::{Consumer, Producer};
     use std::sync::atomic::{AtomicUsize, Ordering};
-    use std::sync::mpsc::{channel, Receiver, Sender};
     use std::sync::Arc;
 
-    pub const TAPE_LENGTH: usize = 44100 * 2 * 4; // sample_rate * channels * seconds
+    pub const TAPE_LENGTH: usize = 44100 * 2 * 8; // sample_rate * channels * seconds
     /// ATTENTION:
     /// If buffer capacity and update frequency is related, if update frequency is low
     /// then the buffer will not be emptied fast enough and some input will be lost
