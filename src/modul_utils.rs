@@ -50,6 +50,7 @@ pub mod utils {
         let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 *sample = tape.audio[index];
+                // println!("{}", sample);
                 index += 1;
 
                 if index == tape.audio.len() {

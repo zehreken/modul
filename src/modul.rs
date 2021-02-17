@@ -84,10 +84,14 @@ impl AudioModel {
                         self.is_recording = false;
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
-                        for i in 0..self.recording_tape.len() {
-                            let mut index = self.start_index + i;
-                            index %= TAPE_LENGTH;
-                            audio[index] = self.recording_tape[i];
+                        for i in (0..self.recording_tape.len()).step_by(2) {
+                            let sample =
+                                (self.recording_tape[i] + self.recording_tape[i + 1]) / 2.0;
+                            for j in 0..2 {
+                                let mut index = self.start_index + i + j;
+                                index %= TAPE_LENGTH;
+                                audio[index] = sample;
+                            }
                         }
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
@@ -164,6 +168,7 @@ impl Modul {
         let output_device = host.default_output_device().unwrap();
 
         let config: StreamConfig = input_device.default_input_config().unwrap().into();
+        println!("input channel count: {}", config.channels);
         println!("sample rate: {:?}", config.sample_rate);
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
