@@ -53,11 +53,13 @@ impl AudioModel {
             for sample in self.input_consumer.pop() {
                 if self.is_recording {
                     self.recording_tape.push(sample);
+                } else {
+                    // send audio to output
                 }
             }
         }
 
-        if self.audio_index.load(Ordering::SeqCst) < TAPE_LENGTH {
+        if self.output_model.audio_index < TAPE_LENGTH {
             for _ in 0..4096 {
                 if self.output_model.audio_index < TAPE_LENGTH {
                     let mut s: f32 = 0.0;
@@ -84,7 +86,7 @@ impl AudioModel {
             match c {
                 ModulAction::Record => {
                     if self.is_recording {
-                        // println!("stop recording");
+                        println!("stop recording {}", self.selected_tape);
                         self.is_recording = false;
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
