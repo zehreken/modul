@@ -26,6 +26,7 @@ struct AudioModel {
     selected_tape: usize,
     output_producer: Producer<f32>,
     audio_index: Arc<AtomicUsize>,
+    writing_tape: Vec<f32>,
 }
 
 enum ModulAction {
@@ -57,6 +58,7 @@ impl AudioModel {
                     Ok(_) => {}
                     Err(_e) => eprintln!("error: {}", self.output_producer.len()),
                 }
+                self.writing_tape.push(t.1 + s);
 
                 audio_index = t.0;
             }
@@ -94,8 +96,9 @@ impl AudioModel {
                     }
                 }
                 ModulAction::Write => {
-                    let tape = merge_tapes(&self.tape_model.tapes);
-                    write_tape(&tape, "test");
+                    // let tape = merge_tapes(&self.tape_model.tapes);
+                    // write_tape(&tape, "test");
+                    write(&self.writing_tape, "full");
                 }
                 ModulAction::_ClearAll => {
                     println!("clear all");
@@ -176,6 +179,7 @@ impl Modul {
             selected_tape: 0,
             output_producer,
             audio_index: Arc::clone(&audio_index),
+            writing_tape: vec![],
         };
 
         std::thread::spawn(move || loop {

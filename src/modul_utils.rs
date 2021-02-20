@@ -62,7 +62,7 @@ pub mod utils {
         eprintln!("an error occured on stream: {}", err);
     }
 
-    pub fn merge_tapes(tapes: &[Tape<f32>]) -> Tape<f32> {
+    pub fn _merge_tapes(tapes: &[Tape<f32>]) -> Tape<f32> {
         let mut sum_tape: Tape<f32> = Tape {
             volume: 1.0,
             audio: vec![0.0; TAPE_LENGTH],
@@ -77,7 +77,7 @@ pub mod utils {
         sum_tape
     }
 
-    pub fn write_tape(tape: &Tape<f32>, name: &str) {
+    pub fn _write_tape(tape: &Tape<f32>, name: &str) {
         let spec = hound::WavSpec {
             channels: 4,
             sample_rate: 44100,
@@ -88,6 +88,21 @@ pub mod utils {
         let mut writer = hound::WavWriter::create(format!("{}.wav", name), spec).unwrap();
         for frame in tape.audio.iter() {
             let sample = frame;
+            let amplitude = i16::MAX as f32;
+            writer.write_sample((sample * amplitude) as i16).unwrap();
+        }
+    }
+
+    pub fn write(recording: &Vec<f32>, name: &str) {
+        let spec = hound::WavSpec {
+            channels: 4,
+            sample_rate: 44100,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+
+        let mut writer = hound::WavWriter::create(format!("{}.wav", name), spec).unwrap();
+        for sample in recording.iter() {
             let amplitude = i16::MAX as f32;
             writer.write_sample((sample * amplitude) as i16).unwrap();
         }
