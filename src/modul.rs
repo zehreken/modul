@@ -14,24 +14,17 @@ pub struct TapeModel {
     pub tapes: [Tape<f32>; 4],
 }
 
-pub struct OutputModel {
-    pub output_producer: Producer<(usize, f32)>,
-    pub audio_index: usize,
-}
-
 /// Used to transfer data to the audio thread
 /// In this context audio thread is the thread that
 /// communicates with input and output streams(each has its own thread)
 struct AudioModel {
-    recording_tape: Vec<f32>,
+    recording_tape: Vec<(usize, f32)>,
     tape_model: TapeModel,
-    input_consumer: Consumer<f32>,
-    audio_index: Arc<AtomicUsize>,
-    output_model: OutputModel,
+    input_consumer: Consumer<(usize, f32)>,
     key_receiver: Receiver<ModulAction>,
     is_recording: bool,
     selected_tape: usize,
-    start_index: usize,
+    test_producer: Producer<f32>,
 }
 
 enum ModulAction {
@@ -50,30 +43,19 @@ impl AudioModel {
         // println!("audio_index: {}", self.audio_index);
 
         while !self.input_consumer.is_empty() {
-            for sample in self.input_consumer.pop() {
+            for t in self.input_consumer.pop() {
                 if self.is_recording {
-                    self.recording_tape.push(sample);
-                } else {
-                    // send audio to output
+                    self.recording_tape.push(t);
                 }
-            }
-        }
-
-        if self.output_model.audio_index < TAPE_LENGTH {
-            for _ in 0..4096 {
-                if self.output_model.audio_index < TAPE_LENGTH {
-                    let mut s: f32 = 0.0;
-                    for t in self.tape_model.tapes.iter() {
-                        s += t.audio[self.output_model.audio_index] * t.volume;
-                    }
-                    let r = self
-                        .output_model
-                        .output_producer
-                        .push((self.output_model.audio_index, s));
-                    match r {
-                        Ok(_) => self.output_model.audio_index += 1,
-                        Err(_) => {}
-                    }
+                // send audio to output
+                let mut s: f32 = 0.0;
+                for tape in self.tape_model.tapes.iter() {
+                    s += tape.audio[t.0] * tape.volume;
+                }
+                let r = self.test_producer.push(t.1 + s);
+                match r {
+                    Ok(_) => {}
+                    Err(_e) => eprintln!("error: {}", self.test_producer.len()),
                 }
             }
         }
@@ -91,10 +73,10 @@ impl AudioModel {
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
                         for i in (0..self.recording_tape.len()).step_by(2) {
-                            let sample =
-                                (self.recording_tape[i] + self.recording_tape[i + 1]) / 2.0;
+                            let mut index = self.recording_tape[i].0;
+                            let sample = self.recording_tape[i].1 + self.recording_tape[i + 1].1;
                             for j in 0..2 {
-                                let mut index = self.start_index + i + j;
+                                index = index + j;
                                 index %= TAPE_LENGTH;
                                 audio[index] = sample;
                             }
@@ -102,15 +84,10 @@ impl AudioModel {
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
-                        self.output_model.audio_index = 0;
                     } else {
+                        println!("start recording {}", self.selected_tape);
                         self.is_recording = true;
                         self.recording_tape.clear();
-                        self.start_index = self.audio_index.load(Ordering::SeqCst) % TAPE_LENGTH;
-                        // println!(
-                        //     "start recording at {0:.2}",
-                        //     self.start_index as f32 / TAPE_LENGTH as f32
-                        // );
                     }
                 }
                 ModulAction::Write => {
@@ -122,22 +99,18 @@ impl AudioModel {
                     for tape in self.tape_model.tapes.iter_mut() {
                         tape.clear(0.0);
                     }
-                    self.output_model.audio_index = 0;
                 }
                 ModulAction::Clear => {
                     println!("clear {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
-                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::Mute => {
                     println!("mute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].mute();
-                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::Unmute => {
                     println!("unmute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].unmute();
-                    self.output_model.audio_index = 0; // This is to trigger sending audio
                 }
                 ModulAction::SelectTape(tape) => {
                     self.selected_tape = tape;
@@ -180,37 +153,25 @@ impl Modul {
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
 
-        let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
-        let (output_producer, output_consumer) = output_ring_buffer.split();
-
         let (key_sender, key_receiver) = channel();
 
-        let input_stream = create_input_stream(&input_device, &config, input_producer);
+        let test_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let (test_producer, test_consumer) = test_ring_buffer.split();
+
+        let input_stream = create_input_stream_live(&input_device, &config, input_producer);
 
         let audio_index = Arc::new(AtomicUsize::new(0));
 
-        let output_stream = create_output_stream(
-            &output_device,
-            &config,
-            output_consumer,
-            Arc::clone(&audio_index),
-        );
-
-        let output_model = OutputModel {
-            output_producer,
-            audio_index: 0,
-        };
+        let output_stream = create_output_stream_live(&output_device, &config, test_consumer);
 
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
             tape_model,
             input_consumer,
-            audio_index: Arc::clone(&audio_index),
-            output_model,
             key_receiver,
             is_recording: false,
             selected_tape: 0,
-            start_index: 0,
+            test_producer,
         };
 
         std::thread::spawn(move || loop {

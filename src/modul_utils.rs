@@ -3,8 +3,6 @@ pub mod utils {
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{Consumer, Producer};
-    use std::sync::atomic::{AtomicUsize, Ordering};
-    use std::sync::Arc;
 
     pub const TAPE_LENGTH: usize = 44100 * 2 * 8; // sample_rate * channels * seconds
     /// ATTENTION:
@@ -12,24 +10,27 @@ pub mod utils {
     /// then the buffer will not be emptied fast enough and some input will be lost
     pub const BUFFER_CAPACITY: usize = 4096 * 8;
 
-    // think about sending the time also from the input_stream
-    // something like this Producer<(usize, f32)>
-    // you can use this also for output_stream Consumer<(usize, f32)>
-    pub fn create_input_stream(
+    pub fn create_input_stream_live(
         input_device: &Device,
         config: &StreamConfig,
-        mut producer: Producer<f32>,
+        mut producer: Producer<(usize, f32)>,
     ) -> Stream {
+        let mut index = 0;
         let input_data = move |data: &[f32], _: &cpal::InputCallbackInfo| {
-            let mut output_fell_behind = false;
+            let mut consumer_fell_behind = false;
             for &sample in data {
-                if producer.push(sample).is_err() {
-                    output_fell_behind = true;
+                if producer.push((index, sample)).is_err() {
+                    consumer_fell_behind = true;
+                }
+                index += 1;
+
+                if index == TAPE_LENGTH {
+                    index = 0;
                 }
             }
 
-            if output_fell_behind {
-                eprintln!("output stream fell behind: try increasing latency");
+            if consumer_fell_behind {
+                eprintln!("main audio thread fell behind");
             }
         };
 
@@ -38,31 +39,16 @@ pub mod utils {
             .unwrap()
     }
 
-    pub fn create_output_stream(
+    pub fn create_output_stream_live(
         output_device: &Device,
         config: &StreamConfig,
-        mut consumer: Consumer<(usize, f32)>,
-        audio_index: Arc<AtomicUsize>,
+        mut consumer: Consumer<f32>,
     ) -> Stream {
-        let mut tape = Tape::<f32>::new(0.0, TAPE_LENGTH);
-        let mut index = 0;
         let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
-                *sample = tape.audio[index];
-                // println!("{}", sample);
-                index += 1;
-
-                if index == tape.audio.len() {
-                    index = 0;
-                }
-            }
-
-            audio_index.store(index, Ordering::SeqCst);
-
-            while !consumer.is_empty() {
-                match consumer.pop() {
-                    Some(t) => tape.audio[t.0] = t.1,
-                    None => {}
+                *sample = match consumer.pop() {
+                    Some(s) => s,
+                    None => 0.0,
                 }
             }
         };
