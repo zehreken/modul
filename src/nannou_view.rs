@@ -104,8 +104,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     let x = model.modul.get_audio_index() / 44100;
     draw.rect()
-        .w_h(100.0, 20.0)
-        .x_y(x as f32 * 100.0 - 350.0, 100.0)
+        .w_h(50.0, 20.0)
+        .x_y(x as f32 * 50.0 - 350.0, 100.0)
         .color(CRIMSON);
 
     let cursor_position =
