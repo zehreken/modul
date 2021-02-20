@@ -24,7 +24,8 @@ struct AudioModel {
     key_receiver: Receiver<ModulAction>,
     is_recording: bool,
     selected_tape: usize,
-    test_producer: Producer<f32>,
+    output_producer: Producer<f32>,
+    audio_index: Arc<AtomicUsize>,
 }
 
 enum ModulAction {
@@ -40,9 +41,8 @@ enum ModulAction {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        // println!("audio_index: {}", self.audio_index);
-
         while !self.input_consumer.is_empty() {
+            let mut audio_index = 0;
             for t in self.input_consumer.pop() {
                 if self.is_recording {
                     self.recording_tape.push(t);
@@ -52,12 +52,15 @@ impl AudioModel {
                 for tape in self.tape_model.tapes.iter() {
                     s += tape.audio[t.0] * tape.volume;
                 }
-                let r = self.test_producer.push(t.1 + s);
+                let r = self.output_producer.push(t.1 + s);
                 match r {
                     Ok(_) => {}
-                    Err(_e) => eprintln!("error: {}", self.test_producer.len()),
+                    Err(_e) => eprintln!("error: {}", self.output_producer.len()),
                 }
+
+                audio_index = t.0;
             }
+            self.audio_index.store(audio_index, Ordering::SeqCst);
         }
 
         self.check_input();
@@ -155,14 +158,14 @@ impl Modul {
 
         let (key_sender, key_receiver) = channel();
 
-        let test_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
-        let (test_producer, test_consumer) = test_ring_buffer.split();
+        let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let (output_producer, output_consumer) = output_ring_buffer.split();
 
         let input_stream = create_input_stream_live(&input_device, &config, input_producer);
 
         let audio_index = Arc::new(AtomicUsize::new(0));
 
-        let output_stream = create_output_stream_live(&output_device, &config, test_consumer);
+        let output_stream = create_output_stream_live(&output_device, &config, output_consumer);
 
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
@@ -171,7 +174,8 @@ impl Modul {
             key_receiver,
             is_recording: false,
             selected_tape: 0,
-            test_producer,
+            output_producer,
+            audio_index: Arc::clone(&audio_index),
         };
 
         std::thread::spawn(move || loop {
