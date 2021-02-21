@@ -3,8 +3,11 @@ use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
-use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
+use std::sync::{
+    atomic::AtomicBool,
+    mpsc::{channel, Receiver, Sender},
+};
 use std::{
     sync::atomic::{AtomicUsize, Ordering},
     time::Duration,
@@ -22,7 +25,7 @@ struct AudioModel {
     tape_model: TapeModel,
     input_consumer: Consumer<(usize, f32)>,
     key_receiver: Receiver<ModulAction>,
-    is_recording: bool,
+    is_recording: Arc<AtomicBool>,
     selected_tape: usize,
     output_producer: Producer<f32>,
     audio_index: Arc<AtomicUsize>,
@@ -45,7 +48,7 @@ impl AudioModel {
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
-                if self.is_recording {
+                if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
                 // send audio to output
@@ -72,9 +75,9 @@ impl AudioModel {
         for c in self.key_receiver.try_iter() {
             match c {
                 ModulAction::Record => {
-                    if self.is_recording {
+                    if self.is_recording.load(Ordering::SeqCst) {
                         println!("stop recording {}", self.selected_tape);
-                        self.is_recording = false;
+                        self.is_recording.store(false, Ordering::SeqCst);
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
                         for i in (0..self.recording_tape.len()).step_by(2) {
@@ -91,7 +94,7 @@ impl AudioModel {
                         self.recording_tape.clear();
                     } else {
                         println!("start recording {}", self.selected_tape);
-                        self.is_recording = true;
+                        self.is_recording.store(true, Ordering::SeqCst);
                         self.recording_tape.clear();
                     }
                 }
@@ -133,6 +136,7 @@ pub struct Modul {
     time: f32,
     audio_index: Arc<AtomicUsize>,
     key_sender: Sender<ModulAction>,
+    is_recording: Arc<AtomicBool>,
 }
 
 impl Modul {
@@ -170,12 +174,14 @@ impl Modul {
 
         let output_stream = create_output_stream_live(&output_device, &config, output_consumer);
 
+        let is_recording = Arc::new(AtomicBool::new(false));
+
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
             tape_model,
             input_consumer,
             key_receiver,
-            is_recording: false,
+            is_recording: Arc::clone(&is_recording),
             selected_tape: 0,
             output_producer,
             audio_index: Arc::clone(&audio_index),
@@ -192,6 +198,7 @@ impl Modul {
             _output_stream: output_stream,
             time: 0.0,
             audio_index: Arc::clone(&audio_index),
+            is_recording: Arc::clone(&is_recording),
             key_sender,
         }
     }
@@ -202,6 +209,10 @@ impl Modul {
 
     pub fn get_audio_index(&self) -> usize {
         self.audio_index.load(Ordering::SeqCst)
+    }
+
+    pub fn is_recording(&self) -> bool {
+        self.is_recording.load(Ordering::SeqCst)
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {

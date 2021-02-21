@@ -114,6 +114,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
         view.draw(&draw, cursor_position)
     }
 
+    if model.modul.is_recording() {
+        draw.ellipse().w_h(20.0, 20.0).x_y(0.0, 0.0).color(CRIMSON);
+    }
+
     draw.to_frame(app, &frame).unwrap();
 
     thread::sleep(std::time::Duration::from_millis(33));
