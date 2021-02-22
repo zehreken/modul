@@ -80,14 +80,19 @@ impl AudioModel {
                         self.is_recording.store(false, Ordering::SeqCst);
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
-                        for i in (0..self.recording_tape.len()).step_by(2) {
-                            let mut index = self.recording_tape[i].0;
-                            let sample = self.recording_tape[i].1 + self.recording_tape[i + 1].1;
-                            for j in 0..2 {
-                                index = index + j;
-                                index %= TAPE_LENGTH;
-                                audio[index] = sample;
-                            }
+                        // This forces fake stereo
+                        // for i in (0..self.recording_tape.len()).step_by(2) {
+                        //     let mut index = self.recording_tape[i].0;
+                        //     let sample = self.recording_tape[i].1 + self.recording_tape[i + 1].1;
+                        //     for j in 0..2 {
+                        //         index = index + j;
+                        //         index %= TAPE_LENGTH;
+                        //         audio[index] = sample;
+                        //     }
+                        // }
+                        // Without forcing fake stereo
+                        for t in self.recording_tape.iter() {
+                            audio[t.0] = t.1;
                         }
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
