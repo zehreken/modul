@@ -1,6 +1,6 @@
 use crate::modul_utils::utils::*;
 use crate::tape::tape::Tape;
-use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::sync::Arc;
@@ -35,6 +35,7 @@ struct AudioModel {
 enum ModulAction {
     SelectTape(usize),
     Record,
+    _Pause,
     _Play,
     Write,
     _ClearAll,
@@ -136,8 +137,8 @@ impl AudioModel {
 }
 
 pub struct Modul {
-    _input_stream: Stream,
-    _output_stream: Stream,
+    input_stream: Stream,
+    output_stream: Stream,
     time: f32,
     audio_index: Arc<AtomicUsize>,
     key_sender: Sender<ModulAction>,
@@ -199,8 +200,8 @@ impl Modul {
         });
 
         Modul {
-            _input_stream: input_stream,
-            _output_stream: output_stream,
+            input_stream,
+            output_stream,
             time: 0.0,
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
@@ -230,7 +231,17 @@ impl Modul {
         self.key_sender.send(ModulAction::Record).unwrap();
     }
 
-    pub fn play(&self) {}
+    pub fn pause(&self) {
+        // self.key_sender.send(ModulAction::Pause).unwrap();
+        self.input_stream.pause().unwrap();
+        self.output_stream.pause().unwrap();
+    }
+
+    pub fn play(&self) {
+        // self.key_sender.send(ModulAction::Play).unwrap();
+        self.input_stream.play().unwrap();
+        self.output_stream.play().unwrap();
+    }
 
     pub fn write(&self) {
         self.key_sender.send(ModulAction::Write).unwrap();
