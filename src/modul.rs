@@ -26,6 +26,7 @@ struct AudioModel {
     input_consumer: Consumer<(usize, f32)>,
     key_receiver: Receiver<ModulAction>,
     is_recording: Arc<AtomicBool>,
+    is_recording_playback: bool,
     selected_tape: usize,
     output_producer: Producer<f32>,
     audio_index: Arc<AtomicUsize>,
@@ -37,6 +38,7 @@ enum ModulAction {
     Record,
     _Pause,
     _Play,
+    Playback,
     Write,
     _ClearAll,
     Clear,
@@ -53,16 +55,20 @@ impl AudioModel {
                     self.recording_tape.push(t);
                 }
                 // send audio to output
-                let mut s: f32 = 0.0;
+                let mut sample: f32 = 0.0;
                 for tape in self.tape_model.tapes.iter() {
-                    s += tape.audio[t.0] * tape.volume;
+                    sample += tape.audio[t.0] * tape.volume;
                 }
-                let r = self.output_producer.push(t.1 + s);
+
+                let r = self.output_producer.push(sample + t.1);
                 match r {
                     Ok(_) => {}
                     Err(_e) => eprintln!("error: {}", self.output_producer.len()),
                 }
-                self.writing_tape.push(t.1 + s);
+                if self.is_recording_playback {
+                    sample += t.1;
+                }
+                self.writing_tape.push(sample);
 
                 audio_index = t.0;
             }
@@ -81,7 +87,7 @@ impl AudioModel {
                         self.is_recording.store(false, Ordering::SeqCst);
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
-                        
+
                         for t in self.recording_tape.iter() {
                             audio[t.0] = t.1;
                         }
@@ -93,6 +99,9 @@ impl AudioModel {
                         self.is_recording.store(true, Ordering::SeqCst);
                         self.recording_tape.clear();
                     }
+                }
+                ModulAction::Playback => {
+                    self.is_recording_playback = !self.is_recording_playback;
                 }
                 ModulAction::Write => {
                     // let tape = merge_tapes(&self.tape_model.tapes);
@@ -178,6 +187,7 @@ impl Modul {
             input_consumer,
             key_receiver,
             is_recording: Arc::clone(&is_recording),
+            is_recording_playback: false,
             selected_tape: 0,
             output_producer,
             audio_index: Arc::clone(&audio_index),
@@ -231,6 +241,10 @@ impl Modul {
         // self.key_sender.send(ModulAction::Play).unwrap();
         self.input_stream.play().unwrap();
         self.output_stream.play().unwrap();
+    }
+
+    pub fn playback(&self) {
+        self.key_sender.send(ModulAction::Playback).unwrap();
     }
 
     pub fn write(&self) {

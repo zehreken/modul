@@ -74,6 +74,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
         Key::P => {
             model.modul.play();
         }
+        Key::T => {
+            model.modul.playback();
+        }
         Key::W => {
             model.modul.write();
         }
