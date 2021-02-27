@@ -75,7 +75,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
             model.modul.play();
         }
         Key::T => {
-            model.modul.playback();
+            model.modul.record_playback();
         }
         Key::W => {
             model.modul.write();
@@ -121,7 +121,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
     }
 
     if model.modul.is_recording() {
-        draw.ellipse().w_h(20.0, 20.0).x_y(0.0, 0.0).color(CRIMSON);
+        draw.ellipse().w_h(30.0, 30.0).x_y(0.0, 0.0).color(CRIMSON);
+    }
+
+    if model.modul.is_recording_playback() {
+        draw.ellipse().w_h(20.0, 20.0).x_y(0.0, 0.0).color(GREEN);
     }
 
     draw.to_frame(app, &frame).unwrap();
