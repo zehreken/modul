@@ -1,27 +1,40 @@
 use super::modul;
-use eframe::{egui, epi};
+use eframe::{
+    egui::{self, color, Key},
+    epi,
+};
+use egui::Ui;
 
-struct MyApp {
+struct EguiView {
+    modul: modul::Modul,
+    selected_tape: usize,
     name: String,
     age: u32,
 }
 
-impl Default for MyApp {
+impl Default for EguiView {
     fn default() -> Self {
         Self {
+            modul: modul::Modul::new(),
+            selected_tape: 0,
             name: "Arthur".to_owned(),
             age: 42,
         }
     }
 }
 
-impl epi::App for MyApp {
+impl epi::App for EguiView {
     fn name(&self) -> &str {
-        "My egui App"
+        "modul"
     }
 
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-        let Self { name, age } = self;
+        let Self {
+            modul,
+            selected_tape,
+            name,
+            age,
+        } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("My egui Application");
@@ -34,6 +47,57 @@ impl epi::App for MyApp {
                 *age += 1;
             }
             ui.label(format!("Hello '{}', age {}", name, age));
+            ui.horizontal(|ui| {
+                if ui.selectable_label(*selected_tape == 0, "1").clicked() {
+                    *selected_tape = 0;
+                    modul.set_selected_tape(0);
+                }
+                if ui.selectable_label(*selected_tape == 1, "2").clicked() {
+                    *selected_tape = 1;
+                    modul.set_selected_tape(1);
+                }
+                if ui.selectable_label(*selected_tape == 2, "3").clicked() {
+                    *selected_tape = 2;
+                    modul.set_selected_tape(2);
+                }
+                if ui.selectable_label(*selected_tape == 3, "4").clicked() {
+                    *selected_tape = 3;
+                    modul.set_selected_tape(3);
+                }
+            });
+
+            // Keyboard input
+            for e in ui.input().events.iter() {
+                match e {
+                    egui::Event::Key {
+                        key,
+                        pressed,
+                        modifiers,
+                    } => {
+                        if !pressed {
+                            match key {
+                                Key::Num1 => {
+                                    modul.set_selected_tape(0);
+                                }
+                                Key::Num2 => {
+                                    modul.set_selected_tape(1);
+                                }
+                                Key::Num3 => {
+                                    modul.set_selected_tape(2);
+                                }
+                                Key::Num4 => {
+                                    modul.set_selected_tape(3);
+                                }
+                                Key::R => {
+                                    modul.record();
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
         });
 
         // Resize the native window to be just the size we need it to be:
@@ -42,6 +106,5 @@ impl epi::App for MyApp {
 }
 
 pub fn start() {
-    let modul = modul::Modul::new();
-    eframe::run_native(Box::new(MyApp::default()));
+    eframe::run_native(Box::new(EguiView::default()));
 }
