@@ -59,20 +59,28 @@ impl epi::App for EguiView {
                         if *pressed {
                             match key {
                                 Key::Num1 => {
-                                    *selected_tape = 0;
-                                    modul.set_selected_tape(0);
+                                    if !modul.is_recording() {
+                                        *selected_tape = 0;
+                                        modul.set_selected_tape(0);
+                                    }
                                 }
                                 Key::Num2 => {
-                                    *selected_tape = 1;
-                                    modul.set_selected_tape(1);
+                                    if !modul.is_recording() {
+                                        *selected_tape = 1;
+                                        modul.set_selected_tape(1);
+                                    }
                                 }
                                 Key::Num3 => {
-                                    *selected_tape = 2;
-                                    modul.set_selected_tape(2);
+                                    if !modul.is_recording() {
+                                        *selected_tape = 2;
+                                        modul.set_selected_tape(2);
+                                    }
                                 }
                                 Key::Num4 => {
-                                    *selected_tape = 3;
-                                    modul.set_selected_tape(3);
+                                    if !modul.is_recording() {
+                                        *selected_tape = 3;
+                                        modul.set_selected_tape(3);
+                                    }
                                 }
                                 Key::R => {
                                     modul.record();
@@ -97,13 +105,21 @@ impl epi::App for EguiView {
 
 fn group(ui: &mut Ui, selected_tape: &mut usize, modul: &mut modul::Modul, id: usize) {
     ui.group(|ui| {
-        if ui
-            .selectable_label(*selected_tape == id, (id + 1).to_string())
-            .clicked()
-        {
-            *selected_tape = id;
-            modul.set_selected_tape(id);
-        }
+        ui.horizontal(|ui| {
+            if ui
+                .selectable_label(*selected_tape == id, (id + 1).to_string())
+                .clicked()
+            {
+                if !modul.is_recording() {
+                    *selected_tape = id;
+                    modul.set_selected_tape(id);
+                }
+            }
+
+            if *selected_tape == id && modul.is_recording() {
+                ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");
+            }
+        });
         let time = ui.input().time;
 
         let desired_size = ui.available_width() * vec2(1.0, 0.1);
@@ -116,7 +132,7 @@ fn group(ui: &mut Ui, selected_tape: &mut usize, modul: &mut modul::Modul, id: u
 
         for &mode in &[2, 3, 5] {
             let mode = mode as f32;
-            let n = 60;
+            let n = 30;
             let speed = 1.5;
 
             let points: Vec<Pos2> = (0..=n)
