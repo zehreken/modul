@@ -44,6 +44,9 @@ impl epi::App for EguiView {
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
             ui.label(format!("diff: {:0.5}", 0.0));
+            if modul.is_recording_playback() {
+                ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
+            }
             for i in 0..4 {
                 group(ui, selected_tape, modul, i);
             }
@@ -84,6 +87,27 @@ impl epi::App for EguiView {
                                 }
                                 Key::R => {
                                     modul.record();
+                                }
+                                Key::O => {
+                                    modul.pause();
+                                }
+                                Key::P => {
+                                    modul.play();
+                                }
+                                Key::T => {
+                                    modul.record_playback();
+                                }
+                                Key::W => {
+                                    modul.write();
+                                }
+                                Key::C => {
+                                    modul.clear();
+                                }
+                                Key::M => {
+                                    modul.mute();
+                                }
+                                Key::N => {
+                                    modul.unmute();
                                 }
                                 Key::Escape => {
                                     frame.quit();
