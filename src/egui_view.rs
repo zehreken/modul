@@ -5,7 +5,7 @@ use eframe::{
 };
 use std::time::Instant;
 
-struct EguiView {
+pub struct EguiView {
     instant: Instant,
     modul: modul::Modul,
     selected_tape: usize,
@@ -34,6 +34,9 @@ impl epi::App for EguiView {
         } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Window::new("My Window").show(ctx, |ui| {
+                ui.label("Hello World!");
+            });
             ctx.request_repaint();
             ui.heading("modul");
 
