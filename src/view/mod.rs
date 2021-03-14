@@ -1,7 +1,7 @@
-use {egui_miniquad as egui_mq, miniquad as mq};
-use super::quad;
-use super::quad::shader;
+mod quad; 
+use quad::shader;
 use miniquad::*;
+use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
