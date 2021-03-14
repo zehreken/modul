@@ -5,6 +5,7 @@ mod modul;
 mod modul_utils;
 mod nannou_view;
 mod tape;
+mod quad;
 
 fn main() {
     // nannou_view::start();
