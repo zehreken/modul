@@ -1,13 +1,16 @@
-mod quad; 
-use quad::shader;
+mod quad;
 use miniquad::*;
+use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
+mod egui_view;
+use super::modul;
+use super::modul_utils;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
     show_egui_demo_windows: bool,
     quad_stage: quad::Stage,
-    // egui_demo_windows: egui_demo_lib::DemoWindows,
+    egui_view: egui_view::EguiView,
 }
 
 impl Stage {
@@ -16,7 +19,7 @@ impl Stage {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_egui_demo_windows: true,
             quad_stage: quad::Stage::new(ctx),
-            // egui_demo_windows: Default::default(),
+            egui_view: egui_view::EguiView::default(),
         }
     }
 
@@ -25,13 +28,13 @@ impl Stage {
             egui_mq,
             show_egui_demo_windows,
             quad_stage,
-            // egui_demo_windows,
+            egui_view,
         } = self;
 
         let egui_ctx = egui_mq.egui_ctx();
 
         if *show_egui_demo_windows {
-            // egui_demo_windows.ui(egui_ctx);
+            egui_view.ui(egui_ctx);
         }
 
         egui::Window::new("egui ❤ miniquad").show(egui_ctx, |ui| {
@@ -132,6 +135,7 @@ impl mq::EventHandler for Stage {
 
 pub fn start() {
     let conf = mq::conf::Conf {
+        window_title: "modul".to_string(),
         high_dpi: true,
         ..Default::default()
     };

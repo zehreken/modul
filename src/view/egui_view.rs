@@ -1,8 +1,5 @@
 use super::modul;
-use eframe::{
-    egui::{self, Key, *},
-    epi,
-};
+use egui::*;
 use std::time::Instant;
 
 pub struct EguiView {
@@ -21,12 +18,9 @@ impl Default for EguiView {
     }
 }
 
-impl epi::App for EguiView {
-    fn name(&self) -> &str {
-        "modul"
-    }
-
-    fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+impl EguiView {
+    // fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+    pub fn ui(&mut self, ctx: &egui::CtxRef) {
         let Self {
             instant,
             modul,
@@ -113,7 +107,7 @@ impl epi::App for EguiView {
                                     modul.unmute();
                                 }
                                 Key::Escape => {
-                                    frame.quit();
+                                    std::process::exit(0);
                                 }
                                 _ => {}
                             }
@@ -123,10 +117,6 @@ impl epi::App for EguiView {
                 }
             }
         });
-
-        // Resize the native window to be just the size we need it to be:
-        // frame.set_window_size(ctx.used_size());
-        frame.set_window_size(vec2(512.0, 512.0));
     }
 }
 
@@ -188,8 +178,4 @@ fn group(ui: &mut Ui, selected_tape: &mut usize, modul: &mut modul::Modul, id: u
         ));
         ui.painter().extend(shapes);
     });
-}
-
-pub fn start() {
-    eframe::run_native(Box::new(EguiView::default()));
 }
