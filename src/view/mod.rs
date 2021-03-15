@@ -63,7 +63,7 @@ impl mq::EventHandler for Stage {
 
         // Pass data to shader
         ctx.apply_uniforms(&shader::Uniforms {
-            offset: (0f32.sin() as f32 * 0.5, (0f32 * 3.).cos() as f32 * 0.5),
+            offset: (0f32.sin() as f32 * 0.5, (0f32 * 3.).cos() as f32 * 0.0),
         });
         ctx.draw(0, 6, 1);
 

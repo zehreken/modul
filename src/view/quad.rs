@@ -64,31 +64,9 @@ impl Quad {
 pub mod shader {
     use miniquad::*;
 
-    pub const VERTEX: &str = r#"
-    #version 100
-    attribute vec2 pos;
-    attribute vec2 uv;
+    pub const VERTEX: &str = include_str!("vertex.cg");
 
-    uniform vec2 offset;
-
-    varying lowp vec2 texcoord;
-
-    void main() {
-        gl_Position = vec4(pos + offset, 0, 1);
-        texcoord = uv;
-    }
-    "#;
-
-    pub const FRAGMENT: &str = r#"
-    #version 100
-    varying lowp vec2 texcoord;
-
-    uniform sampler2D tex;
-
-    void main() {
-        gl_FragColor = texture2D(tex, texcoord);
-    }
-    "#;
+    pub const FRAGMENT: &str = include_str!("fragment.cg");
 
     pub fn meta() -> ShaderMeta {
         ShaderMeta {
