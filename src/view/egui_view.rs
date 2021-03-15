@@ -27,10 +27,8 @@ impl EguiView {
             selected_tape,
         } = self;
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Window::new("My Window").show(ctx, |ui| {
-                ui.label("Hello World!");
-            });
+        // egui::CentralPanel::default().show(ctx, |ui| {
+        egui::Window::new("modul").show(ctx, |ui| {
             ctx.request_repaint();
             ui.heading("modul");
 

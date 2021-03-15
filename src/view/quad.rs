@@ -11,19 +11,19 @@ struct Vertex {
     uv: Vec2,
 }
 
-pub struct Stage {
+pub struct Quad {
     pub pipeline: Pipeline,
     pub bindings: Bindings,
 }
 
-impl Stage {
-    pub fn new(ctx: &mut Context) -> Stage {
+impl Quad {
+    pub fn new(ctx: &mut Context) -> Quad {
         #[rustfmt::skip]
         let vertices: [Vertex; 4] = [
-            Vertex { pos : Vec2 { x: -0.5, y: -0.5 }, uv: Vec2 { x: 0., y: 0. } },
-            Vertex { pos : Vec2 { x:  0.5, y: -0.5 }, uv: Vec2 { x: 1., y: 0. } },
-            Vertex { pos : Vec2 { x:  0.5, y:  0.5 }, uv: Vec2 { x: 1., y: 1. } },
-            Vertex { pos : Vec2 { x: -0.5, y:  0.5 }, uv: Vec2 { x: 0., y: 1. } },
+            Vertex { pos : Vec2 { x: -1.0, y: -1.0 }, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec2 { x:  1.0, y: -1.0 }, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec2 { x:  1.0, y:  1.0 }, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec2 { x: -1.0, y:  1.0 }, uv: Vec2 { x: 0.0, y: 1.0 } },
         ];
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
@@ -57,44 +57,15 @@ impl Stage {
             shader,
         );
 
-        Stage { pipeline, bindings }
+        Quad { pipeline, bindings }
     }
-}
-
-impl EventHandler for Stage {
-    fn update(&mut self, _ctx: &mut Context) {}
-
-    fn draw(&mut self, ctx: &mut Context) {
-        let t = date::now();
-
-        ctx.begin_default_pass(Default::default());
-
-        ctx.apply_pipeline(&self.pipeline);
-        ctx.apply_bindings(&self.bindings);
-        for i in 0..10 {
-            let t = t + i as f64 * 0.3;
-
-            ctx.apply_uniforms(&shader::Uniforms {
-                offset: (t.sin() as f32 * 0.5, (t * 3.).cos() as f32 * 0.5),
-            });
-            ctx.draw(0, 6, 1);
-        }
-        ctx.end_render_pass();
-
-        ctx.commit_frame();
-    }
-}
-
-fn main() {
-    miniquad::start(conf::Conf::default(), |mut ctx| {
-        UserData::owning(Stage::new(&mut ctx), ctx)
-    });
 }
 
 pub mod shader {
     use miniquad::*;
 
-    pub const VERTEX: &str = r#"#version 100
+    pub const VERTEX: &str = r#"
+    #version 100
     attribute vec2 pos;
     attribute vec2 uv;
 
@@ -105,16 +76,19 @@ pub mod shader {
     void main() {
         gl_Position = vec4(pos + offset, 0, 1);
         texcoord = uv;
-    }"#;
+    }
+    "#;
 
-    pub const FRAGMENT: &str = r#"#version 100
+    pub const FRAGMENT: &str = r#"
+    #version 100
     varying lowp vec2 texcoord;
 
     uniform sampler2D tex;
 
     void main() {
         gl_FragColor = texture2D(tex, texcoord);
-    }"#;
+    }
+    "#;
 
     pub fn meta() -> ShaderMeta {
         ShaderMeta {

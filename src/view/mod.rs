@@ -9,7 +9,7 @@ use super::modul_utils;
 struct Stage {
     egui_mq: egui_mq::EguiMq,
     show_egui_demo_windows: bool,
-    quad_stage: quad::Stage,
+    quad_stage: quad::Quad,
     egui_view: egui_view::EguiView,
 }
 
@@ -18,7 +18,7 @@ impl Stage {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_egui_demo_windows: true,
-            quad_stage: quad::Stage::new(ctx),
+            quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
         }
     }
@@ -37,8 +37,8 @@ impl Stage {
             egui_view.ui(egui_ctx);
         }
 
-        egui::Window::new("egui ❤ miniquad").show(egui_ctx, |ui| {
-            ui.checkbox(show_egui_demo_windows, "Show egui demo windows");
+        egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
+            ui.checkbox(show_egui_demo_windows, "show modul ui");
 
             #[cfg(not(target_arch = "wasm32"))]
             {
@@ -54,21 +54,19 @@ impl mq::EventHandler for Stage {
     fn update(&mut self, _ctx: &mut mq::Context) {}
 
     fn draw(&mut self, ctx: &mut mq::Context) {
-        let t = date::now();
         ctx.clear(Some((1., 1., 1., 1.)), None, None);
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
         ctx.apply_pipeline(&self.quad_stage.pipeline);
         ctx.apply_bindings(&self.quad_stage.bindings);
-        for i in 0..10 {
-            let t = t + i as f64 * 0.3;
 
-            ctx.apply_uniforms(&shader::Uniforms {
-                offset: (t.sin() as f32 * 0.5, (t * 3.).cos() as f32 * 0.5),
-            });
-            ctx.draw(0, 6, 1);
-        }
+        // Pass data to shader
+        ctx.apply_uniforms(&shader::Uniforms {
+            offset: (0f32.sin() as f32 * 0.5, (0f32 * 3.).cos() as f32 * 0.5),
+        });
+        ctx.draw(0, 6, 1);
+
         ctx.end_render_pass();
 
         self.egui_mq.begin_frame(ctx);
