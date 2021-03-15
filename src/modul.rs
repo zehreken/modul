@@ -83,7 +83,6 @@ impl AudioModel {
             match c {
                 ModulAction::Record => {
                     if self.is_recording.load(Ordering::SeqCst) {
-                        println!("stop recording {}", self.selected_tape);
                         self.is_recording.store(false, Ordering::SeqCst);
 
                         let mut audio = vec![0.0; TAPE_LENGTH];
@@ -95,7 +94,6 @@ impl AudioModel {
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
                     } else {
-                        println!("start recording {}", self.selected_tape);
                         self.is_recording.store(true, Ordering::SeqCst);
                         self.recording_tape.clear();
                     }
