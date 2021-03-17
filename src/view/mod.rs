@@ -133,6 +133,8 @@ impl mq::EventHandler for Stage {
 
 pub fn start() {
     let conf = mq::conf::Conf {
+        window_width: 700,
+        window_height: 700,
         window_title: "modul".to_string(),
         high_dpi: true,
         ..Default::default()

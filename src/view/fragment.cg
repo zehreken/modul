@@ -1,8 +1,23 @@
 #version 100
+precision highp float;
 varying lowp vec2 texcoord;
 
-uniform sampler2D tex;
+float circle(vec2 pos, float radius)
+{
+    float r = length(pos) - radius;
+	return r;
+}
+
+float box(vec2 pos, vec2 b)
+{
+    vec2 d = abs(pos) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
 
 void main() {
-    gl_FragColor = texture2D(tex, texcoord);
+    float radius = 0.3;
+    float d = length(texcoord);
+    float c = sign(circle(texcoord + vec2(-0.5, -0.5), radius));
+
+    gl_FragColor = vec4(c, c, c, 1);
 }
