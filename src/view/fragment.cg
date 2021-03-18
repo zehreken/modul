@@ -1,5 +1,6 @@
 #version 100
 precision highp float;
+uniform vec4 wavepoints;
 varying lowp vec2 texcoord;
 
 float circle(vec2 pos, float radius)
@@ -15,7 +16,7 @@ float box(vec2 pos, vec2 b)
 }
 
 void main() {
-    float radius = 0.3;
+    float radius = wavepoints.x;
     float d = length(texcoord);
     float c = sign(circle(texcoord + vec2(-0.5, -0.5), radius));
 

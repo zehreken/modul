@@ -63,7 +63,10 @@ pub mod shader {
         ShaderMeta {
             images: vec![],
             uniforms: UniformBlockLayout {
-                uniforms: vec![UniformDesc::new("offset", UniformType::Float2)],
+                uniforms: vec![
+                    UniformDesc::new("offset", UniformType::Float2),
+                    UniformDesc::new("wavepoints", UniformType::Float4),
+                ],
             },
         }
     }
@@ -71,5 +74,6 @@ pub mod shader {
     #[repr(C)]
     pub struct Uniforms {
         pub offset: (f32, f32),
+        pub wavepoints: [f32; 4],
     }
 }
