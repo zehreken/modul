@@ -6,7 +6,8 @@ uniform vec2 offset;
 
 varying lowp vec2 texcoord;
 
-void main() {
+void main()
+{
     gl_Position = vec4(pos + offset, 0, 1); 
     texcoord = uv;
 }
