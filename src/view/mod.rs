@@ -63,7 +63,7 @@ impl mq::EventHandler for Stage {
         // Pass data to shader
         ctx.apply_uniforms(&shader::Uniforms {
             offset: (0f32, 0f32),
-            wavepoints: [0.1f32; 4],
+            wavepoints: [0.01, 0.02, 0.04, 0.08],
         });
         ctx.draw(0, 6, 1);
 
