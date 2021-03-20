@@ -4,7 +4,6 @@ use std::time::Instant;
 
 pub struct EguiView {
     instant: Instant,
-    modul: modul::Modul,
     selected_tape: usize,
 }
 
@@ -12,7 +11,6 @@ impl Default for EguiView {
     fn default() -> Self {
         Self {
             instant: Instant::now(),
-            modul: modul::Modul::new(),
             selected_tape: 0,
         }
     }
@@ -20,10 +18,9 @@ impl Default for EguiView {
 
 impl EguiView {
     // fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-    pub fn ui(&mut self, ctx: &egui::CtxRef) {
+    pub fn ui(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
             instant,
-            modul,
             selected_tape,
         } = self;
 

@@ -3,11 +3,11 @@ use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
-use std::sync::Arc;
 use std::sync::{
     atomic::AtomicBool,
     mpsc::{channel, Receiver, Sender},
 };
+use std::sync::{Arc, Mutex};
 use std::{
     sync::atomic::{AtomicUsize, Ordering},
     time::Duration,
@@ -31,6 +31,7 @@ struct AudioModel {
     output_producer: Producer<f32>,
     audio_index: Arc<AtomicUsize>,
     writing_tape: Vec<f32>,
+    sample_averages: Arc<Mutex<[f32; 4]>>,
 }
 
 enum ModulAction {
@@ -48,6 +49,8 @@ enum ModulAction {
 
 impl AudioModel {
     pub fn update(&mut self) {
+        let mut sample_averages = [0.0; 4];
+        let sample_count = self.input_consumer.len();
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
@@ -56,7 +59,9 @@ impl AudioModel {
                 }
                 // send audio to output
                 let mut sample: f32 = 0.0;
-                for tape in self.tape_model.tapes.iter() {
+                for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut())
+                {
+                    *average += tape.audio[t.0] * tape.volume;
                     sample += tape.audio[t.0] * tape.volume;
                 }
 
@@ -73,6 +78,15 @@ impl AudioModel {
                 audio_index = t.0;
             }
             self.audio_index.store(audio_index, Ordering::SeqCst);
+        }
+
+        if sample_count > 0 {
+            for average in sample_averages.iter_mut() {
+                *average /= sample_count as f32;
+                *average += 0.01;
+                // println!("{}", average);
+            }
+            *self.sample_averages.lock().unwrap() = sample_averages;
         }
 
         self.check_input();
@@ -144,6 +158,7 @@ pub struct Modul {
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
+    sample_averages: Arc<Mutex<[f32; 4]>>,
 }
 
 impl Modul {
@@ -183,6 +198,7 @@ impl Modul {
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
+        let sample_averages = Arc::new(Mutex::new([0.0; 4]));
 
         let mut audio_model: AudioModel = AudioModel {
             recording_tape,
@@ -195,6 +211,7 @@ impl Modul {
             output_producer,
             audio_index: Arc::clone(&audio_index),
             writing_tape: vec![],
+            sample_averages: Arc::clone(&sample_averages),
         };
 
         std::thread::spawn(move || loop {
@@ -210,6 +227,7 @@ impl Modul {
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
             key_sender,
+            sample_averages: Arc::clone(&sample_averages),
         }
     }
 
@@ -273,5 +291,9 @@ impl Modul {
 
     pub fn unmute(&self) {
         self.key_sender.send(ModulAction::Unmute).unwrap();
+    }
+
+    pub fn get_sample_averages(&self) -> [f32; 4] {
+        self.sample_averages.lock().unwrap().clone()
     }
 }

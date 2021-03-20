@@ -8,8 +8,9 @@ use super::modul_utils;
 struct Stage {
     egui_mq: egui_mq::EguiMq,
     show_egui_demo_windows: bool,
-    quad_stage: quad::Quad,
+    _quad_stage: quad::Quad,
     egui_view: egui_view::EguiView,
+    modul: modul::Modul,
 }
 
 impl Stage {
@@ -17,8 +18,9 @@ impl Stage {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_egui_demo_windows: true,
-            quad_stage: quad::Quad::new(ctx),
+            _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
+            modul: modul::Modul::new(),
         }
     }
 
@@ -26,14 +28,15 @@ impl Stage {
         let Self {
             egui_mq,
             show_egui_demo_windows,
-            quad_stage,
+            _quad_stage: quad_stage,
             egui_view,
+            modul,
         } = self;
 
         let egui_ctx = egui_mq.egui_ctx();
 
         if *show_egui_demo_windows {
-            egui_view.ui(egui_ctx);
+            egui_view.ui(egui_ctx, modul);
         }
 
         egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
@@ -57,13 +60,13 @@ impl mq::EventHandler for Stage {
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
-        ctx.apply_pipeline(&self.quad_stage.pipeline);
-        ctx.apply_bindings(&self.quad_stage.bindings);
+        ctx.apply_pipeline(&self._quad_stage.pipeline);
+        ctx.apply_bindings(&self._quad_stage.bindings);
 
         // Pass data to shader
         ctx.apply_uniforms(&shader::Uniforms {
             offset: (0f32, 0f32),
-            wavepoints: [0.01, 0.02, 0.04, 0.08],
+            wavepoints: self.modul.get_sample_averages(),
         });
         ctx.draw(0, 6, 1);
 
