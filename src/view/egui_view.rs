@@ -5,6 +5,7 @@ use std::time::Instant;
 pub struct EguiView {
     instant: Instant,
     selected_tape: usize,
+    tape_volumes: [f32; 4],
 }
 
 impl Default for EguiView {
@@ -12,6 +13,7 @@ impl Default for EguiView {
         Self {
             instant: Instant::now(),
             selected_tape: 0,
+            tape_volumes: [1.0; 4],
         }
     }
 }
@@ -22,6 +24,7 @@ impl EguiView {
         let Self {
             instant,
             selected_tape,
+            tape_volumes,
         } = self;
 
         // egui::CentralPanel::default().show(ctx, |ui| {
@@ -40,7 +43,7 @@ impl EguiView {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
             for i in 0..4 {
-                group(ui, selected_tape, modul, i);
+                group(ui, selected_tape, tape_volumes, modul, i);
             }
 
             // Keyboard input
@@ -101,6 +104,18 @@ impl EguiView {
                                 Key::N => {
                                     modul.unmute();
                                 }
+                                Key::ArrowUp => {
+                                    if tape_volumes[*selected_tape] < 1.0 {
+                                        tape_volumes[*selected_tape] += 0.05;
+                                    }
+                                    modul.volume_up();
+                                }
+                                Key::ArrowDown => {
+                                    if tape_volumes[*selected_tape] > 0.0 {
+                                        tape_volumes[*selected_tape] -= 0.05;
+                                    }
+                                    modul.volume_down();
+                                }
                                 Key::Escape => {
                                     std::process::exit(0);
                                 }
@@ -115,7 +130,13 @@ impl EguiView {
     }
 }
 
-fn group(ui: &mut Ui, selected_tape: &mut usize, modul: &mut modul::Modul, id: usize) {
+fn group(
+    ui: &mut Ui,
+    selected_tape: &mut usize,
+    tape_volumes: &mut [f32; 4],
+    modul: &mut modul::Modul,
+    id: usize,
+) {
     ui.group(|ui| {
         ui.horizontal(|ui| {
             if ui
@@ -127,6 +148,8 @@ fn group(ui: &mut Ui, selected_tape: &mut usize, modul: &mut modul::Modul, id: u
                     modul.set_selected_tape(id);
                 }
             }
+
+            ui.label(format!("{:0.2}", tape_volumes[id]));
 
             if *selected_tape == id && modul.is_recording() {
                 ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");

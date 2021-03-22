@@ -63,10 +63,7 @@ pub mod utils {
     }
 
     pub fn _merge_tapes(tapes: &[Tape<f32>]) -> Tape<f32> {
-        let mut sum_tape: Tape<f32> = Tape {
-            volume: 1.0,
-            audio: vec![0.0; TAPE_LENGTH],
-        };
+        let mut sum_tape: Tape<f32> = Tape::new(0.0, TAPE_LENGTH);
 
         for tape in tapes {
             for (sum, sample) in sum_tape.audio.iter_mut().zip(tape.audio.iter()) {

@@ -45,6 +45,8 @@ enum ModulAction {
     Clear,
     Mute,
     Unmute,
+    VolumeUp,
+    VolumeDown,
 }
 
 impl AudioModel {
@@ -61,8 +63,8 @@ impl AudioModel {
                 let mut sample: f32 = 0.0;
                 for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut())
                 {
-                    *average += tape.audio[t.0] * tape.volume;
-                    sample += tape.audio[t.0] * tape.volume;
+                    *average += tape.audio[t.0] * tape.get_volume();
+                    sample += tape.audio[t.0] * tape.get_volume();
                 }
 
                 let r = self.output_producer.push(sample + t.1);
@@ -143,6 +145,12 @@ impl AudioModel {
                 }
                 ModulAction::SelectTape(tape) => {
                     self.selected_tape = tape;
+                }
+                ModulAction::VolumeUp => {
+                    self.tape_model.tapes[self.selected_tape].volume_up();
+                }
+                ModulAction::VolumeDown => {
+                    self.tape_model.tapes[self.selected_tape].volume_down();
                 }
                 _ => {}
             }
@@ -291,6 +299,14 @@ impl Modul {
 
     pub fn unmute(&self) {
         self.key_sender.send(ModulAction::Unmute).unwrap();
+    }
+
+    pub fn volume_up(&self) {
+        self.key_sender.send(ModulAction::VolumeUp).unwrap();
+    }
+
+    pub fn volume_down(&self) {
+        self.key_sender.send(ModulAction::VolumeDown).unwrap();
     }
 
     pub fn get_sample_averages(&self) -> [f32; 4] {
