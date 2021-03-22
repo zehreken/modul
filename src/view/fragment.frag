@@ -18,9 +18,10 @@ float box(vec2 pos, vec2 b)
 void main()
 {
     float radius = 0.1;
-    float x_mod = mod(texcoord.x, 0.25);
-    int radiusIndex = int(texcoord.x / 0.25);
-    float c = sign(circle(vec2(x_mod, texcoord.y) + vec2(-0.125, -0.5), wavepoints[radiusIndex]));
+    float xPos = mod(texcoord.x, 0.25 * 1.6);
+    int radiusIndex = int(texcoord.x / (0.25 * 1.6));
+    float c = sign(circle(vec2(xPos, texcoord.y) +
+        vec2(-0.125 * 1.6, -0.5), wavepoints[radiusIndex]));
 
-    gl_FragColor = vec4(c, c, c, 1);
+    gl_FragColor = vec4(1, c, c, 1);
 }

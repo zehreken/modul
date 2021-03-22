@@ -85,7 +85,7 @@ impl AudioModel {
         if sample_count > 0 {
             for average in sample_averages.iter_mut() {
                 *average /= sample_count as f32;
-                *average += 0.01;
+                *average += 0.02;
                 // println!("{}", average);
             }
             *self.sample_averages.lock().unwrap() = sample_averages;

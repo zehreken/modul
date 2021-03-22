@@ -19,7 +19,6 @@ impl Default for EguiView {
 }
 
 impl EguiView {
-    // fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
     pub fn ui(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
             instant,
@@ -27,12 +26,10 @@ impl EguiView {
             tape_volumes,
         } = self;
 
-        // egui::CentralPanel::default().show(ctx, |ui| {
         egui::Window::new("modul").show(ctx, |ui| {
             ctx.request_repaint();
             ui.heading("modul");
 
-            // ui.add(egui::Slider::u32(age, 0..=120).text("age"));
             ui.label(format!(
                 "real time: {:0.1}",
                 instant.elapsed().as_secs_f32()
@@ -155,35 +152,14 @@ fn group(
                 ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");
             }
         });
-        let time = ui.input().time;
 
-        let desired_size = ui.available_width() * vec2(1.0, 0.1);
+        let desired_size = ui.available_width() * vec2(1.0, 0.02);
         let (_id, rect) = ui.allocate_space(desired_size);
 
         let to_screen =
             emath::RectTransform::from_to(Rect::from_x_y_ranges(0.0..=1.0, -1.0..=1.0), rect);
 
         let mut shapes = vec![];
-        // for &mode in &[2, 3, 5] {
-        //     let mode = mode as f32;
-        //     let n = 30;
-        //     let speed = 1.5;
-
-        //     let points: Vec<Pos2> = (0..=n)
-        //         .map(|i| {
-        //             let t = i as f32 / (n as f32);
-        //             let amp = (time as f32 * speed * mode).sin() / mode;
-        //             let y = amp * (t * std::f32::consts::TAU / 2.0 * mode).sin();
-        //             to_screen * pos2(t, y)
-        //         })
-        //         .collect();
-
-        //     let thickness = 1.0;
-        //     shapes.push(epaint::Shape::line(
-        //         points,
-        //         Stroke::new(thickness, Color32::from_additive_luminance(196)),
-        //     ));
-        // }
 
         let time = modul.get_audio_index() as f32 / super::modul_utils::utils::TAPE_LENGTH as f32;
         let points: Vec<Pos2> = (0..2)
