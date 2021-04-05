@@ -181,6 +181,11 @@ impl Modul {
             ],
         };
 
+        println!(
+            "tape length: {}, bar length: {} seconds",
+            TAPE_LENGTH, BAR_LENGTH_SECONDS
+        );
+
         let host = cpal::default_host();
 
         let input_device = host.default_input_device().unwrap();
