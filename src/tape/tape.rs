@@ -1,6 +1,7 @@
 #[derive(Clone)]
 pub struct Tape<T> {
     volume: f32,
+    is_muted: bool,
     pub audio: Vec<T>,
 }
 
@@ -8,20 +9,25 @@ impl<T: Clone> Tape<T> {
     pub fn new(default: T, length: usize) -> Self {
         Self {
             volume: 1.0,
+            is_muted: false,
             audio: vec![default; length],
         }
     }
 
     pub fn get_volume(&self) -> f32 {
-        self.volume
+        if self.is_muted {
+            0.0
+        } else {
+            self.volume
+        }
     }
 
     pub fn mute(&mut self) {
-        self.volume = 0.0;
+        self.is_muted = true;
     }
 
     pub fn unmute(&mut self) {
-        self.volume = 1.0;
+        self.is_muted = false;
     }
 
     pub fn volume_up(&mut self) {
