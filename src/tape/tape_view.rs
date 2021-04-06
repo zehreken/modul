@@ -1,5 +1,6 @@
 use nannou::prelude::*;
 use nannou::Draw;
+#[allow(dead_code)]
 pub struct TapeView {
     pub pos_x: f32,
     pub pos_y: f32,
@@ -7,6 +8,7 @@ pub struct TapeView {
 }
 
 impl TapeView {
+    #[allow(dead_code)]
     pub fn new(pos_x: f32, pos_y: f32) -> Self {
         Self {
             pos_x,
@@ -15,6 +17,7 @@ impl TapeView {
         }
     }
 
+    #[allow(dead_code)]
     pub fn draw(&self, draw: &Draw, cursor_position: f32) {
         let radian = -2.0 * std::f32::consts::PI + cursor_position * std::f32::consts::PI * 2.0;
         draw.ellipse()

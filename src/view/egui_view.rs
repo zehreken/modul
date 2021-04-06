@@ -161,7 +161,7 @@ fn group(
 
         let mut shapes = vec![];
 
-        let time = modul.get_audio_index() as f32 / super::modul_utils::utils::TAPE_LENGTH as f32;
+        let time = modul.get_audio_index() as f32 / modul.tape_length as f32;
         let points: Vec<Pos2> = (0..2)
             .map(|i| to_screen * pos2(time, -1.0 + 2.0 * i as f32))
             .collect();

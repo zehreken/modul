@@ -21,6 +21,7 @@ pub struct TapeModel {
 /// In this context audio thread is the thread that
 /// communicates with input and output streams(each has its own thread)
 struct AudioModel {
+    tape_length: usize,
     recording_tape: Vec<(usize, f32)>,
     tape_model: TapeModel,
     input_consumer: Consumer<(usize, f32)>,
@@ -101,7 +102,7 @@ impl AudioModel {
                     if self.is_recording.load(Ordering::SeqCst) {
                         self.is_recording.store(false, Ordering::SeqCst);
 
-                        let mut audio = vec![0.0; TAPE_LENGTH];
+                        let mut audio = vec![0.0; self.tape_length];
 
                         for t in self.recording_tape.iter() {
                             audio[t.0] = t.1;
@@ -159,6 +160,7 @@ impl AudioModel {
 }
 
 pub struct Modul {
+    pub tape_length: usize,
     input_stream: Stream,
     output_stream: Stream,
     time: f32,
@@ -171,29 +173,34 @@ pub struct Modul {
 
 impl Modul {
     pub fn new() -> Self {
-        let recording_tape = vec![];
-        let tape_model = TapeModel {
-            tapes: [
-                Tape::<f32>::new(0.0, TAPE_LENGTH),
-                Tape::<f32>::new(0.0, TAPE_LENGTH),
-                Tape::<f32>::new(0.0, TAPE_LENGTH),
-                Tape::<f32>::new(0.0, TAPE_LENGTH),
-            ],
-        };
-
-        println!(
-            "tape length: {}, bar length: {} seconds",
-            TAPE_LENGTH, BAR_LENGTH_SECONDS
-        );
-
         let host = cpal::default_host();
 
         let input_device = host.default_input_device().unwrap();
         let output_device = host.default_output_device().unwrap();
 
-        let config: StreamConfig = input_device.default_input_config().unwrap().into();
-        println!("input channel count: {}", config.channels);
-        println!("sample rate: {:?}", config.sample_rate);
+        let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
+        println!("input channel count: {}", input_config.channels);
+        println!("input sample rate: {:?}", input_config.sample_rate);
+
+        // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
+        let tape_length: usize =
+            (44100.0 * input_config.channels as f32 * BAR_LENGTH_SECONDS * BAR_COUNT as f32)
+                as usize;
+
+        let recording_tape = vec![];
+        let tape_model = TapeModel {
+            tapes: [
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
+            ],
+        };
+
+        println!(
+            "tape length: {}, bar length: {} seconds",
+            tape_length, BAR_LENGTH_SECONDS
+        );
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
@@ -203,17 +210,20 @@ impl Modul {
         let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
-        let input_stream = create_input_stream_live(&input_device, &config, input_producer);
+        let input_stream =
+            create_input_stream_live(&input_device, &input_config, tape_length, input_producer);
 
         let audio_index = Arc::new(AtomicUsize::new(0));
 
-        let output_stream = create_output_stream_live(&output_device, &config, output_consumer);
+        let output_stream =
+            create_output_stream_live(&output_device, &input_config, output_consumer);
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
         let sample_averages = Arc::new(Mutex::new([0.0; 4]));
 
         let mut audio_model: AudioModel = AudioModel {
+            tape_length,
             recording_tape,
             tape_model,
             input_consumer,
@@ -233,6 +243,7 @@ impl Modul {
         });
 
         Modul {
+            tape_length,
             input_stream,
             output_stream,
             time: 0.0,

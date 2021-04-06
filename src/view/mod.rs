@@ -3,7 +3,6 @@ use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 mod egui_view;
 use super::modul;
-use super::modul_utils;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,

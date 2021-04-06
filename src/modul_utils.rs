@@ -9,8 +9,6 @@ pub mod utils {
     pub const BPM: f32 = 120.0;
     pub const BAR_LENGTH_SECONDS: f32 = 4.0 * 60.0 / BPM; // beats * seconds per beat(60.0 / BPM)
     pub const BAR_COUNT: usize = 1;
-    // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
-    pub const TAPE_LENGTH: usize = (44100.0 * 4.0 * BAR_LENGTH_SECONDS * BAR_COUNT as f32) as usize;
     /// ATTENTION:
     /// If buffer capacity and update frequency is related, if update frequency is low
     /// then the buffer will not be emptied fast enough and some input will be lost
@@ -19,6 +17,7 @@ pub mod utils {
     pub fn create_input_stream_live(
         input_device: &Device,
         config: &StreamConfig,
+        tape_length: usize,
         mut producer: Producer<(usize, f32)>,
     ) -> Stream {
         let mut index = 0;
@@ -30,7 +29,7 @@ pub mod utils {
                 }
                 index += 1;
 
-                if index == TAPE_LENGTH {
+                if index == tape_length {
                     index = 0;
                 }
             }
@@ -68,8 +67,8 @@ pub mod utils {
         eprintln!("an error occured on stream: {}", err);
     }
 
-    pub fn _merge_tapes(tapes: &[Tape<f32>]) -> Tape<f32> {
-        let mut sum_tape: Tape<f32> = Tape::new(0.0, TAPE_LENGTH);
+    pub fn _merge_tapes(tapes: &[Tape<f32>], tape_length: usize) -> Tape<f32> {
+        let mut sum_tape: Tape<f32> = Tape::new(0.0, tape_length);
 
         for tape in tapes {
             for (sum, sample) in sum_tape.audio.iter_mut().zip(tape.audio.iter()) {
