@@ -8,7 +8,7 @@ pub mod utils {
     // Currently it is alwasy 4/4 time signature
     pub const BPM: f32 = 120.0;
     pub const BAR_LENGTH_SECONDS: f32 = 4.0 * 60.0 / BPM; // beats * seconds per beat(60.0 / BPM)
-    pub const BAR_COUNT: usize = 1;
+    pub const BAR_COUNT: usize = 4;
     /// ATTENTION:
     /// If buffer capacity and update frequency is related, if update frequency is low
     /// then the buffer will not be emptied fast enough and some input will be lost
