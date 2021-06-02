@@ -74,6 +74,7 @@ impl mq::EventHandler for Stage {
         self.egui_mq.begin_frame(ctx);
         self.ui();
         self.egui_mq.end_frame(ctx);
+        self.egui_mq.draw(ctx);
 
         // Draw things in front of egui here
 
