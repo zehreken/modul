@@ -10,6 +10,8 @@ struct Model {
     modul: modul::Modul,
 }
 
+pub const TAPE_LENGTH: usize = 44100 * 2 * 8; // sample_rate * channels * seconds
+
 impl Model {
     fn set_selected_tape(&mut self, selected_tape: usize) {
         for i in 0..self.tape_views.len() {
@@ -114,8 +116,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .x_y(x as f32 * 50.0 - 350.0, 100.0)
         .color(CRIMSON);
 
-    let cursor_position =
-        model.modul.get_audio_index() as f32 / modul_utils::utils::TAPE_LENGTH as f32;
+    let cursor_position = model.modul.get_audio_index() as f32 / TAPE_LENGTH as f32;
     for view in model.tape_views.iter() {
         view.draw(&draw, cursor_position)
     }

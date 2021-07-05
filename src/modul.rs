@@ -18,8 +18,8 @@ pub struct TapeModel {
 }
 
 /// Used to transfer data to the audio thread
-/// In this context audio thread is the thread that
-/// communicates with input and output streams(each has its own thread)
+/// In this context audio thread is the thread that communicates
+/// with input and output streams(each has its own thread)
 struct AudioModel {
     tape_length: usize,
     recording_tape: Vec<(usize, f32)>,
