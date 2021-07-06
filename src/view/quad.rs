@@ -55,9 +55,9 @@ impl Quad {
 pub mod shader {
     use miniquad::*;
 
-    pub const VERTEX: &str = include_str!("vertex.vert");
+    pub const VERTEX: &str = include_str!("shaders/vertex.vert");
 
-    pub const FRAGMENT: &str = include_str!("fragment.frag");
+    pub const FRAGMENT: &str = include_str!("shaders/fragment.frag");
 
     pub fn meta() -> ShaderMeta {
         ShaderMeta {

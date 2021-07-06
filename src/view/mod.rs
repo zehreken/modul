@@ -6,7 +6,7 @@ use super::modul;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    show_egui_demo_windows: bool,
+    show_modul_ui: bool,
     _quad_stage: quad::Quad,
     egui_view: egui_view::EguiView,
     modul: modul::Modul,
@@ -16,7 +16,7 @@ impl Stage {
     fn new(ctx: &mut mq::Context) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            show_egui_demo_windows: true,
+            show_modul_ui: true,
             _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
             modul: modul::Modul::new(),
@@ -26,7 +26,7 @@ impl Stage {
     fn ui(&mut self) {
         let Self {
             egui_mq,
-            show_egui_demo_windows,
+            show_modul_ui,
             _quad_stage: quad_stage,
             egui_view,
             modul,
@@ -34,12 +34,12 @@ impl Stage {
 
         let egui_ctx = egui_mq.egui_ctx();
 
-        if *show_egui_demo_windows {
+        if *show_modul_ui {
             egui_view.ui(egui_ctx, modul);
         }
 
         egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
-            ui.checkbox(show_egui_demo_windows, "show modul ui");
+            ui.checkbox(show_modul_ui, "show modul ui");
 
             #[cfg(not(target_arch = "wasm32"))]
             {

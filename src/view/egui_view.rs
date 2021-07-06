@@ -36,11 +36,15 @@ impl EguiView {
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
             ui.label(format!("diff: {:0.5}", 0.0));
+            draw_bpm(ui);
+            draw_bar_count(ui);
+            ui.label(format!("bar length: {}", 8.0));
+
             if modul.is_recording_playback() {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
             for i in 0..4 {
-                group(ui, selected_tape, tape_volumes, modul, i);
+                draw_tape(ui, selected_tape, tape_volumes, modul, i);
             }
 
             // Keyboard input
@@ -127,7 +131,23 @@ impl EguiView {
     }
 }
 
-fn group(
+fn draw_bpm(ui: &mut Ui) {
+    ui.horizontal(|ui| {
+        ui.label(format!("BPM: {}", 120));
+        if ui.small_button("-").clicked() {}
+        if ui.small_button("+").clicked() {}
+    });
+}
+
+fn draw_bar_count(ui: &mut Ui) {
+    ui.horizontal(|ui| {
+        ui.label(format!("bar: {}", 4));
+        if ui.small_button("-").clicked() {}
+        if ui.small_button("+").clicked() {}
+    });
+}
+
+fn draw_tape(
     ui: &mut Ui,
     selected_tape: &mut usize,
     tape_volumes: &mut [f32; 4],
