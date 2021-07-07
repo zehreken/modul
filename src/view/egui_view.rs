@@ -6,6 +6,7 @@ pub struct EguiView {
     instant: Instant,
     selected_tape: usize,
     tape_volumes: [f32; 4],
+    tape_mute_states: [bool; 4],
 }
 
 impl Default for EguiView {
@@ -14,6 +15,7 @@ impl Default for EguiView {
             instant: Instant::now(),
             selected_tape: 0,
             tape_volumes: [1.0; 4],
+            tape_mute_states: [false; 4],
         }
     }
 }
@@ -24,6 +26,7 @@ impl EguiView {
             instant,
             selected_tape,
             tape_volumes,
+            tape_mute_states,
         } = self;
 
         egui::Window::new("modul").show(ctx, |ui| {
@@ -36,15 +39,13 @@ impl EguiView {
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
             ui.label(format!("diff: {:0.5}", 0.0));
-            draw_bpm(ui);
-            draw_bar_count(ui);
             ui.label(format!("bar length: {}", 8.0));
 
             if modul.is_recording_playback() {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
             for i in 0..4 {
-                draw_tape(ui, selected_tape, tape_volumes, modul, i);
+                draw_tape(ui, selected_tape, tape_volumes, tape_mute_states, modul, i);
             }
 
             // Keyboard input
@@ -100,9 +101,11 @@ impl EguiView {
                                     modul.clear();
                                 }
                                 Key::M => {
+                                    tape_mute_states[*selected_tape] = true;
                                     modul.mute();
                                 }
                                 Key::N => {
+                                    tape_mute_states[*selected_tape] = false;
                                     modul.unmute();
                                 }
                                 Key::ArrowUp => {
@@ -131,26 +134,13 @@ impl EguiView {
     }
 }
 
-fn draw_bpm(ui: &mut Ui) {
-    ui.horizontal(|ui| {
-        ui.label(format!("BPM: {}", 120));
-        if ui.small_button("-").clicked() {}
-        if ui.small_button("+").clicked() {}
-    });
-}
-
-fn draw_bar_count(ui: &mut Ui) {
-    ui.horizontal(|ui| {
-        ui.label(format!("bar: {}", 4));
-        if ui.small_button("-").clicked() {}
-        if ui.small_button("+").clicked() {}
-    });
-}
+fn draw_new_song(ui: &mut Ui) {}
 
 fn draw_tape(
     ui: &mut Ui,
     selected_tape: &mut usize,
     tape_volumes: &mut [f32; 4],
+    tape_mute_states: &mut [bool; 4],
     modul: &mut modul::Modul,
     id: usize,
 ) {
@@ -185,10 +175,16 @@ fn draw_tape(
         let points: Vec<Pos2> = (0..2)
             .map(|i| to_screen * pos2(time, -1.0 + 2.0 * i as f32))
             .collect();
-        let thickness = 3.0;
         shapes.push(epaint::Shape::line(
             points,
-            Stroke::new(thickness, Color32::from_rgb(255, 0, 0)),
+            Stroke::new(
+                3.0,
+                if tape_mute_states[id] {
+                    Color32::from_rgb(255, 0, 0)
+                } else {
+                    Color32::from_rgb(0, 255, 0)
+                },
+            ),
         ));
         ui.painter().extend(shapes);
     });

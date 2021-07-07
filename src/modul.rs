@@ -137,11 +137,9 @@ impl AudioModel {
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
                 }
                 ModulAction::Mute => {
-                    println!("mute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].mute();
                 }
                 ModulAction::Unmute => {
-                    println!("unmute {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].unmute();
                 }
                 ModulAction::SelectTape(tape) => {
