@@ -35,7 +35,7 @@ impl Stage {
         let egui_ctx = egui_mq.egui_ctx();
 
         if *show_modul_ui {
-            egui_view.ui(egui_ctx, modul);
+            egui_view.draw(egui_ctx, modul);
         }
 
         egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {

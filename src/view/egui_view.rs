@@ -21,7 +21,7 @@ impl Default for EguiView {
 }
 
 impl EguiView {
-    pub fn ui(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
+    pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
             instant,
             selected_tape,
@@ -101,12 +101,16 @@ impl EguiView {
                                     modul.clear();
                                 }
                                 Key::M => {
-                                    tape_mute_states[*selected_tape] = true;
-                                    modul.mute();
+                                    tape_mute_states[*selected_tape] =
+                                        !tape_mute_states[*selected_tape];
+                                    if tape_mute_states[*selected_tape] {
+                                        modul.mute();
+                                    } else {
+                                        modul.unmute();
+                                    }
                                 }
                                 Key::N => {
-                                    tape_mute_states[*selected_tape] = false;
-                                    modul.unmute();
+                                    // Use this to create new song
                                 }
                                 Key::ArrowUp => {
                                     if tape_volumes[*selected_tape] < 1.0 {
