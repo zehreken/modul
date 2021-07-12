@@ -2,7 +2,13 @@ use super::modul;
 use egui::*;
 use std::time::Instant;
 
+enum UiState {
+    Tapes,
+    NewSong,
+}
+
 pub struct EguiView {
+    ui_state: UiState,
     instant: Instant,
     selected_tape: usize,
     tape_volumes: [f32; 4],
@@ -12,6 +18,7 @@ pub struct EguiView {
 impl Default for EguiView {
     fn default() -> Self {
         Self {
+            ui_state: UiState::NewSong,
             instant: Instant::now(),
             selected_tape: 0,
             tape_volumes: [1.0; 4],
@@ -22,7 +29,43 @@ impl Default for EguiView {
 
 impl EguiView {
     pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
+        match self.ui_state {
+            UiState::NewSong => self.draw_new_song(ctx, modul),
+            UiState::Tapes => self.show_tapes(ctx, modul),
+        }
+    }
+
+    fn draw_new_song(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
+        let mut bpm = 120.0;
+        let mut bar_count = 4;
+        egui::Window::new("new song").show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.label(format!("bpm: {}", bpm));
+                if ui.small_button("-").clicked() {
+                    bpm -= 1.0;
+                }
+                if ui.small_button("+").clicked() {
+                    bpm += 1.0;
+                }
+            });
+            ui.horizontal(|ui| {
+                ui.label(format!("bar count: {}", bar_count));
+                if ui.small_button("-").clicked() {
+                    bar_count -= 1;
+                }
+                if ui.small_button("+").clicked() {
+                    bar_count += 1;
+                }
+            });
+            if ui.button("Create").clicked() {
+                // modul.new_song(bpm, bar_count);
+            }
+        });
+    }
+
+    fn show_tapes(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
+            ui_state,
             instant,
             selected_tape,
             tape_volumes,
@@ -137,8 +180,6 @@ impl EguiView {
         });
     }
 }
-
-fn draw_new_song(ui: &mut Ui) {}
 
 fn draw_tape(
     ui: &mut Ui,

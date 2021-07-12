@@ -27,7 +27,7 @@ impl Stage {
         let Self {
             egui_mq,
             show_modul_ui,
-            _quad_stage: quad_stage,
+            _quad_stage,
             egui_view,
             modul,
         } = self;
