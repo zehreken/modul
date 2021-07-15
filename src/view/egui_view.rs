@@ -18,7 +18,7 @@ pub struct EguiView {
 impl Default for EguiView {
     fn default() -> Self {
         Self {
-            ui_state: UiState::NewSong,
+            ui_state: UiState::Tapes,
             instant: Instant::now(),
             selected_tape: 0,
             tape_volumes: [1.0; 4],
