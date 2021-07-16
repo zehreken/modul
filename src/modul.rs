@@ -1,3 +1,4 @@
+use super::Config;
 use crate::modul_utils::utils::*;
 use crate::tape::tape::Tape;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -170,7 +171,7 @@ pub struct Modul {
 }
 
 impl Modul {
-    pub fn new() -> Self {
+    pub fn new(config: Config) -> Self {
         let host = cpal::default_host();
 
         let input_device = host.default_input_device().unwrap();

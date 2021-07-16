@@ -33,7 +33,10 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let modul = modul::Modul::new();
+    let modul = modul::Modul::new(super::Config {
+        BPM: 120.0,
+        bar_count: 4,
+    });
 
     let tape_views = [
         TapeView::new(-300.0, 0.0),

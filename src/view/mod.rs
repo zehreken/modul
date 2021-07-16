@@ -3,6 +3,7 @@ use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 mod egui_view;
 use super::modul;
+use super::Config;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
@@ -13,13 +14,13 @@ struct Stage {
 }
 
 impl Stage {
-    fn new(ctx: &mut mq::Context) -> Self {
+    fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_modul_ui: true,
             _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
-            modul: modul::Modul::new(),
+            modul: modul::Modul::new(config),
         }
     }
 
@@ -134,7 +135,7 @@ impl mq::EventHandler for Stage {
     }
 }
 
-pub fn start() {
+pub fn start(config: Config) {
     let conf = mq::conf::Conf {
         window_width: 700,
         window_height: 700,
@@ -143,6 +144,6 @@ pub fn start() {
         ..Default::default()
     };
     mq::start(conf, |mut ctx| {
-        mq::UserData::owning(Stage::new(&mut ctx), ctx)
+        mq::UserData::owning(Stage::new(&mut ctx, config), ctx)
     });
 }
