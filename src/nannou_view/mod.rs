@@ -34,7 +34,7 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     let modul = modul::Modul::new(super::Config {
-        BPM: 120.0,
+        bpm: 120.0,
         bar_count: 4,
     });
 
