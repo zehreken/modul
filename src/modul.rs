@@ -180,10 +180,10 @@ impl Modul {
         let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
-
-        // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
+        let bar_length_seconds = 4.0 * 60.0 / config.bpm; // beats * seconds per beat(60.0 / BPM)
+                                                          // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
         let tape_length: usize =
-            (44100.0 * input_config.channels as f32 * BAR_LENGTH_SECONDS * BAR_COUNT as f32)
+            (44100.0 * input_config.channels as f32 * bar_length_seconds * config.bar_count as f32)
                 as usize;
 
         let recording_tape = vec![];
@@ -198,7 +198,7 @@ impl Modul {
 
         println!(
             "tape length: {}, bar length: {} seconds",
-            tape_length, BAR_LENGTH_SECONDS
+            tape_length, bar_length_seconds
         );
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
