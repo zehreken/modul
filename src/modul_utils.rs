@@ -10,6 +10,21 @@ pub mod utils {
     /// then the buffer will not be emptied fast enough and some input will be lost
     pub const BUFFER_CAPACITY: usize = 4096 * 8;
 
+    pub enum ModulAction {
+        SelectTape(usize),
+        Record,
+        _Pause,
+        _Play,
+        Playback,
+        Write,
+        _ClearAll,
+        Clear,
+        Mute,
+        Unmute,
+        VolumeUp,
+        VolumeDown,
+    }
+
     pub fn create_input_stream_live(
         input_device: &Device,
         config: &StreamConfig,

@@ -6,6 +6,7 @@ mod tape;
 mod view;
 use std::cmp::Ordering;
 use std::env;
+mod audio_model;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
