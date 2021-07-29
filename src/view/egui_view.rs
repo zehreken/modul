@@ -77,12 +77,12 @@ impl EguiView {
             ui.heading("modul");
 
             ui.label(format!(
-                "real time: {:0.1}",
+                "real time: {:0.1} sec",
                 instant.elapsed().as_secs_f32()
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
-            ui.label(format!("diff: {:0.5}", 0.0));
-            ui.label(format!("bar length: {}", 8.0));
+            // ui.label(format!("diff: {:0.5}", 0.0));
+            ui.label(format!("bar length: {} sec", 8.0));
 
             if modul.is_recording_playback() {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
