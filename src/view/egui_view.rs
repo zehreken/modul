@@ -4,7 +4,6 @@ use std::time::Instant;
 
 enum UiState {
     Tapes,
-    NewSong,
 }
 
 pub struct EguiView {
@@ -30,37 +29,8 @@ impl Default for EguiView {
 impl EguiView {
     pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         match self.ui_state {
-            UiState::NewSong => self.draw_new_song(ctx, modul),
             UiState::Tapes => self.show_tapes(ctx, modul),
         }
-    }
-
-    fn draw_new_song(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
-        let mut bpm = 120.0;
-        let mut bar_count = 4;
-        egui::Window::new("new song").show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.label(format!("bpm: {}", bpm));
-                if ui.small_button("-").clicked() {
-                    bpm -= 1.0;
-                }
-                if ui.small_button("+").clicked() {
-                    bpm += 1.0;
-                }
-            });
-            ui.horizontal(|ui| {
-                ui.label(format!("bar count: {}", bar_count));
-                if ui.small_button("-").clicked() {
-                    bar_count -= 1;
-                }
-                if ui.small_button("+").clicked() {
-                    bar_count += 1;
-                }
-            });
-            if ui.button("Create").clicked() {
-                // modul.new_song(bpm, bar_count);
-            }
-        });
     }
 
     fn show_tapes(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
@@ -72,6 +42,11 @@ impl EguiView {
             tape_mute_states,
         } = self;
 
+        egui::TopBottomPanel::top("test").show(ctx, |ui| {
+            // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
+            ui.label("modul");
+        });
+
         egui::Window::new("modul").show(ctx, |ui| {
             ctx.request_repaint();
             ui.heading("modul");
@@ -81,7 +56,6 @@ impl EguiView {
                 instant.elapsed().as_secs_f32()
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
-            // ui.label(format!("diff: {:0.5}", 0.0));
             ui.label(format!("bar length: {} sec", 8.0));
 
             if modul.is_recording_playback() {
