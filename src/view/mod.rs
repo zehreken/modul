@@ -39,16 +39,30 @@ impl Stage {
             egui_view.draw(egui_ctx, modul);
         }
 
-        egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
-            ui.checkbox(show_modul_ui, "show modul ui");
-
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                if ui.button("Quit").clicked() {
-                    std::process::exit(0);
+        egui::TopBottomPanel::top("").show(egui_ctx, |ui| {
+            // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
+            ui.horizontal(|ui| {
+                ui.label("modul ❤ ");
+                ui.checkbox(show_modul_ui, "show modul ui");
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    if ui.button("Quit").clicked() {
+                        std::process::exit(0);
+                    }
                 }
-            }
+            });
         });
+
+        // egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
+        //     ui.checkbox(show_modul_ui, "show modul ui");
+
+        //     #[cfg(not(target_arch = "wasm32"))]
+        //     {
+        //         if ui.button("Quit").clicked() {
+        //             std::process::exit(0);
+        //         }
+        //     }
+        // });
     }
 }
 

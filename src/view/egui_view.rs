@@ -42,11 +42,6 @@ impl EguiView {
             tape_mute_states,
         } = self;
 
-        egui::TopBottomPanel::top("test").show(ctx, |ui| {
-            // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
-            ui.label("modul");
-        });
-
         egui::Window::new("modul").show(ctx, |ui| {
             ctx.request_repaint();
             ui.heading("modul");
