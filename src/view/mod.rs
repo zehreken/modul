@@ -27,7 +27,7 @@ impl Stage {
     fn ui(&mut self) {
         let Self {
             egui_mq,
-            show_modul_ui,
+            show_modul_ui: show_tapes,
             _quad_stage,
             egui_view,
             modul,
@@ -35,15 +35,12 @@ impl Stage {
 
         let egui_ctx = egui_mq.egui_ctx();
 
-        if *show_modul_ui {
-            egui_view.draw(egui_ctx, modul);
-        }
-
         egui::TopBottomPanel::top("").show(egui_ctx, |ui| {
             // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
             ui.horizontal(|ui| {
                 ui.label("modul ❤ ");
-                ui.checkbox(show_modul_ui, "show modul ui");
+                ui.separator();
+                ui.checkbox(show_tapes, "tapes");
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     if ui.button("Quit").clicked() {
@@ -53,16 +50,9 @@ impl Stage {
             });
         });
 
-        // egui::Window::new("modul ❤ ").show(egui_ctx, |ui| {
-        //     ui.checkbox(show_modul_ui, "show modul ui");
-
-        //     #[cfg(not(target_arch = "wasm32"))]
-        //     {
-        //         if ui.button("Quit").clicked() {
-        //             std::process::exit(0);
-        //         }
-        //     }
-        // });
+        if *show_tapes {
+            egui_view.draw(egui_ctx, modul);
+        }
     }
 }
 

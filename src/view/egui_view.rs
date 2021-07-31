@@ -42,9 +42,9 @@ impl EguiView {
             tape_mute_states,
         } = self;
 
-        egui::Window::new("modul").show(ctx, |ui| {
+        egui::Window::new("tapes").show(ctx, |ui| {
             ctx.request_repaint();
-            ui.heading("modul");
+            ui.heading("tapes");
 
             ui.label(format!(
                 "real time: {:0.1} sec",
