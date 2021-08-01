@@ -1,15 +1,21 @@
 mod quad;
+mod windows;
 use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 mod egui_view;
+use windows::window_stats;
+use windows::window_stats::WindowStats;
+
 use super::modul;
 use super::Config;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    show_modul_ui: bool,
+    show_tapes: bool,
+    show_stats: bool,
     _quad_stage: quad::Quad,
     egui_view: egui_view::EguiView,
+    window_stats: WindowStats,
     modul: modul::Modul,
 }
 
@@ -17,9 +23,11 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            show_modul_ui: true,
+            show_tapes: true,
+            show_stats: true,
             _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
+            window_stats: window_stats::WindowStats::default(),
             modul: modul::Modul::new(config),
         }
     }
@@ -27,9 +35,11 @@ impl Stage {
     fn ui(&mut self) {
         let Self {
             egui_mq,
-            show_modul_ui: show_tapes,
+            show_tapes,
+            show_stats,
             _quad_stage,
             egui_view,
+            window_stats,
             modul,
         } = self;
 
@@ -41,6 +51,7 @@ impl Stage {
                 ui.label("modul ❤ ");
                 ui.separator();
                 ui.checkbox(show_tapes, "tapes");
+                ui.checkbox(show_stats, "stats");
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     if ui.button("Quit").clicked() {
@@ -52,6 +63,9 @@ impl Stage {
 
         if *show_tapes {
             egui_view.draw(egui_ctx, modul);
+        }
+        if *show_stats {
+            window_stats.draw(egui_ctx, modul);
         }
     }
 }
