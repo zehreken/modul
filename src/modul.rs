@@ -182,6 +182,6 @@ impl Modul {
     }
 
     pub fn get_sample_averages(&self) -> [f32; 4] {
-        self.sample_averages.lock().unwrap().clone()
+        *self.sample_averages.lock().unwrap()
     }
 }

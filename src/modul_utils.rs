@@ -62,10 +62,7 @@ pub mod utils {
     ) -> Stream {
         let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
-                *sample = match consumer.pop() {
-                    Some(s) => s,
-                    None => 0.0,
-                }
+                *sample = consumer.pop().unwrap_or(0.0);
             }
         };
 
@@ -106,7 +103,7 @@ pub mod utils {
         }
     }
 
-    pub fn write(recording: &Vec<f32>, name: &str) {
+    pub fn write(recording: &[f32], name: &str) {
         let spec = hound::WavSpec {
             channels: 4,
             sample_rate: 44100,

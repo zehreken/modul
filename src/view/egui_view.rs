@@ -163,11 +163,10 @@ fn draw_tape(
             if ui
                 .selectable_label(*selected_tape == id, (id + 1).to_string())
                 .clicked()
+                && !modul.is_recording()
             {
-                if !modul.is_recording() {
-                    *selected_tape = id;
-                    modul.set_selected_tape(id);
-                }
+                *selected_tape = id;
+                modul.set_selected_tape(id);
             }
 
             ui.label(format!("{:0.2}", tape_volumes[id]));
