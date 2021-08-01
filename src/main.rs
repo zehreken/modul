@@ -1,7 +1,6 @@
 mod beat_controller;
 mod modul;
 mod modul_utils;
-mod nannou_view;
 mod tape;
 mod view;
 use std::cmp::Ordering;
@@ -11,7 +10,6 @@ mod audio_model;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = Config::new(args);
-    // nannou_view::start();
     view::start(config);
 }
 

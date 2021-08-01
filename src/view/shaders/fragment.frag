@@ -23,5 +23,5 @@ void main()
     float c = sign(circle(vec2(xPos, texcoord.y) +
         vec2(-0.125 * 1.6, -0.5), wavepoints[radiusIndex]));
 
-    gl_FragColor = vec4(1, c, c, 1);
+    gl_FragColor = vec4(float(radiusIndex) * 0.25, c, c, 1);
 }
