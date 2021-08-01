@@ -19,7 +19,7 @@ pub struct Modul {
     pub tape_length: usize,
     input_stream: Stream,
     output_stream: Stream,
-    time: f32,
+    _time: f32,
     audio_index: Arc<AtomicUsize>,
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
@@ -102,7 +102,7 @@ impl Modul {
             tape_length,
             input_stream,
             output_stream,
-            time: 0.0,
+            _time: 0.0,
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
@@ -111,8 +111,8 @@ impl Modul {
         }
     }
 
-    pub fn get_time(&self) -> f32 {
-        self.time
+    pub fn _get_time(&self) -> f32 {
+        self._time
     }
 
     pub fn get_audio_index(&self) -> usize {

@@ -35,7 +35,7 @@ impl EguiView {
 
     fn show_tapes(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
-            ui_state,
+            ui_state: _,
             instant,
             selected_tape,
             tape_volumes,
@@ -66,7 +66,7 @@ impl EguiView {
                     egui::Event::Key {
                         key,
                         pressed,
-                        modifiers,
+                        modifiers: _, // ignored field, Rust is amazing, delete this later
                     } => {
                         if *pressed {
                             match key {
