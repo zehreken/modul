@@ -1,6 +1,5 @@
 use super::modul;
 use egui::*;
-use std::time::Instant;
 
 enum UiState {
     Tapes,
@@ -8,7 +7,6 @@ enum UiState {
 
 pub struct EguiView {
     ui_state: UiState,
-    instant: Instant,
     selected_tape: usize,
     tape_volumes: [f32; 4],
     tape_mute_states: [bool; 4],
@@ -18,7 +16,6 @@ impl Default for EguiView {
     fn default() -> Self {
         Self {
             ui_state: UiState::Tapes,
-            instant: Instant::now(),
             selected_tape: 0,
             tape_volumes: [1.0; 4],
             tape_mute_states: [false; 4],
@@ -36,7 +33,6 @@ impl EguiView {
     fn show_tapes(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
         let Self {
             ui_state: _,
-            instant,
             selected_tape,
             tape_volumes,
             tape_mute_states,

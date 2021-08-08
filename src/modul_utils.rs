@@ -1,4 +1,5 @@
 pub mod utils {
+    use crate::audio_model::Input;
     use crate::tape::tape::Tape;
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
@@ -29,13 +30,13 @@ pub mod utils {
         input_device: &Device,
         config: &StreamConfig,
         tape_length: usize,
-        mut producer: Producer<(usize, f32)>,
+        mut producer: Producer<Input>,
     ) -> Stream {
         let mut index = 0;
         let input_data = move |data: &[f32], _: &cpal::InputCallbackInfo| {
             let mut consumer_fell_behind = false;
             for &sample in data {
-                if producer.push((index, sample)).is_err() {
+                if producer.push(Input { index, sample }).is_err() {
                     consumer_fell_behind = true;
                 }
                 index += 1;

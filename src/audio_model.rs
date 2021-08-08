@@ -14,9 +14,9 @@ pub struct TapeModel {
 /// with input and output streams(each has its own thread)
 pub struct AudioModel {
     pub tape_length: usize,
-    pub recording_tape: Vec<(usize, f32)>,
+    pub recording_tape: Vec<Input>,
     pub tape_model: TapeModel,
-    pub input_consumer: Consumer<(usize, f32)>,
+    pub input_consumer: Consumer<Input>,
     pub key_receiver: Receiver<ModulAction>,
     pub is_recording: Arc<AtomicBool>,
     pub is_recording_playback: Arc<AtomicBool>,
@@ -27,6 +27,11 @@ pub struct AudioModel {
     pub sample_averages: Arc<Mutex<[f32; 4]>>,
 }
 
+pub struct Input {
+    pub index: usize,
+    pub sample: f32,
+}
+
 impl AudioModel {
     pub fn update(&mut self) {
         let mut sample_averages = [0.0; 4];
@@ -34,6 +39,8 @@ impl AudioModel {
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
+                let t_index = t.index;
+                let t_sample = t.sample;
                 if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
@@ -41,21 +48,21 @@ impl AudioModel {
                 let mut sample: f32 = 0.0;
                 for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut())
                 {
-                    *average += tape.audio[t.0] * tape.get_volume();
-                    sample += tape.audio[t.0] * tape.get_volume();
+                    *average += tape.audio[t_index] * tape.get_volume();
+                    sample += tape.audio[t_index] * tape.get_volume();
                 }
 
-                let r = self.output_producer.push(sample + t.1);
+                let r = self.output_producer.push(sample + t_sample);
                 match r {
                     Ok(_) => {}
                     Err(_e) => eprintln!("error: {}", self.output_producer.len()),
                 }
                 if self.is_recording_playback.load(Ordering::SeqCst) {
-                    sample += t.1;
+                    sample += t_sample;
                 }
                 self.writing_tape.push(sample);
 
-                audio_index = t.0;
+                audio_index = t_index;
             }
             self.audio_index.store(audio_index, Ordering::SeqCst);
         }
@@ -82,7 +89,7 @@ impl AudioModel {
                         let mut audio = vec![0.0; self.tape_length];
 
                         for t in self.recording_tape.iter() {
-                            audio[t.0] = t.1;
+                            audio[t.index] = t.sample;
                         }
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
