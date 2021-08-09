@@ -39,11 +39,11 @@ impl Modul {
         println!("input sample rate: {:?}", input_config.sample_rate);
         let bar_length_seconds = 4.0 * 60.0 / config.bpm; // beats * seconds per beat(60.0 / BPM)
                                                           // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
-        let tape_length: usize = (input_config.sample_rate.0 as f32
+        let mut tape_length: usize = (input_config.sample_rate.0 as f32
             * input_config.channels as f32
             * bar_length_seconds
             * config.bar_count as f32) as usize;
-        println!("by 4: {}", tape_length % 4);
+        tape_length += tape_length % input_config.channels as usize;
 
         let recording_tape = vec![];
         let tape_model = TapeModel {
