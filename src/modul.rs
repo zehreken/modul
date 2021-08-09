@@ -43,7 +43,7 @@ impl Modul {
             * input_config.channels as f32
             * bar_length_seconds
             * config.bar_count as f32) as usize;
-        tape_length += tape_length % input_config.channels as usize;
+        tape_length -= tape_length % input_config.channels as usize;
 
         let recording_tape = vec![];
         let tape_model = TapeModel {
