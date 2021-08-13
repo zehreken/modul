@@ -65,7 +65,7 @@ pub mod shader {
             uniforms: UniformBlockLayout {
                 uniforms: vec![
                     UniformDesc::new("offset", UniformType::Float2),
-                    UniformDesc::new("wavepoints", UniformType::Float4),
+                    UniformDesc::new("wavepoint", UniformType::Float1),
                 ],
             },
         }
@@ -74,6 +74,6 @@ pub mod shader {
     #[repr(C)]
     pub struct Uniforms {
         pub offset: (f32, f32),
-        pub wavepoints: [f32; 4],
+        pub wavepoint: f32,
     }
 }

@@ -85,7 +85,7 @@ impl mq::EventHandler for Stage {
         for i in 0..4 {
             ctx.apply_uniforms(&shader::Uniforms {
                 offset: (-0.75 + i as f32 * 0.5, 0f32),
-                wavepoints: self.modul.get_sample_averages(),
+                wavepoint: self.modul.get_sample_averages()[i],
             });
             ctx.draw(0, 6, 1);
         }
