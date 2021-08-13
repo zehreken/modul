@@ -82,11 +82,13 @@ impl mq::EventHandler for Stage {
         ctx.apply_bindings(&self._quad_stage.bindings);
 
         // Pass data to shader
-        ctx.apply_uniforms(&shader::Uniforms {
-            offset: (0f32, 0f32),
-            wavepoints: self.modul.get_sample_averages(),
-        });
-        ctx.draw(0, 6, 1);
+        for i in 0..4 {
+            ctx.apply_uniforms(&shader::Uniforms {
+                offset: (-0.75 + i as f32 * 0.5, 0f32),
+                wavepoints: self.modul.get_sample_averages(),
+            });
+            ctx.draw(0, 6, 1);
+        }
 
         ctx.end_render_pass();
 

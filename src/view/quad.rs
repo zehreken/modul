@@ -20,10 +20,10 @@ impl Quad {
     pub fn new(ctx: &mut Context) -> Quad {
         #[rustfmt::skip]
         let vertices: [Vertex; 4] = [
-            Vertex { pos : Vec2 { x: -1.0, y: -1.0 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
-            Vertex { pos : Vec2 { x:  1.0, y: -1.0 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
-            Vertex { pos : Vec2 { x:  1.0, y:  1.0 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
-            Vertex { pos : Vec2 { x: -1.0, y:  1.0 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
+            Vertex { pos : Vec2 { x: -0.25, y: -1.0 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
+            Vertex { pos : Vec2 { x:  0.25, y: -1.0 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
+            Vertex { pos : Vec2 { x:  0.25, y:  1.0 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
+            Vertex { pos : Vec2 { x: -0.25, y:  1.0 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
         ];
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
