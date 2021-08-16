@@ -36,7 +36,7 @@ impl Quad {
             images: vec![],
         };
 
-        let shader = Shader::new(ctx, shader::VERTEX, shader::FRAGMENT, shader::meta()).unwrap();
+        let shader = Shader::new(ctx, shader::VERTEX, shader::BOX, shader::meta()).unwrap();
 
         let pipeline = Pipeline::new(
             ctx,
@@ -58,6 +58,8 @@ pub mod shader {
     pub const VERTEX: &str = include_str!("shaders/vertex.vert");
 
     pub const FRAGMENT: &str = include_str!("shaders/fragment.frag");
+
+    pub const BOX: &str = include_str!("shaders/box.frag");
 
     pub fn meta() -> ShaderMeta {
         ShaderMeta {
