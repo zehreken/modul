@@ -8,8 +8,8 @@ enum UiState {
 pub struct EguiView {
     ui_state: UiState,
     selected_tape: usize,
-    tape_volumes: [f32; 4],
-    tape_mute_states: [bool; 4],
+    tape_volumes: [f32; 8],
+    tape_mute_states: [bool; 8],
 }
 
 impl Default for EguiView {
@@ -17,8 +17,8 @@ impl Default for EguiView {
         Self {
             ui_state: UiState::Tapes,
             selected_tape: 0,
-            tape_volumes: [1.0; 4],
-            tape_mute_states: [false; 4],
+            tape_volumes: [1.0; 8],
+            tape_mute_states: [false; 8],
         }
     }
 }
@@ -45,7 +45,7 @@ impl EguiView {
             if modul.is_recording_playback() {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
-            for i in 0..4 {
+            for i in 0..8 {
                 draw_tape(ui, selected_tape, tape_volumes, tape_mute_states, modul, i);
             }
 
@@ -81,6 +81,30 @@ impl EguiView {
                                     if !modul.is_recording() {
                                         *selected_tape = 3;
                                         modul.set_selected_tape(3);
+                                    }
+                                }
+                                Key::Num5 => {
+                                    if !modul.is_recording() {
+                                        *selected_tape = 4;
+                                        modul.set_selected_tape(4);
+                                    }
+                                }
+                                Key::Num6 => {
+                                    if !modul.is_recording() {
+                                        *selected_tape = 5;
+                                        modul.set_selected_tape(5);
+                                    }
+                                }
+                                Key::Num7 => {
+                                    if !modul.is_recording() {
+                                        *selected_tape = 6;
+                                        modul.set_selected_tape(6);
+                                    }
+                                }
+                                Key::Num8 => {
+                                    if !modul.is_recording() {
+                                        *selected_tape = 7;
+                                        modul.set_selected_tape(7);
                                     }
                                 }
                                 Key::R => {
@@ -142,8 +166,8 @@ impl EguiView {
 fn draw_tape(
     ui: &mut Ui,
     selected_tape: &mut usize,
-    tape_volumes: &mut [f32; 4],
-    tape_mute_states: &mut [bool; 4],
+    tape_volumes: &mut [f32; 8],
+    tape_mute_states: &mut [bool; 8],
     modul: &mut modul::Modul,
     id: usize,
 ) {

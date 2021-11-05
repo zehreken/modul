@@ -24,7 +24,7 @@ pub struct Modul {
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
-    sample_averages: Arc<Mutex<[f32; 4]>>,
+    sample_averages: Arc<Mutex<[f32; 8]>>,
 }
 
 impl Modul {
@@ -48,6 +48,10 @@ impl Modul {
         let recording_tape = vec![];
         let tape_model = TapeModel {
             tapes: [
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
+                Tape::<f32>::new(0.0, tape_length),
                 Tape::<f32>::new(0.0, tape_length),
                 Tape::<f32>::new(0.0, tape_length),
                 Tape::<f32>::new(0.0, tape_length),
@@ -78,7 +82,7 @@ impl Modul {
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
-        let sample_averages = Arc::new(Mutex::new([0.0; 4]));
+        let sample_averages = Arc::new(Mutex::new([0.0; 8]));
 
         let mut audio_model: AudioModel = AudioModel {
             tape_length,
@@ -183,7 +187,7 @@ impl Modul {
         self.key_sender.send(ModulAction::VolumeDown).unwrap();
     }
 
-    pub fn get_sample_averages(&self) -> [f32; 4] {
+    pub fn get_sample_averages(&self) -> [f32; 8] {
         *self.sample_averages.lock().unwrap()
     }
 }

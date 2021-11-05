@@ -6,7 +6,7 @@ use std::sync::{atomic::AtomicBool, mpsc::Receiver};
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
-    pub tapes: [Tape<f32>; 4],
+    pub tapes: [Tape<f32>; 8],
 }
 
 /// Used to transfer data to the audio thread
@@ -24,7 +24,7 @@ pub struct AudioModel {
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
-    pub sample_averages: Arc<Mutex<[f32; 4]>>,
+    pub sample_averages: Arc<Mutex<[f32; 8]>>,
 }
 
 pub struct Input {
@@ -34,7 +34,7 @@ pub struct Input {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        let mut sample_averages = [0.0; 4];
+        let mut sample_averages = [0.0; 8];
         let sample_count = self.input_consumer.len();
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
