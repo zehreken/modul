@@ -13,7 +13,7 @@ void main()
 {
     vec2 uv = texcoord;
     uv -= vec2(1.6, 1.0) * 0.5;
-    float c = sign(box(vec2(uv.x * 0.25, uv.y), vec2(wavepoint, wavepoint)));
+    float c = sign(box(vec2(uv.x * 0.25, uv.y * 0.5), vec2(wavepoint, wavepoint)));
 
     gl_FragColor = vec4(c, c, c, 1);
 }

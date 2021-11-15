@@ -24,7 +24,7 @@ impl Stage {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_tapes: true,
-            show_stats: true,
+            show_stats: false,
             _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
             window_stats: window_stats::WindowStats::default(),
@@ -82,9 +82,9 @@ impl mq::EventHandler for Stage {
         ctx.apply_bindings(&self._quad_stage.bindings);
 
         // Pass data to shader
-        for i in 0..4 {
+        for i in 0..8 {
             ctx.apply_uniforms(&shader::Uniforms {
-                offset: (-0.75 + i as f32 * 0.5, 0f32),
+                offset: (-0.75 + (i % 4) as f32 * 0.5, -0.5f32 + (i / 4) as f32 * 1.0),
                 wavepoint: self.modul.get_sample_averages()[i],
             });
             ctx.draw(0, 6, 1);
