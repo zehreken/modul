@@ -6,7 +6,16 @@ use std::sync::{atomic::AtomicBool, mpsc::Receiver};
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
-    pub tapes: [Tape<f32>; 8],
+    pub tapes: [Tape<f32>; TAPE_COUNT],
+}
+
+impl TapeModel {
+    pub fn new(length: usize) -> Self {
+        let tapes: [Tape<f32>; TAPE_COUNT] =
+            array_init::array_init(|_| Tape::<f32>::new(0.0, length));
+
+        Self { tapes }
+    }
 }
 
 /// Used to transfer data to the audio thread
@@ -24,7 +33,7 @@ pub struct AudioModel {
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
-    pub sample_averages: Arc<Mutex<[f32; 8]>>,
+    pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
 }
 
 pub struct Input {
@@ -34,7 +43,7 @@ pub struct Input {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        let mut sample_averages = [0.0; 8];
+        let mut sample_averages = [0.0; TAPE_COUNT];
         let sample_count = self.input_consumer.len();
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
@@ -127,7 +136,7 @@ impl AudioModel {
                     self.tape_model.tapes[self.selected_tape].unmute();
                 }
                 ModulAction::SelectTape(tape) => {
-                    self.selected_tape = tape;
+                    self.selected_tape = tape.clamp(0, TAPE_COUNT);
                 }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.selected_tape].volume_up();

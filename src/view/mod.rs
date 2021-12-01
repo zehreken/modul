@@ -6,6 +6,8 @@ mod egui_view;
 use windows::window_stats;
 use windows::window_stats::WindowStats;
 
+use crate::modul_utils::utils::TAPE_COUNT;
+
 use super::modul;
 use super::Config;
 
@@ -82,7 +84,7 @@ impl mq::EventHandler for Stage {
         ctx.apply_bindings(&self._quad_stage.bindings);
 
         // Pass data to shader
-        for i in 0..8 {
+        for i in 0..TAPE_COUNT {
             ctx.apply_uniforms(&shader::Uniforms {
                 offset: (-0.75 + (i % 4) as f32 * 0.5, -0.5f32 + (i / 4) as f32 * 1.0),
                 wavepoint: self.modul.get_sample_averages()[i],

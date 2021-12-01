@@ -1,4 +1,5 @@
 use super::modul;
+use crate::modul_utils::utils::TAPE_COUNT;
 use egui::*;
 
 enum UiState {
@@ -8,8 +9,8 @@ enum UiState {
 pub struct EguiView {
     ui_state: UiState,
     selected_tape: usize,
-    tape_volumes: [f32; 8],
-    tape_mute_states: [bool; 8],
+    tape_volumes: [f32; TAPE_COUNT],
+    tape_mute_states: [bool; TAPE_COUNT],
 }
 
 impl Default for EguiView {
@@ -17,8 +18,8 @@ impl Default for EguiView {
         Self {
             ui_state: UiState::Tapes,
             selected_tape: 0,
-            tape_volumes: [1.0; 8],
-            tape_mute_states: [false; 8],
+            tape_volumes: [1.0; TAPE_COUNT],
+            tape_mute_states: [false; TAPE_COUNT],
         }
     }
 }
@@ -45,7 +46,7 @@ impl EguiView {
             if modul.is_recording_playback() {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
-            for i in 0..8 {
+            for i in 0..TAPE_COUNT {
                 draw_tape(ui, selected_tape, tape_volumes, tape_mute_states, modul, i);
             }
 
@@ -166,8 +167,8 @@ impl EguiView {
 fn draw_tape(
     ui: &mut Ui,
     selected_tape: &mut usize,
-    tape_volumes: &mut [f32; 8],
-    tape_mute_states: &mut [bool; 8],
+    tape_volumes: &mut [f32; TAPE_COUNT],
+    tape_mute_states: &mut [bool; TAPE_COUNT],
     modul: &mut modul::Modul,
     id: usize,
 ) {
