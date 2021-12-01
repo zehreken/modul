@@ -1,5 +1,5 @@
 use crate::modul_utils::utils::*;
-use crate::tape::tape::Tape;
+use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{atomic::AtomicBool, mpsc::Receiver};

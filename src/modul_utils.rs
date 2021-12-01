@@ -1,6 +1,6 @@
 pub mod utils {
     use crate::audio_model::Input;
-    use crate::tape::tape::Tape;
+    use crate::tape::Tape;
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{Consumer, Producer};
