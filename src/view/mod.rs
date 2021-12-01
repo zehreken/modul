@@ -8,6 +8,9 @@ use windows::window_stats::WindowStats;
 
 use crate::modul_utils::utils::TAPE_COUNT;
 
+use self::windows::window_metronome;
+use self::windows::window_metronome::WindowMetronome;
+
 use super::modul;
 use super::Config;
 
@@ -15,9 +18,11 @@ struct Stage {
     egui_mq: egui_mq::EguiMq,
     show_tapes: bool,
     show_stats: bool,
+    show_metronome: bool,
     _quad_stage: quad::Quad,
     egui_view: egui_view::EguiView,
     window_stats: WindowStats,
+    window_metronome: WindowMetronome,
     modul: modul::Modul,
 }
 
@@ -27,9 +32,11 @@ impl Stage {
             egui_mq: egui_mq::EguiMq::new(ctx),
             show_tapes: true,
             show_stats: false,
+            show_metronome: false,
             _quad_stage: quad::Quad::new(ctx),
             egui_view: egui_view::EguiView::default(),
             window_stats: window_stats::WindowStats::default(),
+            window_metronome: window_metronome::WindowMetronome::default(),
             modul: modul::Modul::new(config),
         }
     }
@@ -39,9 +46,11 @@ impl Stage {
             egui_mq,
             show_tapes,
             show_stats,
+            show_metronome,
             _quad_stage,
             egui_view,
             window_stats,
+            window_metronome,
             modul,
         } = self;
 
@@ -54,6 +63,7 @@ impl Stage {
                 ui.separator();
                 ui.checkbox(show_tapes, "tapes");
                 ui.checkbox(show_stats, "stats");
+                ui.checkbox(show_metronome, "metronome");
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     if ui.button("Quit").clicked() {
@@ -68,6 +78,9 @@ impl Stage {
         }
         if *show_stats {
             window_stats.draw(egui_ctx, modul);
+        }
+        if *show_metronome {
+            window_metronome.draw(egui_ctx, modul);
         }
     }
 }
