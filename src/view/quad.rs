@@ -57,9 +57,9 @@ pub mod shader {
 
     pub const VERTEX: &str = include_str!("shaders/vertex.vert");
 
-    pub const FRAGMENT: &str = include_str!("shaders/fragment.frag");
+    pub const _FRAGMENT: &str = include_str!("shaders/fragment.frag");
 
-    pub const BOX: &str = include_str!("shaders/box.frag");
+    pub const _BOX: &str = include_str!("shaders/box.frag");
 
     pub const COLOR: &str = include_str!("shaders/color.frag");
 
