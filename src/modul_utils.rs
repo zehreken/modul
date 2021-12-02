@@ -19,6 +19,7 @@ pub mod utils {
         _Pause,
         _Play,
         Playback,
+        PlayThrough,
         Write,
         _ClearAll,
         Clear,

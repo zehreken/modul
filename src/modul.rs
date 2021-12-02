@@ -26,6 +26,7 @@ pub struct Modul {
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
+    is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     metronome: Metronome,
 }
@@ -74,6 +75,7 @@ impl Modul {
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
+        let is_play_through = Arc::new(AtomicBool::new(true));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT]));
 
         let mut audio_model: AudioModel = AudioModel {
@@ -84,6 +86,7 @@ impl Modul {
             key_receiver,
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
+            is_play_through: Arc::clone(&is_play_through),
             selected_tape: 0,
             output_producer,
             audio_index: Arc::clone(&audio_index),
@@ -104,6 +107,7 @@ impl Modul {
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
+            is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
             metronome: Metronome::new(),
@@ -124,6 +128,10 @@ impl Modul {
 
     pub fn is_recording_playback(&self) -> bool {
         self.is_recording_playback.load(Ordering::SeqCst)
+    }
+
+    pub fn is_play_through(&self) -> bool {
+        self.is_play_through.load(Ordering::SeqCst)
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
@@ -150,6 +158,10 @@ impl Modul {
 
     pub fn record_playback(&self) {
         self.key_sender.send(ModulAction::Playback).unwrap();
+    }
+
+    pub fn play_through(&self) {
+        self.key_sender.send(ModulAction::PlayThrough).unwrap();
     }
 
     pub fn write(&self) {

@@ -29,6 +29,7 @@ pub struct AudioModel {
     pub key_receiver: Receiver<ModulAction>,
     pub is_recording: Arc<AtomicBool>,
     pub is_recording_playback: Arc<AtomicBool>,
+    pub is_play_through: Arc<AtomicBool>,
     pub selected_tape: usize,
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
@@ -50,7 +51,7 @@ impl AudioModel {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
                 let t_index = t.index;
-                let t_sample = t.sample;
+                let t_sample = t.sample; // this is the signal that came from the input channel
                 if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
@@ -71,7 +72,11 @@ impl AudioModel {
                 }
                 // ========
 
-                let r = self.output_producer.push(sample + t_sample);
+                let mut sum = sample;
+                if self.is_play_through.load(Ordering::SeqCst) {
+                    sum += t_sample;
+                }
+                let r = self.output_producer.push(sum);
                 match r {
                     Ok(_) => {}
                     Err(_e) => eprintln!("error: {}", self.output_producer.len()),
@@ -121,6 +126,12 @@ impl AudioModel {
                 ModulAction::Playback => {
                     self.is_recording_playback.store(
                         !self.is_recording_playback.load(Ordering::SeqCst),
+                        Ordering::SeqCst,
+                    );
+                }
+                ModulAction::PlayThrough => {
+                    self.is_play_through.store(
+                        !self.is_play_through.load(Ordering::SeqCst),
                         Ordering::SeqCst,
                     );
                 }

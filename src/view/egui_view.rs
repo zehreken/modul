@@ -120,6 +120,9 @@ impl EguiView {
                                 Key::T => {
                                     modul.record_playback();
                                 }
+                                Key::Y => {
+                                    modul.play_through();
+                                }
                                 Key::W => {
                                     modul.write();
                                 }
