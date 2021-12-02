@@ -6,6 +6,7 @@ mod view;
 use std::cmp::Ordering;
 use std::env;
 mod audio_model;
+mod metronome;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -32,13 +33,13 @@ impl Config {
 
                 bpm = arg_one.parse().unwrap();
                 bar_count = arg_two.parse().unwrap();
-
-                println!("bpm: {}, bar count: {}", bpm, bar_count);
             }
             Ordering::Greater => {
                 println!("Too many arguments. Modul will start with default config.")
             }
         }
+
+        println!("bpm: {}, bar count: {}", bpm, bar_count);
 
         Self { bpm, bar_count }
     }

@@ -1,6 +1,6 @@
 pub mod utils {
     use crate::audio_model::Input;
-    use crate::tape::tape::Tape;
+    use crate::tape::Tape;
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{Consumer, Producer};
@@ -11,12 +11,15 @@ pub mod utils {
     /// then the buffer will not be emptied fast enough and some input will be lost
     pub const BUFFER_CAPACITY: usize = 4096 * 8;
 
+    pub const TAPE_COUNT: usize = 8;
+
     pub enum ModulAction {
         SelectTape(usize),
         Record,
         _Pause,
         _Play,
         Playback,
+        PlayThrough,
         Write,
         _ClearAll,
         Clear,
@@ -104,7 +107,7 @@ pub mod utils {
         }
     }
 
-    pub fn write(recording: &[f32], name: &str) {
+    pub fn write(buffer: &[f32], name: &str) {
         let spec = hound::WavSpec {
             channels: 4,
             sample_rate: 44100,
@@ -113,7 +116,7 @@ pub mod utils {
         };
 
         let mut writer = hound::WavWriter::create(format!("{}.wav", name), spec).unwrap();
-        for sample in recording.iter() {
+        for sample in buffer.iter() {
             let amplitude = i16::MAX as f32;
             writer.write_sample((sample * amplitude) as i16).unwrap();
         }

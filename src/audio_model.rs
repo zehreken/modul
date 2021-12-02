@@ -1,12 +1,21 @@
 use crate::modul_utils::utils::*;
-use crate::tape::tape::Tape;
+use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{atomic::AtomicBool, mpsc::Receiver};
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
-    pub tapes: [Tape<f32>; 8],
+    pub tapes: [Tape<f32>; TAPE_COUNT],
+}
+
+impl TapeModel {
+    pub fn new(length: usize) -> Self {
+        let tapes: [Tape<f32>; TAPE_COUNT] =
+            array_init::array_init(|_| Tape::<f32>::new(0.0, length));
+
+        Self { tapes }
+    }
 }
 
 /// Used to transfer data to the audio thread
@@ -20,11 +29,12 @@ pub struct AudioModel {
     pub key_receiver: Receiver<ModulAction>,
     pub is_recording: Arc<AtomicBool>,
     pub is_recording_playback: Arc<AtomicBool>,
+    pub is_play_through: Arc<AtomicBool>,
     pub selected_tape: usize,
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
-    pub sample_averages: Arc<Mutex<[f32; 8]>>,
+    pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
 }
 
 pub struct Input {
@@ -34,13 +44,14 @@ pub struct Input {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        let mut sample_averages = [0.0; 8];
+        let mut sample_averages = [0.0; TAPE_COUNT];
         let sample_count = self.input_consumer.len();
+        let mut sample_clock = 0f32;
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
                 let t_index = t.index;
-                let t_sample = t.sample;
+                let t_sample = t.sample; // this is the signal that came from the input channel
                 if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
@@ -55,7 +66,20 @@ impl AudioModel {
                     sample += tape.audio[t_index] * tape.get_volume();
                 }
 
-                let r = self.output_producer.push(sample + t_sample);
+                // sin wave
+                // println!("t {}", t_index);
+                sample_clock = (sample_clock + 1.0) % 44100.0;
+                if t_index % 22_050 < 5_000 {
+                    sample +=
+                        (sample_clock * 440.0 * 2.0 * std::f32::consts::PI / 44100.0).sin() * 0.05;
+                }
+                // ========
+
+                let mut sum = sample;
+                if self.is_play_through.load(Ordering::SeqCst) {
+                    sum += t_sample;
+                }
+                let r = self.output_producer.push(sum);
                 match r {
                     Ok(_) => {}
                     Err(_e) => eprintln!("error: {}", self.output_producer.len()),
@@ -108,6 +132,12 @@ impl AudioModel {
                         Ordering::SeqCst,
                     );
                 }
+                ModulAction::PlayThrough => {
+                    self.is_play_through.store(
+                        !self.is_play_through.load(Ordering::SeqCst),
+                        Ordering::SeqCst,
+                    );
+                }
                 ModulAction::Write => {
                     // let tape = merge_tapes(&self.tape_model.tapes);
                     // write_tape(&tape, "test");
@@ -130,7 +160,7 @@ impl AudioModel {
                     self.tape_model.tapes[self.selected_tape].unmute();
                 }
                 ModulAction::SelectTape(tape) => {
-                    self.selected_tape = tape;
+                    self.selected_tape = tape.clamp(0, TAPE_COUNT);
                 }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.selected_tape].volume_up();
