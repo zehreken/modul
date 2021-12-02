@@ -45,6 +45,7 @@ impl AudioModel {
     pub fn update(&mut self) {
         let mut sample_averages = [0.0; TAPE_COUNT];
         let sample_count = self.input_consumer.len();
+        let mut sample_clock = 0f32;
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
@@ -60,6 +61,15 @@ impl AudioModel {
                     *average += tape.audio[t_index] * tape.get_volume();
                     sample += tape.audio[t_index] * tape.get_volume();
                 }
+
+                // sin wave
+                // println!("t {}", t_index);
+                sample_clock = (sample_clock + 1.0) % 44100.0;
+                if t_index % 22_050 < 5_000 {
+                    sample +=
+                        (sample_clock * 440.0 * 2.0 * std::f32::consts::PI / 44100.0).sin() * 0.05;
+                }
+                // ========
 
                 let r = self.output_producer.push(sample + t_sample);
                 match r {

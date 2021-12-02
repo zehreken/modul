@@ -24,6 +24,8 @@ impl WindowStats {
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
             ui.label(format!("bar length: {} sec", "n/a"));
+            ui.label(format!("input channels: {}", 2));
+            ui.label(format!("output channels: {}", 2));
         });
     }
 }

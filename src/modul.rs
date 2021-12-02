@@ -1,4 +1,7 @@
+use crate::metronome::Metronome;
+
 use super::audio_model::*;
+use super::metronome;
 use super::modul_utils::utils::*;
 use super::Config;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -24,6 +27,7 @@ pub struct Modul {
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
+    metronome: Metronome,
 }
 
 impl Modul {
@@ -102,6 +106,7 @@ impl Modul {
             is_recording_playback: Arc::clone(&is_recording_playback),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
+            metronome: Metronome::new(),
         }
     }
 
