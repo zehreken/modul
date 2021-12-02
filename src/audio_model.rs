@@ -48,7 +48,10 @@ impl AudioModel {
                 let mut sample: f32 = 0.0;
                 for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut())
                 {
-                    *average += tape.audio[t_index] * tape.get_volume();
+                    if tape.audio[t_index] * tape.get_volume() > *average {
+                        *average = tape.audio[t_index] * tape.get_volume();
+                    }
+                    // *average += tape.audio[t_index] * tape.get_volume();
                     sample += tape.audio[t_index] * tape.get_volume();
                 }
 
@@ -68,11 +71,11 @@ impl AudioModel {
         }
 
         if sample_count > 0 {
-            for average in sample_averages.iter_mut() {
-                *average /= sample_count as f32;
-                *average += 0.02;
-                // println!("{}", average);
-            }
+            // for average in sample_averages.iter_mut() {
+            //     *average /= sample_count as f32;
+            //     *average += 0.02;
+            //     // println!("{}", average);
+            // }
             *self.sample_averages.lock().unwrap() = sample_averages;
         }
 
