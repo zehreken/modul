@@ -15,13 +15,13 @@ fn main() {
 }
 
 pub struct Config {
-    pub bpm: f32,
+    pub bpm: u16,
     pub bar_count: usize,
 }
 
 impl Config {
     pub fn new(args: Vec<String>) -> Self {
-        let mut bpm: f32 = 120.0;
+        let mut bpm: u16 = 120;
         let mut bar_count: usize = 4;
         match args.len().cmp(&3) {
             Ordering::Less => {

@@ -1,9 +1,7 @@
-use crate::metronome::Metronome;
-
 use super::audio_model::*;
-use super::metronome;
 use super::modul_utils::utils::*;
 use super::Config;
+use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::RingBuffer;
@@ -28,7 +26,6 @@ pub struct Modul {
     is_recording_playback: Arc<AtomicBool>,
     is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
-    metronome: Metronome,
 }
 
 impl Modul {
@@ -41,8 +38,8 @@ impl Modul {
         let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
-        let bar_length_seconds = 4.0 * 60.0 / config.bpm; // beats * seconds per beat(60.0 / BPM)
-                                                          // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
+        let bar_length_seconds = 4.0 * 60.0 / config.bpm as f32; // beats * seconds per beat(60.0 / BPM)
+                                                                 // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
         let mut tape_length: usize = (input_config.sample_rate.0 as f32
             * input_config.channels as f32
             * bar_length_seconds
@@ -92,6 +89,7 @@ impl Modul {
             audio_index: Arc::clone(&audio_index),
             writing_tape: vec![],
             sample_averages: Arc::clone(&sample_averages),
+            metronome: Metronome::new(config.bpm),
         };
 
         std::thread::spawn(move || loop {
@@ -110,7 +108,6 @@ impl Modul {
             is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
-            metronome: Metronome::new(),
         }
     }
 

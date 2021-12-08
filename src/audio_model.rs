@@ -1,3 +1,4 @@
+use crate::metronome::Metronome;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
@@ -35,6 +36,7 @@ pub struct AudioModel {
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
     pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
+    pub metronome: Metronome,
 }
 
 pub struct Input {
@@ -69,7 +71,7 @@ impl AudioModel {
                 // sin wave
                 // println!("t {}", t_index);
                 sample_clock = (sample_clock + 1.0) % 44100.0;
-                if t_index % 22_050 < 5_000 {
+                if t_index % 44_100 < 20_000 {
                     sample +=
                         (sample_clock * 440.0 * 2.0 * std::f32::consts::PI / 44100.0).sin() * 0.05;
                 }
