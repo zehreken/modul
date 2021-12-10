@@ -105,10 +105,10 @@ impl AudioModel {
             *self.sample_averages.lock().unwrap() = sample_averages;
         }
 
-        self.check_input();
+        self.check_user_input();
     }
 
-    fn check_input(&mut self) {
+    fn check_user_input(&mut self) {
         for c in self.key_receiver.try_iter() {
             match c {
                 ModulAction::Record => {
