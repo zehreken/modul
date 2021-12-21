@@ -21,11 +21,13 @@ pub struct Config {
 
 impl Config {
     pub fn new(args: Vec<String>) -> Self {
-        let mut bpm: u16 = 120;
-        let mut bar_count: usize = 4;
+        let default_bpm = 120;
+        let default_bar_count = 4;
+        let mut bpm: u16 = default_bpm;
+        let mut bar_count: usize = default_bar_count;
         match args.len().cmp(&3) {
             Ordering::Less => {
-                println!("Not enough arguments. Modul will start with default config.");
+                println!("Not enough arguments...\nModul will start with default config {} BPM and {} bars...\n", default_bpm, default_bar_count)
             }
             Ordering::Equal => {
                 let arg_one: &str = &args[1][..];
@@ -33,13 +35,16 @@ impl Config {
 
                 bpm = arg_one.parse().unwrap();
                 bar_count = arg_two.parse().unwrap();
+
+                println!(
+                    "Modul will start with config {} BPM and {} bars...\n",
+                    bpm, bar_count
+                );
             }
             Ordering::Greater => {
-                println!("Too many arguments. Modul will start with default config.")
+                println!("Too many arguments...\nModul will start with default config {} BPM and {} bars...\n", default_bpm, default_bar_count)
             }
         }
-
-        println!("bpm: {}, bar count: {}", bpm, bar_count);
 
         Self { bpm, bar_count }
     }
