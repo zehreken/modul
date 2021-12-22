@@ -17,6 +17,10 @@ impl WindowMetronome {
             ctx.request_repaint();
             ui.label(format!("time {}", 1234567890));
             ui.checkbox(is_running, "run");
+
+            if modul.show_beat() {
+                ui.label("dup");
+            }
         });
     }
 }
