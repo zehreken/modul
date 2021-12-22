@@ -26,7 +26,7 @@ impl Windows {
 
     pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut Modul) {
         egui::TopBottomPanel::top("").show(ctx, |ui| {
-            // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
+            // egui::trace!(ui); // What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
             ui.horizontal(|ui| {
                 ui.label("modul ❤ ");
                 ui.separator();

@@ -1,15 +1,15 @@
-mod quad;
-mod view;
-use quad::shader;
-use {egui_miniquad as egui_mq, miniquad as mq};
-use crate::modul_utils::utils::TAPE_COUNT;
+mod visualization;
+mod windows;
 use super::modul;
 use super::Config;
+use crate::modul_utils::utils::TAPE_COUNT;
+use visualization::shader;
+use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    _quad_stage: quad::Quad,
-    windows: view::Windows,
+    _quad_stage: visualization::Quad,
+    windows: windows::Windows,
     modul: modul::Modul,
 }
 
@@ -17,8 +17,8 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            _quad_stage: quad::Quad::new(ctx),
-            windows: view::Windows::new(),
+            _quad_stage: visualization::Quad::new(ctx),
+            windows: windows::Windows::new(),
             modul: modul::Modul::new(config),
         }
     }
