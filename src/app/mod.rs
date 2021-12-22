@@ -1,15 +1,15 @@
 mod quad;
-mod windows;
+mod view;
 use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 mod egui_view;
-use windows::window_stats;
-use windows::window_stats::WindowStats;
+use view::window_stats;
+use view::window_stats::WindowStats;
 
 use crate::modul_utils::utils::TAPE_COUNT;
 
-use self::windows::window_metronome;
-use self::windows::window_metronome::WindowMetronome;
+use self::view::window_metronome;
+use self::view::window_metronome::WindowMetronome;
 
 use super::modul;
 use super::Config;
@@ -20,6 +20,7 @@ struct Stage {
     show_stats: bool,
     show_metronome: bool,
     _quad_stage: quad::Quad,
+    windows: view::Windows,
     egui_view: egui_view::EguiView,
     window_stats: WindowStats,
     window_metronome: WindowMetronome,
@@ -34,6 +35,7 @@ impl Stage {
             show_stats: false,
             show_metronome: false,
             _quad_stage: quad::Quad::new(ctx),
+            windows: view::Windows::new(),
             egui_view: egui_view::EguiView::default(),
             window_stats: window_stats::WindowStats::default(),
             window_metronome: window_metronome::WindowMetronome::default(),
@@ -48,6 +50,7 @@ impl Stage {
             show_stats,
             show_metronome,
             _quad_stage,
+            windows,
             egui_view,
             window_stats,
             window_metronome,
@@ -73,15 +76,17 @@ impl Stage {
             });
         });
 
-        if *show_tapes {
-            egui_view.draw(egui_ctx, modul);
-        }
-        if *show_stats {
-            window_stats.draw(egui_ctx, modul);
-        }
-        if *show_metronome {
-            window_metronome.draw(egui_ctx, modul);
-        }
+        windows.draw(egui_ctx, modul);
+
+        // if *show_tapes {
+        //     egui_view.draw(egui_ctx, modul);
+        // }
+        // if *show_stats {
+        //     window_stats.draw(egui_ctx, modul);
+        // }
+        // if *show_metronome {
+        //     window_metronome.draw(egui_ctx, modul);
+        // }
     }
 }
 
