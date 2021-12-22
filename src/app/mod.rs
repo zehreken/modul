@@ -2,28 +2,14 @@ mod quad;
 mod view;
 use quad::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
-mod egui_view;
-use view::window_stats;
-use view::window_stats::WindowStats;
-
 use crate::modul_utils::utils::TAPE_COUNT;
-
-use self::view::window_metronome;
-use self::view::window_metronome::WindowMetronome;
-
 use super::modul;
 use super::Config;
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    show_tapes: bool,
-    show_stats: bool,
-    show_metronome: bool,
     _quad_stage: quad::Quad,
     windows: view::Windows,
-    egui_view: egui_view::EguiView,
-    window_stats: WindowStats,
-    window_metronome: WindowMetronome,
     modul: modul::Modul,
 }
 
@@ -31,14 +17,8 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            show_tapes: true,
-            show_stats: false,
-            show_metronome: false,
             _quad_stage: quad::Quad::new(ctx),
             windows: view::Windows::new(),
-            egui_view: egui_view::EguiView::default(),
-            window_stats: window_stats::WindowStats::default(),
-            window_metronome: window_metronome::WindowMetronome::default(),
             modul: modul::Modul::new(config),
         }
     }
@@ -46,47 +26,14 @@ impl Stage {
     fn ui(&mut self) {
         let Self {
             egui_mq,
-            show_tapes,
-            show_stats,
-            show_metronome,
             _quad_stage,
             windows,
-            egui_view,
-            window_stats,
-            window_metronome,
             modul,
         } = self;
 
         let egui_ctx = egui_mq.egui_ctx();
 
-        egui::TopBottomPanel::top("").show(egui_ctx, |ui| {
-            // egui::trace!(ui); What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
-            ui.horizontal(|ui| {
-                ui.label("modul ❤ ");
-                ui.separator();
-                ui.checkbox(show_tapes, "tapes");
-                ui.checkbox(show_stats, "stats");
-                ui.checkbox(show_metronome, "metronome");
-                #[cfg(not(target_arch = "wasm32"))]
-                {
-                    if ui.button("Quit").clicked() {
-                        std::process::exit(0);
-                    }
-                }
-            });
-        });
-
         windows.draw(egui_ctx, modul);
-
-        // if *show_tapes {
-        //     egui_view.draw(egui_ctx, modul);
-        // }
-        // if *show_stats {
-        //     window_stats.draw(egui_ctx, modul);
-        // }
-        // if *show_metronome {
-        //     window_metronome.draw(egui_ctx, modul);
-        // }
     }
 }
 
