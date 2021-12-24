@@ -52,4 +52,8 @@ impl Windows {
             self.window_stats.draw(ctx, modul);
         }
     }
+
+    pub fn _check_input() {
+        todo!("Move input stuff from window_tapes.rs")
+    }
 }

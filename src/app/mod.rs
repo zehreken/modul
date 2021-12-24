@@ -31,9 +31,7 @@ impl Stage {
             modul,
         } = self;
 
-        let egui_ctx = egui_mq.egui_ctx();
-
-        windows.draw(egui_ctx, modul);
+        windows.draw(egui_mq.egui_ctx(), modul);
     }
 }
 

@@ -75,14 +75,15 @@ impl AudioModel {
 
                 // sin wave
                 // println!("t {}", t_index);
-                if self.metronome.is_running {
-                    sample_clock = (sample_clock + 1.0) % 44100.0;
-                    if t_index % 44_100 < 20_000 {
-                        sample += (sample_clock * 440.0 * 2.0 * std::f32::consts::PI / 44100.0)
-                            .sin()
-                            * 0.05;
-                    }
+                // if self.metronome.is_running {
+                // sample_clock = (sample_clock + 1.0) % 44100.0;
+                // println!("t_index {}", t_index);
+                if t_index % 88_200 < 20_000 {
+                    const FREQ: f32 = 440.0;
+                    sample +=
+                        (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.1;
                 }
+                // }
                 // ========
 
                 let mut sum = sample;
