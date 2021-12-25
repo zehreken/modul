@@ -66,11 +66,11 @@ impl AudioModel {
                 let mut sample: f32 = 0.0;
                 for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut())
                 {
-                    if tape.audio[t_index] * tape.get_volume() > *average {
-                        *average = tape.audio[t_index] * tape.get_volume();
+                    let tape_sample = tape.audio[t_index] * tape.get_volume();
+                    if tape_sample > *average {
+                        *average = tape_sample;
                     }
-                    // *average += tape.audio[t_index] * tape.get_volume();
-                    sample += tape.audio[t_index] * tape.get_volume();
+                    sample += tape_sample;
                 }
 
                 // sin wave
