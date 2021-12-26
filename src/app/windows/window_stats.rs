@@ -23,9 +23,9 @@ impl WindowStats {
                 instant.elapsed().as_secs_f32()
             ));
             ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
-            ui.label(format!("bar length: {} sec", "n/a"));
-            ui.label(format!("input channels: {}", 2));
-            ui.label(format!("output channels: {}", 2));
+            ui.label(format!("bar length: {} sec", "not implemented"));
+            ui.label(format!("input channels: {}", "not implemented"));
+            ui.label(format!("output channels: {}", "not implemented"));
         });
     }
 }

@@ -9,7 +9,8 @@ pub mod utils {
     /// ATTENTION:
     /// If buffer capacity and update frequency is related, if update frequency is low
     /// then the buffer will not be emptied fast enough and some input will be lost
-    pub const BUFFER_CAPACITY: usize = 4096 * 8;
+    /// This is unnecesary since I don't push to the buffer if buffer.len() is 2048
+    pub const BUFFER_CAPACITY: usize = 4096;
 
     pub const TAPE_COUNT: usize = 8;
 

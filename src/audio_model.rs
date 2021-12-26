@@ -58,7 +58,7 @@ impl AudioModel {
             for t in self.input_consumer.pop() {
                 let t_index = t.index;
                 let t_sample = t.sample; // this is the signal that came from the input channel
-                                         // println!("index: {}, sample: {}", t_index, t_sample);
+
                 if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
@@ -76,10 +76,11 @@ impl AudioModel {
                 // sine wave for metronome
                 // if self.metronome.is_running {
                 if t_index % 88_200 < 20_000 {
-                    // println!("t_index: {}, t_sample: {}", t_index, t_sample);
                     const FREQ: f32 = 440.0;
                     sample +=
                         (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
+
+                    // println!("t_index: {}, t_sample: {}", t_index, t_sample);
                 }
                 // }
                 // ========
@@ -88,10 +89,12 @@ impl AudioModel {
                 if self.is_play_through.load(Ordering::SeqCst) {
                     sum += t_sample;
                 }
-                let r = self.output_producer.push(sum);
-                match r {
-                    Ok(_) => {}
-                    Err(_e) => eprintln!("error: {}", self.output_producer.len()),
+                if self.output_producer.len() < 2048 {
+                    let r = self.output_producer.push(sum);
+                    match r {
+                        Ok(_) => {}
+                        Err(_e) => eprintln!("buffer is full: {}", self.output_producer.len()),
+                    }
                 }
                 if self.is_recording_playback.load(Ordering::SeqCst) {
                     sample += t_sample;
@@ -102,6 +105,8 @@ impl AudioModel {
             }
             self.audio_index.store(audio_index, Ordering::SeqCst);
         }
+
+        // println!("len: {}", self.output_producer.len());
 
         if sample_count > 0 {
             // for average in sample_averages.iter_mut() {
