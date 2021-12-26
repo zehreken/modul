@@ -49,7 +49,6 @@ impl AudioModel {
     pub fn update(&mut self) {
         let mut sample_averages = [0.0; TAPE_COUNT];
         let sample_count = self.input_consumer.len();
-        let mut sample_clock = 0f32;
 
         self.metronome.update(sample_count as u32);
         self.show_beat
@@ -59,6 +58,7 @@ impl AudioModel {
             for t in self.input_consumer.pop() {
                 let t_index = t.index;
                 let t_sample = t.sample; // this is the signal that came from the input channel
+                                         // println!("index: {}, sample: {}", t_index, t_sample);
                 if self.is_recording.load(Ordering::SeqCst) {
                     self.recording_tape.push(t);
                 }
@@ -73,15 +73,13 @@ impl AudioModel {
                     sample += tape_sample;
                 }
 
-                // sin wave
-                // println!("t {}", t_index);
+                // sine wave for metronome
                 // if self.metronome.is_running {
-                // sample_clock = (sample_clock + 1.0) % 44100.0;
-                // println!("t_index {}", t_index);
                 if t_index % 88_200 < 20_000 {
+                    // println!("t_index: {}, t_sample: {}", t_index, t_sample);
                     const FREQ: f32 = 440.0;
                     sample +=
-                        (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.1;
+                        (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
                 }
                 // }
                 // ========

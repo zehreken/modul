@@ -36,7 +36,7 @@ pub mod utils {
         mut producer: Producer<Input>,
     ) -> Stream {
         let mut index = 0;
-        let input_data = move |data: &[f32], _: &cpal::InputCallbackInfo| {
+        let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
             let mut consumer_fell_behind = false;
             for &sample in data {
                 if producer.push(Input { index, sample }).is_err() {
@@ -55,7 +55,7 @@ pub mod utils {
         };
 
         input_device
-            .build_input_stream(config, input_data, err_fn)
+            .build_input_stream(config, input_data_fn, err_fn)
             .unwrap()
     }
 
@@ -64,14 +64,14 @@ pub mod utils {
         config: &StreamConfig,
         mut consumer: Consumer<f32>,
     ) -> Stream {
-        let output_data = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+        let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 *sample = consumer.pop().unwrap_or(0.0);
             }
         };
 
         output_device
-            .build_output_stream(config, output_data, err_fn)
+            .build_output_stream(config, output_data_fn, err_fn)
             .unwrap()
     }
 
