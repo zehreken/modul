@@ -53,6 +53,7 @@ impl AudioModel {
         self.metronome.update(sample_count as u32);
         self.show_beat
             .store(self.metronome.show_beat(), Ordering::SeqCst);
+
         while !self.input_consumer.is_empty() {
             let mut audio_index = 0;
             for t in self.input_consumer.pop() {
@@ -74,28 +75,30 @@ impl AudioModel {
                 }
 
                 // sine wave for metronome
-                // if self.metronome.is_running {
-                if t_index % 88_200 < 20_000 {
-                    const FREQ: f32 = 440.0;
-                    sample +=
-                        (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
+                if self.metronome.is_running {
+                    if t_index % 88_200 < 20_000 {
+                        const FREQ: f32 = 440.0;
+                        sample += (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0)
+                            .sin()
+                            * 0.05;
 
-                    // println!("t_index: {}, t_sample: {}", t_index, t_sample);
+                        // println!("t_index: {}, t_sample: {}", t_index, t_sample);
+                    }
                 }
-                // }
                 // ========
 
                 let mut sum = sample;
                 if self.is_play_through.load(Ordering::SeqCst) {
                     sum += t_sample;
                 }
-                if self.output_producer.len() < 2048 {
-                    let r = self.output_producer.push(sum);
-                    match r {
-                        Ok(_) => {}
-                        Err(_e) => eprintln!("buffer is full: {}", self.output_producer.len()),
-                    }
+                // if self.output_producer.len() < 2048 {
+                let r = self.output_producer.push(sum);
+                // Error checking is probably unnecessary since we have the sleep at the end
+                match r {
+                    Ok(_) => {}
+                    Err(_e) => eprintln!("buffer is full: {}", self.output_producer.len()),
                 }
+                // }
                 if self.is_recording_playback.load(Ordering::SeqCst) {
                     sample += t_sample;
                 }
@@ -105,8 +108,6 @@ impl AudioModel {
             }
             self.audio_index.store(audio_index, Ordering::SeqCst);
         }
-
-        // println!("len: {}", self.output_producer.len());
 
         if sample_count > 0 {
             // for average in sample_averages.iter_mut() {
@@ -118,6 +119,10 @@ impl AudioModel {
         }
 
         self.check_user_input();
+
+        while self.output_producer.len() >= 2048 {
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
     }
 
     fn check_user_input(&mut self) {
