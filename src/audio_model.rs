@@ -54,9 +54,14 @@ impl AudioModel {
         self.show_beat
             .store(self.metronome.show_beat(), Ordering::SeqCst);
 
-        while !self.input_consumer.is_empty() {
+        // while !self.input_consumer.is_empty() {
+        while self.input_consumer.len() > 4 {
             let mut audio_index = 0;
-            for t in self.input_consumer.pop() {
+            for _ in 0..4 {
+
+            // }
+            // for t in self.input_consumer.pop() {
+                let t = self.input_consumer.pop().unwrap();
                 let t_index = t.index;
                 let t_sample = t.sample; // this is the signal that came from the input channel
 
