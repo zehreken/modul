@@ -1,8 +1,7 @@
-mod app;
-mod beat_controller;
 mod modul;
 mod modul_utils;
 mod tape;
+mod view;
 use std::cmp::Ordering;
 use std::env;
 mod audio_model;
@@ -11,7 +10,7 @@ mod metronome;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = Config::new(args);
-    app::start(config);
+    view::start(config);
 }
 
 pub struct Config {

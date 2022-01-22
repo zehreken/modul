@@ -5,7 +5,7 @@ pub mod utils {
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{Consumer, Producer};
 
-    // Currently it is alwasy 4/4 time signature
+    // Currently only 4/4 time signature is supported
     /// ATTENTION:
     /// If buffer capacity and update frequency is related, if update frequency is low
     /// then the buffer will not be emptied fast enough and some input will be lost

@@ -24,7 +24,7 @@ pub struct Modul {
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
-    is_play_through: Arc<AtomicBool>,
+    _is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     show_beat: Arc<AtomicBool>,
 }
@@ -112,7 +112,7 @@ impl Modul {
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
-            is_play_through: Arc::clone(&is_play_through),
+            _is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
@@ -136,7 +136,7 @@ impl Modul {
     }
 
     pub fn is_play_through(&self) -> bool {
-        self.is_play_through.load(Ordering::SeqCst)
+        self._is_play_through.load(Ordering::SeqCst)
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
