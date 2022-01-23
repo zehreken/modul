@@ -13,7 +13,7 @@ pub mod utils {
     pub const BUFFER_CAPACITY: usize = 4096;
 
     pub const TAPE_COUNT: usize = 8;
-
+    #[derive(Debug)]
     pub enum ModulAction {
         SelectTape(usize),
         Record,
@@ -28,6 +28,8 @@ pub mod utils {
         Unmute,
         VolumeUp,
         VolumeDown,
+        StartMetronome,
+        StopMetronome,
     }
 
     pub fn create_input_stream_live(

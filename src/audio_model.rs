@@ -58,9 +58,8 @@ impl AudioModel {
         while self.input_consumer.len() > 4 {
             let mut audio_index = 0;
             for _ in 0..4 {
-
-            // }
-            // for t in self.input_consumer.pop() {
+                // }
+                // for t in self.input_consumer.pop() {
                 let t = self.input_consumer.pop().unwrap();
                 let t_index = t.index;
                 let t_sample = t.sample; // this is the signal that came from the input channel
@@ -192,7 +191,15 @@ impl AudioModel {
                 ModulAction::VolumeDown => {
                     self.tape_model.tapes[self.selected_tape].volume_down();
                 }
-                _ => {}
+                ModulAction::StartMetronome => {
+                    self.metronome.is_running = true;
+                }
+                ModulAction::StopMetronome => {
+                    self.metronome.is_running = false;
+                }
+                _a => {
+                    println!("Unhandled action: {:?}", _a);
+                }
             }
         }
     }

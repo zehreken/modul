@@ -149,6 +149,14 @@ impl Modul {
         self.show_beat.load(Ordering::SeqCst)
     }
 
+    pub fn switch_metronome(&self, is_active: bool) {
+        if is_active {
+            self.key_sender.send(ModulAction::StartMetronome).unwrap();
+        } else {
+            self.key_sender.send(ModulAction::StopMetronome).unwrap();
+        }
+    }
+
     pub fn record(&mut self) {
         self.key_sender.send(ModulAction::Record).unwrap();
     }
