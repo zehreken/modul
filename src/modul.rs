@@ -5,6 +5,7 @@ use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Stream, StreamConfig};
 use ringbuf::RingBuffer;
+use std::sync::atomic::AtomicU32;
 use std::sync::{
     atomic::AtomicBool,
     mpsc::{channel, Sender},
@@ -77,6 +78,7 @@ impl Modul {
         let is_play_through = Arc::new(AtomicBool::new(true));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT]));
         let show_beat = Arc::new(AtomicBool::new(false));
+        let beat_count = Arc::new(AtomicU32::new(0));
 
         let mut audio_model: AudioModel = AudioModel {
             tape_length,
@@ -93,6 +95,7 @@ impl Modul {
             writing_tape: vec![],
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
+            beat_count: Arc::clone(&beat_count),
             metronome: Metronome::new(
                 config.bpm,
                 input_config.sample_rate.0 * input_config.channels as u32,

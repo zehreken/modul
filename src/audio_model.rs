@@ -2,8 +2,8 @@ use crate::metronome::Metronome;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{atomic::AtomicBool, mpsc::Receiver};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
@@ -37,6 +37,7 @@ pub struct AudioModel {
     pub writing_tape: Vec<f32>,
     pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     pub show_beat: Arc<AtomicBool>,
+    pub beat_count: Arc<AtomicU32>,
     pub metronome: Metronome,
 }
 
@@ -53,6 +54,8 @@ impl AudioModel {
         self.metronome.update(sample_count as u32);
         self.show_beat
             .store(self.metronome.show_beat(), Ordering::SeqCst);
+        self.beat_count
+            .store(self.metronome.get_beat_count(), Ordering::SeqCst);
 
         // while !self.input_consumer.is_empty() {
         while self.input_consumer.len() > 4 {
