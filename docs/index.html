@@ -89,9 +89,11 @@ e=>end: End
 op1=>operation: audio-in
 op2=>operation: audio-out
 op3=>operation: audio-buffers
+mq=>operation: miniquad
 para=>parallel: run(create 3 threads)
 
-st->para
+st->mq
+mq->para
 para(path1, left)->op1
 para(path2, right)->op2
 para(path3, bottom)->op3
