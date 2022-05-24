@@ -19,7 +19,7 @@ impl Default for WindowTapes {
 }
 
 impl WindowTapes {
-    pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut Modul) {
+    pub fn draw(&mut self, ctx: &egui::Context, modul: &mut Modul) {
         let Self {
             selected_tape,
             tape_volumes,

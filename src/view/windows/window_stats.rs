@@ -14,7 +14,7 @@ impl Default for WindowStats {
 }
 
 impl WindowStats {
-    pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
+    pub fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
         let Self { instant } = self;
         egui::Window::new("stats").show(ctx, |ui| {
             ctx.request_repaint();

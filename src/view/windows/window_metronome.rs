@@ -12,7 +12,7 @@ impl Default for WindowMetronome {
 }
 
 impl WindowMetronome {
-    pub fn draw(&mut self, ctx: &egui::CtxRef, modul: &mut modul::Modul) {
+    pub fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
         let Self { is_running } = self;
         egui::Window::new("metronome").show(ctx, |ui| {
             ctx.request_repaint();
