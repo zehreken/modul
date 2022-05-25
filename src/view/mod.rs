@@ -1,8 +1,13 @@
 mod visualization;
 mod windows;
-use super::modul;
-use super::Config;
+use self::windows::Windows;
+
+use crate::modul;
+use crate::modul::Modul;
 use crate::modul_utils::utils::TAPE_COUNT;
+use crate::Config;
+use egui::Context;
+use egui_mq::EguiMq;
 use visualization::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 
@@ -21,17 +26,6 @@ impl Stage {
             windows: windows::Windows::new(),
             modul: modul::Modul::new(config),
         }
-    }
-
-    fn ui(&mut self) {
-        let Self {
-            egui_mq,
-            _quad_stage,
-            windows,
-            modul,
-        } = self;
-
-        windows.draw(egui_mq.egui_ctx(), modul);
     }
 }
 
@@ -58,8 +52,7 @@ impl mq::EventHandler for Stage {
         ctx.end_render_pass();
 
         self.egui_mq.run(ctx, |egui_ctx| {
-            // self.ui();
-            self.windows.draw(egui_ctx, &mut self.modul);
+            draw_ui(&mut self.windows, egui_ctx, &mut self.modul);
         });
 
         self.egui_mq.draw(ctx);
@@ -120,6 +113,10 @@ impl mq::EventHandler for Stage {
     fn key_up_event(&mut self, _ctx: &mut mq::Context, keycode: mq::KeyCode, keymods: mq::KeyMods) {
         self.egui_mq.key_up_event(keycode, keymods);
     }
+}
+
+fn draw_ui(windows: &mut Windows, egui_ctx: &Context, modul: &mut Modul) {
+    windows.draw(egui_ctx, modul);
 }
 
 pub fn start(config: Config) {
