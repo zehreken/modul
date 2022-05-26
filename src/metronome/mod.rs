@@ -1,6 +1,6 @@
 pub struct Metronome {
     pub is_running: bool,
-    beat_count: u32,
+    beat_index: u32,
     sample_counter: u32,
     tick_period: f32,
     show_beat: bool,
@@ -11,7 +11,7 @@ impl Metronome {
         let tick_period = sample_rate as f32 / (bpm as f32 / 60.0);
         Self {
             is_running: false,
-            beat_count: 0,
+            beat_index: 0,
             sample_counter: 0,
             tick_period,
             show_beat: false,
@@ -23,11 +23,11 @@ impl Metronome {
 
         let rem = self.sample_counter % self.tick_period as u32;
         self.show_beat = rem > 0 && rem < 10_000;
-        self.beat_count = self.sample_counter / self.tick_period as u32;
+        self.beat_index = self.sample_counter / self.tick_period as u32;
     }
 
-    pub fn get_beat_count(&self) -> u32 {
-        self.beat_count
+    pub fn get_beat_index(&self) -> u32 {
+        self.beat_index
     }
 
     pub fn show_beat(&self) -> bool {

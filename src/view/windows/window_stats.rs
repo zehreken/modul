@@ -1,5 +1,5 @@
 use crate::modul;
-use std::{borrow::Borrow, time::Instant};
+use std::time::Instant;
 
 pub struct WindowStats {
     instant: Instant,

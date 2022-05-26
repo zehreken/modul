@@ -37,7 +37,7 @@ pub struct AudioModel {
     pub writing_tape: Vec<f32>,
     pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     pub show_beat: Arc<AtomicBool>,
-    pub beat_count: Arc<AtomicU32>,
+    pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
 }
 
@@ -54,8 +54,8 @@ impl AudioModel {
         self.metronome.update(sample_count as u32);
         self.show_beat
             .store(self.metronome.show_beat(), Ordering::SeqCst);
-        self.beat_count
-            .store(self.metronome.get_beat_count(), Ordering::SeqCst);
+        self.beat_index
+            .store(self.metronome.get_beat_index(), Ordering::SeqCst);
 
         // while !self.input_consumer.is_empty() {
         while self.input_consumer.len() > 4 {

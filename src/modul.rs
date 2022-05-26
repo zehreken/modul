@@ -34,6 +34,7 @@ pub struct Modul {
     _is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     show_beat: Arc<AtomicBool>,
+    beat_index: Arc<AtomicU32>,
     pub stats: Stats,
 }
 
@@ -91,7 +92,7 @@ impl Modul {
         let is_play_through = Arc::new(AtomicBool::new(true));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT]));
         let show_beat = Arc::new(AtomicBool::new(false));
-        let beat_count = Arc::new(AtomicU32::new(0));
+        let beat_index = Arc::new(AtomicU32::new(0));
 
         let mut audio_model: AudioModel = AudioModel {
             tape_length,
@@ -108,7 +109,7 @@ impl Modul {
             writing_tape: vec![],
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
-            beat_count: Arc::clone(&beat_count),
+            beat_index: Arc::clone(&beat_index),
             metronome: Metronome::new(
                 config.bpm,
                 input_config.sample_rate.0 * input_config.channels as u32,
@@ -132,6 +133,7 @@ impl Modul {
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
+            beat_index: Arc::clone(&beat_index),
             stats,
         }
     }
@@ -164,6 +166,10 @@ impl Modul {
 
     pub fn show_beat(&self) -> bool {
         self.show_beat.load(Ordering::SeqCst)
+    }
+
+    pub fn get_beat_index(&self) -> u32 {
+        self.beat_index.load(Ordering::SeqCst)
     }
 
     pub fn switch_metronome(&self, is_active: bool) {
