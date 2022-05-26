@@ -1,5 +1,5 @@
 use crate::modul;
-use std::time::Instant;
+use std::{borrow::Borrow, time::Instant};
 
 pub struct WindowStats {
     instant: Instant,
@@ -18,14 +18,11 @@ impl WindowStats {
         let Self { instant } = self;
         egui::Window::new("stats").show(ctx, |ui| {
             ctx.request_repaint();
-            ui.label(format!(
-                "real time: {:0.1} sec",
-                instant.elapsed().as_secs_f32()
-            ));
-            ui.label(format!("modul time: {:0.1}", modul.get_audio_index()));
-            ui.label(format!("bar length: {} sec", "not implemented"));
-            ui.label(format!("input channels: {}", "not implemented"));
-            ui.label(format!("output channels: {}", "not implemented"));
+            ui.label(format!("time: {:0.1} sec", instant.elapsed().as_secs_f32()));
+            ui.label(format!("audio index: {:0.1}", modul.get_audio_index()));
+            ui.label(format!("bpm: {}", modul.stats.bpm));
+            ui.label(format!("bar count: {}", modul.stats.bar_count));
+            ui.label(format!("bar length: {} sec", modul.stats.bar_length));
         });
     }
 }

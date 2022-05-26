@@ -16,6 +16,12 @@ use std::{
     time::Duration,
 };
 
+pub struct Stats {
+    pub bpm: u16,
+    pub bar_count: usize,
+    pub bar_length: f32,
+}
+
 pub struct Modul {
     pub tape_length: usize,
     input_stream: Stream,
@@ -28,6 +34,7 @@ pub struct Modul {
     _is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
     show_beat: Arc<AtomicBool>,
+    pub stats: Stats,
 }
 
 impl Modul {
@@ -40,12 +47,18 @@ impl Modul {
         let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
-        let bar_length_seconds = 4.0 * 60.0 / config.bpm as f32; // beats * seconds per beat(60.0 / BPM)
+        let bar_length = 4.0 * 60.0 / config.bpm as f32; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
+
+        let stats = Stats {
+            bpm: config.bpm,
+            bar_count: config.bar_count,
+            bar_length,
+        };
 
         // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count
         let mut tape_length: usize = (input_config.sample_rate.0 as f32
             * input_config.channels as f32
-            * bar_length_seconds
+            * bar_length
             * config.bar_count as f32) as usize;
         tape_length -= tape_length % input_config.channels as usize;
 
@@ -54,7 +67,7 @@ impl Modul {
 
         println!(
             "tape length: {}, bar length: {} seconds",
-            tape_length, bar_length_seconds
+            tape_length, bar_length
         );
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
@@ -119,6 +132,7 @@ impl Modul {
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
+            stats,
         }
     }
 

@@ -7,7 +7,6 @@ use crate::modul::Modul;
 use crate::modul_utils::utils::TAPE_COUNT;
 use crate::Config;
 use egui::Context;
-use egui_mq::EguiMq;
 use visualization::shader;
 use {egui_miniquad as egui_mq, miniquad as mq};
 
