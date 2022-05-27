@@ -66,9 +66,12 @@ impl Modul {
         let recording_tape = vec![];
         let tape_model = TapeModel::new(tape_length);
 
+        let writing_tape_capacity =
+            input_config.sample_rate.0 as usize * input_config.channels as usize * 10 * 60;
+
         println!(
-            "tape length: {}, bar length: {} seconds",
-            tape_length, bar_length
+            "tape length: {}, bar length: {} seconds, writing tape: {}",
+            tape_length, bar_length, writing_tape_capacity
         );
 
         let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
@@ -89,7 +92,7 @@ impl Modul {
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
-        let is_play_through = Arc::new(AtomicBool::new(true));
+        let is_play_through = Arc::new(AtomicBool::new(false));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT]));
         let show_beat = Arc::new(AtomicBool::new(false));
         let beat_index = Arc::new(AtomicU32::new(0));
@@ -106,7 +109,7 @@ impl Modul {
             selected_tape: 0,
             output_producer,
             audio_index: Arc::clone(&audio_index),
-            writing_tape: vec![],
+            writing_tape: Vec::with_capacity(writing_tape_capacity),
             sample_averages: Arc::clone(&sample_averages),
             show_beat: Arc::clone(&show_beat),
             beat_index: Arc::clone(&beat_index),

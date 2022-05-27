@@ -51,7 +51,9 @@ impl AudioModel {
         let mut sample_averages = [0.0; TAPE_COUNT];
         let sample_count = self.input_consumer.len();
 
+        // Update metronome
         self.metronome.update(sample_count as u32);
+
         self.show_beat
             .store(self.metronome.show_beat(), Ordering::SeqCst);
         self.beat_index
@@ -83,7 +85,7 @@ impl AudioModel {
 
                 // sine wave for metronome
                 if self.metronome.is_running {
-                    if t_index % 88_200 < 20_000 {
+                    if self.metronome.show_beat() {
                         const FREQ: f32 = 440.0;
                         sample += (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0)
                             .sin()

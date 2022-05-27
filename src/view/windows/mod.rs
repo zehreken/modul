@@ -9,6 +9,7 @@ pub struct Windows {
     show_metronome: bool,
     window_metronome: window_metronome::WindowMetronome,
     show_stats: bool,
+    is_play_through: bool,
     window_stats: window_stats::WindowStats,
 }
 
@@ -20,6 +21,7 @@ impl Windows {
             show_metronome: false,
             window_metronome: window_metronome::WindowMetronome::default(),
             show_stats: false,
+            is_play_through: false,
             window_stats: window_stats::WindowStats::default(),
         }
     }
@@ -33,6 +35,12 @@ impl Windows {
                 ui.checkbox(&mut self.show_tapes, "tapes");
                 ui.checkbox(&mut self.show_metronome, "metronome");
                 ui.checkbox(&mut self.show_stats, "stats");
+                if ui
+                    .checkbox(&mut self.is_play_through, "play through")
+                    .changed()
+                {
+                    modul.play_through();
+                }
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     if ui.button("Quit").clicked() {

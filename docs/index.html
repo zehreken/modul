@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>flowchart.js · Playground</title>
+    <title>modul flow</title>
     <style type="text/css">
         .end-element {
             fill: #FFCCFF;
@@ -84,19 +84,19 @@
 
 <body>
     <div><textarea id="code" style="width: 100%;" rows="11">
-st=>start: Start
+run=>start: Run
 e=>end: End
 op1=>operation: audio-in
 op2=>operation: audio-out
 op3=>operation: audio-buffers
-mq=>operation: miniquad
-para=>parallel: run(create 3 threads)
+mq=>operation: miniquad(view)
+audio_model=>parallel: start audio model (create 3 threads)
 
-st->mq
-mq->para
-para(path1, left)->op1
-para(path2, right)->op2
-para(path3, bottom)->op3
+run->mq
+mq->audio_model
+audio_model(path1, left)->op1
+audio_model(path2, right)->op2
+audio_model(path3, bottom)->op3
 op1->op3
 op3(right)->op2
         </textarea></div>
