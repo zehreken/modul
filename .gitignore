@@ -51,3 +51,4 @@ Cargo.lock
 
 /out
 *.wav
+*.mp3
