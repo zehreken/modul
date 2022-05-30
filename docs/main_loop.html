@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>modul flow</title>
+    <title>modul main_loop</title>
     <style type="text/css">
         .end-element {
             fill: #FFCCFF;
@@ -84,23 +84,15 @@
 
 <body>
     <div><textarea id="code" style="width: 100%;" rows="11">
-run=>start: Run
-e=>end: End
-op1=>operation: audio-in
-op2=>operation: audio-out
-op3=>operation: audio-model (has audio buffers)
-mq=>operation: miniquad(view)
-egui=>subroutine: UI
-audio_model=>parallel: run modul (create 3 threads)
+audio-in=>operation: AudioIn
+tp=>condition: TP?
+audio-out=>operation: AudioOut
+buffers=>operation: Buffers
 
-run->mq
-mq->audio_model
-audio_model->egui
-audio_model(path1, left)->op1
-audio_model(path2, right)->op2
-audio_model(path3, bottom)->op3
-op1->op3
-op3(right)->op2
+audio-in->tp
+tp(yes)->audio-out
+tp(no)->buffers
+buffers->audio-out
         </textarea></div>
     <div><button id="run" type="button">Run</button></div>
     <div id="canvas"></div>
