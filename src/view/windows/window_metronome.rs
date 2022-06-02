@@ -1,14 +1,9 @@
 use crate::modul;
 use egui::*;
 
+#[derive(Default)]
 pub struct WindowMetronome {
     is_running: bool,
-}
-
-impl Default for WindowMetronome {
-    fn default() -> Self {
-        Self { is_running: false }
-    }
 }
 
 impl WindowMetronome {

@@ -39,115 +39,113 @@ impl WindowTapes {
 
             // Keyboard input
             for e in ui.input().events.iter() {
-                match e {
-                    egui::Event::Key {
-                        key,
-                        pressed,
-                        modifiers: _, // ignored field, Rust is amazing, delete this later
-                    } => {
-                        if *pressed {
-                            match key {
-                                Key::Num1 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 0;
-                                        modul.set_selected_tape(0);
-                                    }
+                if let egui::Event::Key {
+                    key,
+                    pressed,
+                    modifiers: _,
+                } = e
+                {
+                    if *pressed {
+                        match key {
+                            Key::Num1 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 0;
+                                    modul.set_selected_tape(0);
                                 }
-                                Key::Num2 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 1;
-                                        modul.set_selected_tape(1);
-                                    }
-                                }
-                                Key::Num3 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 2;
-                                        modul.set_selected_tape(2);
-                                    }
-                                }
-                                Key::Num4 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 3;
-                                        modul.set_selected_tape(3);
-                                    }
-                                }
-                                Key::Num5 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 4;
-                                        modul.set_selected_tape(4);
-                                    }
-                                }
-                                Key::Num6 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 5;
-                                        modul.set_selected_tape(5);
-                                    }
-                                }
-                                Key::Num7 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 6;
-                                        modul.set_selected_tape(6);
-                                    }
-                                }
-                                Key::Num8 => {
-                                    if !modul.is_recording() {
-                                        *selected_tape = 7;
-                                        modul.set_selected_tape(7);
-                                    }
-                                }
-                                Key::R => {
-                                    modul.record();
-                                }
-                                Key::O => {
-                                    modul.pause();
-                                }
-                                Key::P => {
-                                    modul.play();
-                                }
-                                Key::T => {
-                                    modul.record_playback();
-                                }
-                                Key::Y => {
-                                    modul.play_through();
-                                }
-                                Key::W => {
-                                    modul.write();
-                                }
-                                Key::C => {
-                                    modul.clear();
-                                }
-                                Key::M => {
-                                    tape_mute_states[*selected_tape] =
-                                        !tape_mute_states[*selected_tape];
-                                    if tape_mute_states[*selected_tape] {
-                                        modul.mute();
-                                    } else {
-                                        modul.unmute();
-                                    }
-                                }
-                                Key::N => {
-                                    // Use this to create new song
-                                }
-                                Key::ArrowUp => {
-                                    if tape_volumes[*selected_tape] < 1.0 {
-                                        tape_volumes[*selected_tape] += 0.05;
-                                    }
-                                    modul.volume_up();
-                                }
-                                Key::ArrowDown => {
-                                    if tape_volumes[*selected_tape] > 0.0 {
-                                        tape_volumes[*selected_tape] -= 0.05;
-                                    }
-                                    modul.volume_down();
-                                }
-                                Key::Escape => {
-                                    std::process::exit(0);
-                                }
-                                _ => {}
                             }
+                            Key::Num2 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 1;
+                                    modul.set_selected_tape(1);
+                                }
+                            }
+                            Key::Num3 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 2;
+                                    modul.set_selected_tape(2);
+                                }
+                            }
+                            Key::Num4 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 3;
+                                    modul.set_selected_tape(3);
+                                }
+                            }
+                            Key::Num5 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 4;
+                                    modul.set_selected_tape(4);
+                                }
+                            }
+                            Key::Num6 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 5;
+                                    modul.set_selected_tape(5);
+                                }
+                            }
+                            Key::Num7 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 6;
+                                    modul.set_selected_tape(6);
+                                }
+                            }
+                            Key::Num8 => {
+                                if !modul.is_recording() {
+                                    *selected_tape = 7;
+                                    modul.set_selected_tape(7);
+                                }
+                            }
+                            Key::R => {
+                                modul.record();
+                            }
+                            Key::O => {
+                                modul.pause();
+                            }
+                            Key::P => {
+                                modul.play();
+                            }
+                            Key::T => {
+                                modul.record_playback();
+                            }
+                            Key::Y => {
+                                modul.play_through();
+                            }
+                            Key::W => {
+                                modul.write();
+                            }
+                            Key::C => {
+                                modul.clear();
+                            }
+                            Key::M => {
+                                tape_mute_states[*selected_tape] =
+                                    !tape_mute_states[*selected_tape];
+                                if tape_mute_states[*selected_tape] {
+                                    modul.mute();
+                                } else {
+                                    modul.unmute();
+                                }
+                            }
+                            Key::N => {
+                                // Use this to create new song
+                            }
+                            Key::ArrowUp => {
+                                if tape_volumes[*selected_tape] < 1.0 {
+                                    tape_volumes[*selected_tape] += 0.05;
+                                }
+                                modul.volume_up();
+                            }
+                            Key::ArrowDown => {
+                                if tape_volumes[*selected_tape] > 0.0 {
+                                    tape_volumes[*selected_tape] -= 0.05;
+                                }
+                                modul.volume_down();
+                            }
+                            Key::Escape => {
+                                std::process::exit(0);
+                            }
+                            _ => {}
                         }
                     }
-                    _ => {}
                 }
             }
         });

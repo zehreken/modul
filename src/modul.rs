@@ -33,7 +33,7 @@ pub struct Modul {
     is_recording_playback: Arc<AtomicBool>,
     _is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
-    show_beat: Arc<AtomicBool>,
+    _show_beat: Arc<AtomicBool>,
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
 }
@@ -135,7 +135,7 @@ impl Modul {
             _is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
-            show_beat: Arc::clone(&show_beat),
+            _show_beat: Arc::clone(&show_beat),
             beat_index: Arc::clone(&beat_index),
             stats,
         }
@@ -157,7 +157,7 @@ impl Modul {
         self.is_recording_playback.load(Ordering::SeqCst)
     }
 
-    pub fn is_play_through(&self) -> bool {
+    pub fn _is_play_through(&self) -> bool {
         self._is_play_through.load(Ordering::SeqCst)
     }
 
@@ -167,8 +167,8 @@ impl Modul {
             .unwrap();
     }
 
-    pub fn show_beat(&self) -> bool {
-        self.show_beat.load(Ordering::SeqCst)
+    pub fn _show_beat(&self) -> bool {
+        self._show_beat.load(Ordering::SeqCst)
     }
 
     pub fn get_beat_index(&self) -> u32 {
