@@ -31,8 +31,8 @@ pub struct Modul {
     key_sender: Sender<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
-    _is_play_through: Arc<AtomicBool>,
-    sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
+    is_play_through: Arc<AtomicBool>,
+    sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
     _show_beat: Arc<AtomicBool>,
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
@@ -93,7 +93,7 @@ impl Modul {
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
         let is_play_through = Arc::new(AtomicBool::new(false));
-        let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT]));
+        let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
         let show_beat = Arc::new(AtomicBool::new(false));
         let beat_index = Arc::new(AtomicU32::new(0));
 
@@ -132,7 +132,7 @@ impl Modul {
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
-            _is_play_through: Arc::clone(&is_play_through),
+            is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
             _show_beat: Arc::clone(&show_beat),
@@ -157,8 +157,8 @@ impl Modul {
         self.is_recording_playback.load(Ordering::SeqCst)
     }
 
-    pub fn _is_play_through(&self) -> bool {
-        self._is_play_through.load(Ordering::SeqCst)
+    pub fn is_play_through(&self) -> bool {
+        self.is_play_through.load(Ordering::SeqCst)
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
@@ -235,7 +235,7 @@ impl Modul {
         self.key_sender.send(ModulAction::VolumeDown).unwrap();
     }
 
-    pub fn get_sample_averages(&self) -> [f32; TAPE_COUNT] {
+    pub fn get_sample_averages(&self) -> [f32; TAPE_COUNT + 1] {
         *self.sample_averages.lock().unwrap()
     }
 }

@@ -12,7 +12,7 @@ use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    _quad_stage: visualization::Quad,
+    quad_stage: visualization::Quad,
     windows: windows::Windows,
     modul: modul::Modul,
 }
@@ -21,7 +21,7 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            _quad_stage: visualization::Quad::new(ctx),
+            quad_stage: visualization::Quad::new(ctx),
             windows: windows::Windows::new(),
             modul: modul::Modul::new(config),
         }
@@ -36,17 +36,31 @@ impl mq::EventHandler for Stage {
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
-        ctx.apply_pipeline(&self._quad_stage.pipeline);
-        ctx.apply_bindings(&self._quad_stage.bindings);
+        ctx.apply_pipeline(&self.quad_stage.pipeline);
+        ctx.apply_bindings(&self.quad_stage.bindings);
 
         // Pass data to shader
         for i in 0..TAPE_COUNT {
             ctx.apply_uniforms(&shader::Uniforms {
-                offset: (-0.75 + (i % 4) as f32 * 0.5, -0.5f32 + (i / 4) as f32 * 1.0),
+                offset: (
+                    -0.75_f32 + (i % 4) as f32 * 0.5_f32,
+                    -0.5_f32 + (i / 4) as f32 * 1.0_f32,
+                ),
                 wavepoint: self.modul.get_sample_averages()[i],
             });
             ctx.draw(0, 6, 1);
         }
+
+        // Play-through
+        if self.modul.is_play_through() {
+            ctx.apply_uniforms(&shader::Uniforms {
+                offset: (0.0, 0.0),
+                // 8 is the index of the last element
+                wavepoint: self.modul.get_sample_averages()[8],
+            });
+            ctx.draw(0, 6, 1);
+        }
+        // ============
 
         ctx.end_render_pass();
 

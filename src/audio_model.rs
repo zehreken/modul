@@ -35,7 +35,7 @@ pub struct AudioModel {
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
-    pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT]>>,
+    pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
     pub show_beat: Arc<AtomicBool>,
     pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
@@ -48,7 +48,7 @@ pub struct Input {
 
 impl AudioModel {
     pub fn update(&mut self) {
-        let mut sample_averages = [0.0; TAPE_COUNT];
+        let mut sample_averages = [0.0; TAPE_COUNT + 1];
         let sample_count = self.input_consumer.len();
 
         // Update metronome
@@ -66,7 +66,7 @@ impl AudioModel {
                 // }
                 // for t in self.input_consumer.pop() {
                 let t = self.input_consumer.pop().unwrap();
-                let t_index = t.index;
+                let t_index = t.index; // this is the cursor(kind of)
                 let t_sample = t.sample; // this is the signal that came from the input channel
 
                 if self.is_recording.load(Ordering::SeqCst) {
@@ -96,6 +96,9 @@ impl AudioModel {
                 let mut sum = sample;
                 if self.is_play_through.load(Ordering::SeqCst) {
                     sum += t_sample;
+                    if t_sample > sample_averages[8] {
+                        sample_averages[8] = t_sample;
+                    }
                 }
                 // if self.output_producer.len() < 2048 {
                 let r = self.output_producer.push(sum);
