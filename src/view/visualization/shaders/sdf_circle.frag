@@ -9,12 +9,6 @@ float circle(vec2 pos, float radius)
 	return r;
 }
 
-float box(vec2 pos, vec2 b)
-{
-    vec2 d = abs(pos) - b;
-    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
-}
-
 void main()
 {
     vec2 uv = texcoord;

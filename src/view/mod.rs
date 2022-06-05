@@ -58,7 +58,7 @@ impl mq::EventHandler for Stage {
                 // 8 is the index of the last element
                 wavepoint: self.modul.get_sample_averages()[8],
             });
-            ctx.draw(0, 6, 1);
+            ctx.draw(6, 6, 1);
         }
         // ============
 

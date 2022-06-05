@@ -19,15 +19,19 @@ pub struct Quad {
 impl Quad {
     pub fn new(ctx: &mut Context) -> Quad {
         #[rustfmt::skip]
-        let vertices: [Vertex; 4] = [
+        let vertices: [Vertex; 8] = [
             Vertex { pos : Vec2 { x: -0.25, y: -0.5 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
             Vertex { pos : Vec2 { x:  0.25, y: -0.5 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
             Vertex { pos : Vec2 { x:  0.25, y:  0.5 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
             Vertex { pos : Vec2 { x: -0.25, y:  0.5 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
+            Vertex { pos : Vec2 { x: -1.0, y: -1.0 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
+            Vertex { pos : Vec2 { x:  1.0, y: -1.0 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
+            Vertex { pos : Vec2 { x:  1.0, y:  1.0 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
+            Vertex { pos : Vec2 { x: -1.0, y:  1.0 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
         ];
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
-        let indices: [u16; 6] = [0, 1, 2, 0, 2, 3];
+        let indices: [u16; 12] = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7];
         let index_buffer = Buffer::immutable(ctx, BufferType::IndexBuffer, &indices);
 
         let bindings = Bindings {
@@ -36,7 +40,7 @@ impl Quad {
             images: vec![],
         };
 
-        let shader = Shader::new(ctx, shader::VERTEX, shader::COLOR, shader::meta()).unwrap();
+        let shader = Shader::new(ctx, shader::VERTEX, shader::COLOR_BAR, shader::meta()).unwrap();
 
         let pipeline = Pipeline::new(
             ctx,
@@ -57,11 +61,11 @@ pub mod shader {
 
     pub const VERTEX: &str = include_str!("shaders/vertex.vert");
 
-    pub const _FRAGMENT: &str = include_str!("shaders/fragment.frag");
+    pub const SDF_CIRCLE: &str = include_str!("shaders/sdf_circle.frag");
 
-    pub const _BOX: &str = include_str!("shaders/box.frag");
+    pub const SDF_BOX: &str = include_str!("shaders/sdf_box.frag");
 
-    pub const COLOR: &str = include_str!("shaders/color.frag");
+    pub const COLOR_BAR: &str = include_str!("shaders/color_bar.frag");
 
     pub fn meta() -> ShaderMeta {
         ShaderMeta {
