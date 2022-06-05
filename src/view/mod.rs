@@ -7,12 +7,13 @@ use crate::modul::Modul;
 use crate::modul_utils::utils::TAPE_COUNT;
 use crate::Config;
 use egui::Context;
-use visualization::shader;
+use visualization::material;
 use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
-    quad_stage: visualization::Quad,
+    small_quad: visualization::Quad,
+    big_quad: visualization::Quad,
     windows: windows::Windows,
     modul: modul::Modul,
 }
@@ -21,7 +22,8 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            quad_stage: visualization::Quad::new(ctx),
+            small_quad: visualization::Quad::new(ctx, 0.25, 0.5),
+            big_quad: visualization::Quad::new(ctx, 1.0, 1.0),
             windows: windows::Windows::new(),
             modul: modul::Modul::new(config),
         }
@@ -36,12 +38,12 @@ impl mq::EventHandler for Stage {
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
-        ctx.apply_pipeline(&self.quad_stage.pipeline);
-        ctx.apply_bindings(&self.quad_stage.bindings);
+        ctx.apply_pipeline(&self.small_quad.pipeline);
+        ctx.apply_bindings(&self.small_quad.bindings);
 
         // Pass data to shader
         for i in 0..TAPE_COUNT {
-            ctx.apply_uniforms(&shader::Uniforms {
+            ctx.apply_uniforms(&material::Uniforms {
                 offset: (
                     -0.75_f32 + (i % 4) as f32 * 0.5_f32,
                     -0.5_f32 + (i / 4) as f32 * 1.0_f32,
@@ -53,12 +55,14 @@ impl mq::EventHandler for Stage {
 
         // Play-through
         if self.modul.is_play_through() {
-            ctx.apply_uniforms(&shader::Uniforms {
+            ctx.apply_pipeline(&self.big_quad.pipeline);
+            ctx.apply_bindings(&self.big_quad.bindings);
+            ctx.apply_uniforms(&material::Uniforms {
                 offset: (0.0, 0.0),
                 // 8 is the index of the last element
                 wavepoint: self.modul.get_sample_averages()[8],
             });
-            ctx.draw(6, 6, 1);
+            ctx.draw(0, 6, 1);
         }
         // ============
 

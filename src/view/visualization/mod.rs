@@ -1,46 +1,46 @@
-use miniquad::*;
+pub mod material;
 
-#[repr(C)]
-struct Vec2 {
-    x: f32,
-    y: f32,
-}
-#[repr(C)]
-struct Vertex {
-    pos: Vec2,
-    uv: Vec2,
-}
+use material::*;
+use miniquad::*;
+use std::path::Path;
 
 pub struct Quad {
     pub pipeline: Pipeline,
     pub bindings: Bindings,
 }
 
+fn load_image() -> image::DynamicImage {
+    // Use the open function to load an image from a Path.
+    // ```open``` returns a dynamic image.
+    let im = image::open(&Path::new("assets/emulogic.png")).expect("image not found");
+    println!("{}", im.as_bytes().len());
+    im
+}
+
 impl Quad {
-    pub fn new(ctx: &mut Context) -> Quad {
+    pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32) -> Quad {
+        let image = load_image();
+        let texture = Texture::from_rgba8(ctx, 338, 160, image.as_bytes());
         #[rustfmt::skip]
-        let vertices: [Vertex; 8] = [
-            Vertex { pos : Vec2 { x: -0.25, y: -0.5 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
-            Vertex { pos : Vec2 { x:  0.25, y: -0.5 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
-            Vertex { pos : Vec2 { x:  0.25, y:  0.5 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
-            Vertex { pos : Vec2 { x: -0.25, y:  0.5 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
-            Vertex { pos : Vec2 { x: -1.0, y: -1.0 }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
-            Vertex { pos : Vec2 { x:  1.0, y: -1.0 }, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
-            Vertex { pos : Vec2 { x:  1.0, y:  1.0 }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
-            Vertex { pos : Vec2 { x: -1.0, y:  1.0 }, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
+        let vertices: [Vertex; 4] = [
+            Vertex { pos : Vec2 { x: -1.0 * scale_x, y: -1.0 * scale_y }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
+            Vertex { pos : Vec2 { x:  1.0 * scale_x, y: -1.0 * scale_y}, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
+            Vertex { pos : Vec2 { x:  1.0* scale_x, y:  1.0 * scale_y }, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
+            Vertex { pos : Vec2 { x: -1.0 * scale_x, y:  1.0 * scale_y}, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
         ];
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
-        let indices: [u16; 12] = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7];
+        let indices: [u16; 6] = [0, 1, 2, 0, 2, 3];
         let index_buffer = Buffer::immutable(ctx, BufferType::IndexBuffer, &indices);
 
         let bindings = Bindings {
             vertex_buffers: vec![vertex_buffer],
             index_buffer,
-            images: vec![],
+            images: vec![texture],
         };
 
-        let shader = Shader::new(ctx, shader::VERTEX, shader::COLOR_BAR, shader::meta()).unwrap();
+        let shader =
+            Shader::new(ctx, material::VERTEX, material::TEXTURE, material::meta()).unwrap();
 
         let pipeline = Pipeline::new(
             ctx,
@@ -53,35 +53,5 @@ impl Quad {
         );
 
         Quad { pipeline, bindings }
-    }
-}
-
-pub mod shader {
-    use miniquad::*;
-
-    pub const VERTEX: &str = include_str!("shaders/vertex.vert");
-
-    pub const SDF_CIRCLE: &str = include_str!("shaders/sdf_circle.frag");
-
-    pub const SDF_BOX: &str = include_str!("shaders/sdf_box.frag");
-
-    pub const COLOR_BAR: &str = include_str!("shaders/color_bar.frag");
-
-    pub fn meta() -> ShaderMeta {
-        ShaderMeta {
-            images: vec![],
-            uniforms: UniformBlockLayout {
-                uniforms: vec![
-                    UniformDesc::new("offset", UniformType::Float2),
-                    UniformDesc::new("wavepoint", UniformType::Float1),
-                ],
-            },
-        }
-    }
-
-    #[repr(C)]
-    pub struct Uniforms {
-        pub offset: (f32, f32),
-        pub wavepoint: f32,
     }
 }
