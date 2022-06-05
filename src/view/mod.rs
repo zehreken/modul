@@ -22,8 +22,8 @@ impl Stage {
     fn new(ctx: &mut mq::Context, config: Config) -> Self {
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
-            small_quad: visualization::Quad::new(ctx, 0.25, 0.5),
-            big_quad: visualization::Quad::new(ctx, 1.0, 1.0),
+            small_quad: visualization::Quad::new(ctx, 0.25, 0.5, material::COLOR_BAR),
+            big_quad: visualization::Quad::new(ctx, 1.0, 1.0, material::TEXTURE),
             windows: windows::Windows::new(),
             modul: modul::Modul::new(config),
         }

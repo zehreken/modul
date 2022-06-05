@@ -18,7 +18,7 @@ fn load_image() -> image::DynamicImage {
 }
 
 impl Quad {
-    pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32) -> Quad {
+    pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32, fragment: &str) -> Quad {
         let image = load_image();
         let texture = Texture::from_rgba8(ctx, 338, 160, image.as_bytes());
         #[rustfmt::skip]
@@ -39,8 +39,7 @@ impl Quad {
             images: vec![texture],
         };
 
-        let shader =
-            Shader::new(ctx, material::VERTEX, material::TEXTURE, material::meta()).unwrap();
+        let shader = Shader::new(ctx, material::VERTEX, fragment, material::meta()).unwrap();
 
         let pipeline = Pipeline::new(
             ctx,
