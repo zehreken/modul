@@ -19,9 +19,37 @@ void main()
     
     vec4 outColor = vec4(0.0);
 
-    vec2 position = vec2(0.5);
+    vec2 position = vec2(0.2);
     float fontSize = 8.0;
     vec2 U = (uv - position) * 64.0 / fontSize;
-    C(166);C(180);C(210);
+    C(191);C(186);C(71);C(160);C(191);C(186);C(187);C(181);
     fragColor = outColor;
 }
+
+// A 177
+// B 178
+// C 179
+// D 180
+// E 181
+// F 182
+// G 183
+// H 184
+// I 185
+// J 186
+// K 187
+// L 188
+// M 189
+// N 190
+// O 191
+// P 160
+// Q 161
+// R 162
+// S 163
+// T 164
+// U 165
+// V 166
+// W 167
+// X 168
+// Y 169
+// Z 170
+// . 71
