@@ -1,7 +1,7 @@
-#version 100
-precision highp float;
+#version 330
 uniform float wavepoint;
-varying lowp vec2 texcoord;
+in lowp vec2 texcoord;
+out vec4 fragColor;
 
 void main()
 {
@@ -10,7 +10,7 @@ void main()
     
     float s = step(uv.y - wavepoint, 0.0);
     float brightness = clamp(0.0, 0.1, wavepoint) * 8.0 + 0.2;
-    gl_FragColor = vec4(
+    fragColor = vec4(
         0.5 * s * brightness,
         1.0 * brightness * s * brightness,
         0.0,

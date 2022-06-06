@@ -12,7 +12,7 @@ pub struct Quad {
 fn load_image() -> image::DynamicImage {
     // Use the open function to load an image from a Path.
     // ```open``` returns a dynamic image.
-    let im = image::open(&Path::new("assets/emulogic.png")).expect("image not found");
+    let im = image::open(&Path::new("assets/atlas_gr.png")).expect("image not found");
     println!("{}", im.as_bytes().len());
     im
 }
@@ -20,7 +20,7 @@ fn load_image() -> image::DynamicImage {
 impl Quad {
     pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32, fragment: &str) -> Quad {
         let image = load_image();
-        let texture = Texture::from_rgba8(ctx, 338, 160, image.as_bytes());
+        let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
         #[rustfmt::skip]
         let vertices: [Vertex; 4] = [
             Vertex { pos : Vec2 { x: -1.0 * scale_x, y: -1.0 * scale_y }, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left

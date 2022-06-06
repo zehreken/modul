@@ -1,10 +1,8 @@
-#version 100
-attribute vec2 pos;
-attribute vec2 uv;
-
+#version 330
+in vec2 pos;
+in vec2 uv;
 uniform vec2 offset;
-
-varying lowp vec2 texcoord;
+out lowp vec2 texcoord;
 
 void main()
 {

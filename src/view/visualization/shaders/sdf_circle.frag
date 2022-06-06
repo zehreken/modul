@@ -1,7 +1,7 @@
-#version 100
-precision highp float;
+#version 330
 uniform float wavepoint;
-varying lowp vec2 texcoord;
+in lowp vec2 texcoord;
+out vec4 fragColor;
 
 float circle(vec2 pos, float radius)
 {
@@ -15,5 +15,5 @@ void main()
     uv -= vec2(1.6, 1.0) * 0.5;
     float c = sign(circle(vec2(uv.x * 0.25, uv.y), wavepoint));
 
-    gl_FragColor = vec4(c, c, c, 1);
+    fragColor = vec4(c, c, c, 1);
 }
