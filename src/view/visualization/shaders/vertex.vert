@@ -9,5 +9,5 @@ void main()
     gl_Position = vec4(pos + offset, 0, 1);
 
     texcoord = uv;
-    texcoord.x *= 1.6; // This is to fix aspect ratio
+    texcoord.x *= 1.6; // Fix aspect ratio
 }
