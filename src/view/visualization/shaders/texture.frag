@@ -4,6 +4,7 @@ in lowp vec2 texcoord;
 uniform sampler2D tex;
 uniform int columnCount = 16;
 out vec4 fragColor;
+uniform float wavepoint;
 
 #define C(c) U.x -= 1.0; outColor += char(U, 0 + c)
 
@@ -22,7 +23,14 @@ void main()
     vec2 position = vec2(0.2);
     float fontSize = 8.0;
     vec2 U = (uv - position) * 64.0 / fontSize;
-    C(191);C(186);C(71);C(160);C(191);C(186);C(187);C(181);
+    if (wavepoint > 0.2)
+    {
+        C(191);C(186);C(71);C(160);C(191);C(186);C(187);C(181);
+    }
+    else
+    {
+        C(180);C(191);C(71);C(167);C(185);C(180);C(170);C(181);C(190);C(185);C(177);
+    }
     fragColor = outColor;
 }
 
