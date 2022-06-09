@@ -20,10 +20,10 @@ void main()
     
     vec4 outColor = vec4(0.0);
 
-    vec2 position = vec2(0.2);
+    vec2 position = vec2(0.0, 0.3);
     float fontSize = 8.0;
     vec2 U = (uv - position) * 64.0 / fontSize;
-    if (wavepoint > 0.2)
+    if (wavepoint > 0.1)
     {
         C(191);C(186);C(71);C(160);C(191);C(186);C(187);C(181);
     }

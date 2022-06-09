@@ -1,7 +1,9 @@
 pub mod material;
 
 use material::*;
+use miniquad as mq;
 use miniquad::*;
+use mq::{BlendState, BlendValue};
 use std::path::Path;
 
 pub struct Quad {
@@ -40,8 +42,17 @@ impl Quad {
         };
 
         let shader = Shader::new(ctx, material::VERTEX, fragment, material::meta()).unwrap();
-
-        let pipeline = Pipeline::new(
+        let color_blend = BlendState::new(
+            mq::Equation::Add,
+            mq::BlendFactor::Value(BlendValue::SourceColor),
+            mq::BlendFactor::OneMinusValue(BlendValue::SourceColor),
+        );
+        let alpha_blend = BlendState::new(
+            mq::Equation::Add,
+            mq::BlendFactor::Value(BlendValue::SourceAlpha),
+            mq::BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+        );
+        let pipeline = Pipeline::with_params(
             ctx,
             &[BufferLayout::default()],
             &[
@@ -49,6 +60,11 @@ impl Quad {
                 VertexAttribute::new("uv", VertexFormat::Float2),
             ],
             shader,
+            PipelineParams {
+                color_blend: Some(color_blend),
+                alpha_blend: Some(alpha_blend),
+                ..Default::default()
+            },
         );
 
         Quad { pipeline, bindings }
