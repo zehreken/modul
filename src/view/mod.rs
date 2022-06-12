@@ -10,6 +10,15 @@ use egui::Context;
 use visualization::material;
 use {egui_miniquad as egui_mq, miniquad as mq};
 
+const BABY: (i32, i32, i32, i32) = (178, 177, 178, 169);
+const ACID: (i32, i32, i32, i32) = (177, 179, 185, 180);
+const BOMB: (i32, i32, i32, i32) = (178, 191, 189, 178);
+const ZONE: (i32, i32, i32, i32) = (170, 191, 190, 181);
+const WILD: (i32, i32, i32, i32) = (167, 185, 188, 180);
+const SOUL: (i32, i32, i32, i32) = (163, 191, 165, 188);
+const SELF: (i32, i32, i32, i32) = (163, 181, 188, 182);
+const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, SELF];
+
 struct Stage {
     egui_mq: egui_mq::EguiMq,
     small_quad: visualization::Quad,
@@ -49,18 +58,22 @@ impl mq::EventHandler for Stage {
                     -0.5_f32 + (i / 4) as f32 * 1.0_f32,
                 ),
                 wavepoint: self.modul.get_sample_averages()[i],
+                text: (0, 0, 0, 0),
             });
             ctx.draw(0, 6, 1);
         }
 
         // Play-through
         if self.modul.is_play_through() {
+            let wavepoint = self.modul.get_sample_averages()[8];
+            let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(&self.big_quad.pipeline);
             ctx.apply_bindings(&self.big_quad.bindings);
             ctx.apply_uniforms(&material::Uniforms {
                 offset: (0.0, 0.0),
                 // 8 is the index of the last element
-                wavepoint: self.modul.get_sample_averages()[8],
+                wavepoint,
+                text,
             });
             ctx.draw(0, 6, 1);
         }

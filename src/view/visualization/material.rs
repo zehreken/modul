@@ -12,6 +12,7 @@ pub fn meta() -> ShaderMeta {
             uniforms: vec![
                 UniformDesc::new("offset", UniformType::Float2),
                 UniformDesc::new("wavepoint", UniformType::Float1),
+                UniformDesc::new("text", UniformType::Int4),
             ],
         },
         images: vec!["tex".to_string()],
@@ -34,4 +35,5 @@ pub struct Vertex {
 pub struct Uniforms {
     pub offset: (f32, f32),
     pub wavepoint: f32,
+    pub text: (i32, i32, i32, i32),
 }
