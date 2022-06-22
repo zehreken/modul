@@ -25,7 +25,7 @@ void main()
     float fontSize = 16.0;
     vec2 U = (uv - position) * 64.0 / fontSize;
     C(int(text.x));C(int(text.y));C(int(text.z));C(int(text.w));
-    fragColor = outColor;
+    fragColor = outColor.rrrr;
 }
 
 // A 177
