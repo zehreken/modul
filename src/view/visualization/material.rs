@@ -1,8 +1,8 @@
 use miniquad::*;
 
 pub const VERTEX: &str = include_str!("shaders/vertex.vert");
-pub const SDF_CIRCLE: &str = include_str!("shaders/sdf_circle.frag");
-pub const SDF_BOX: &str = include_str!("shaders/sdf_box.frag");
+pub const _SDF_CIRCLE: &str = include_str!("shaders/sdf_circle.frag");
+pub const _SDF_BOX: &str = include_str!("shaders/sdf_box.frag");
 pub const COLOR_BAR: &str = include_str!("shaders/color_bar.frag");
 pub const TEXTURE: &str = include_str!("shaders/texture.frag");
 
