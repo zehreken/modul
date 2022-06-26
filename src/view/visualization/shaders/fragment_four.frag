@@ -1,4 +1,5 @@
 #version 100
+
 precision highp float;
 uniform vec4 wavepoints;
 varying lowp vec2 texcoord;
