@@ -18,3 +18,6 @@ image = "0.24.2"
 # https://github.com/not-fl3/miniquad/issues/172
 [target.'cfg(target_os = "macos")'.dependencies]
 copypasta = "0.7"
+puffin = "0.13"
+puffin_egui = "0.16.0"
+[dev-dependencies]

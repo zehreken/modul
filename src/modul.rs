@@ -3,7 +3,7 @@ use super::modul_utils::utils::*;
 use super::Config;
 use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{Stream, StreamConfig};
+use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::RingBuffer;
 use std::sync::atomic::AtomicU32;
 use std::sync::{
@@ -45,10 +45,11 @@ impl Modul {
         let input_device = host.default_input_device().unwrap();
         let output_device = host.default_output_device().unwrap();
 
-        let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
+        let mut input_config: StreamConfig = input_device.default_input_config().unwrap().into();
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
         let bar_length = 4.0 * 60.0 / config.bpm as f32; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
+        input_config.buffer_size = BufferSize::Fixed(32);
 
         let stats = Stats {
             bpm: config.bpm,
