@@ -6,11 +6,6 @@ pub mod utils {
     use ringbuf::{Consumer, Producer};
 
     // Currently only 4/4 time signature is supported
-    /// ATTENTION:
-    /// If buffer capacity and update frequency is related, if update frequency is low
-    /// then the buffer will not be emptied fast enough and some input will be lost
-    /// This is unnecesary since I don't push to the buffer if buffer.len() is 2048
-    pub const BUFFER_CAPACITY: usize = 4096;
 
     pub const TAPE_COUNT: usize = 8;
     #[derive(Debug)]
@@ -45,8 +40,8 @@ pub mod utils {
                 if producer.push(Input { index, sample }).is_err() {
                     consumer_fell_behind = true;
                 }
-                index += 1;
 
+                index += 1;
                 if index == tape_length {
                     index = 0;
                 }

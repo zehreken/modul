@@ -49,7 +49,19 @@ impl Modul {
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
         let bar_length = 4.0 * 60.0 / config.bpm as f32; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
-        input_config.buffer_size = BufferSize::Fixed(32);
+
+        let output_config: StreamConfig = input_device.default_output_config().unwrap().into();
+
+        /*
+        ATTENTION:
+        If buffer capacity and update frequency is related, if update frequency is low
+        then the buffer will not be emptied fast enough and some input will be lost
+        This is unnecesary since I don't push to the buffer if buffer.len() is 2048
+        */
+        const BUFFER_SIZE: u32 = 128; // Suggested buffer size for recording is 128, in my tests even 32 works fine
+        const RING_BUFFER_CAPACITY: usize = 4096;
+
+        input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
 
         let stats = Stats {
             bpm: config.bpm,
@@ -75,12 +87,12 @@ impl Modul {
             tape_length, bar_length, writing_tape_capacity
         );
 
-        let input_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let input_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
 
         let (key_sender, key_receiver) = channel();
 
-        let output_ring_buffer = RingBuffer::new(BUFFER_CAPACITY);
+        let output_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
         let input_stream =
@@ -89,7 +101,7 @@ impl Modul {
         let audio_index = Arc::new(AtomicUsize::new(0));
 
         let output_stream =
-            create_output_stream_live(&output_device, &input_config, output_consumer);
+            create_output_stream_live(&output_device, &output_config, output_consumer);
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
@@ -122,7 +134,7 @@ impl Modul {
 
         std::thread::spawn(move || loop {
             audio_model.update();
-            std::thread::sleep(Duration::from_millis(1));
+            std::thread::sleep(Duration::from_micros(1000));
         });
 
         Modul {

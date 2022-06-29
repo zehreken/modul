@@ -124,9 +124,9 @@ impl AudioModel {
 
         self.check_user_input();
 
-        while self.output_producer.len() >= 2048 {
-            std::thread::sleep(std::time::Duration::from_millis(1));
-        }
+        // while self.output_producer.len() >= 2048 {
+        //     std::thread::sleep(std::time::Duration::from_millis(1));
+        // }
     }
 
     fn check_user_input(&mut self) {
