@@ -66,6 +66,11 @@ pub mod utils {
             for sample in data {
                 *sample = consumer.pop().unwrap_or(0.0);
             }
+            // Consumer capacity is equal to 8192, I don't know what I intented to achieve here
+            // But this got rid of the glitchy sound
+            if consumer.len() > 4096 {
+                consumer.discard(consumer.capacity());
+            }
         };
 
         output_device

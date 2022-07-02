@@ -59,7 +59,7 @@ impl Modul {
         This is unnecesary since I don't push to the buffer if buffer.len() is 2048
         */
         const BUFFER_SIZE: u32 = 128; // Suggested buffer size for recording is 128, in my tests even 32 works fine
-        const RING_BUFFER_CAPACITY: usize = 4096;
+        const RING_BUFFER_CAPACITY: usize = 8192;
 
         input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
 
