@@ -69,7 +69,8 @@ pub mod utils {
             // Consumer capacity is equal to 8192, I don't know what I intented to achieve here
             // But this got rid of the glitchy sound
             if consumer.len() > 4096 {
-                consumer.discard(consumer.capacity());
+                consumer.discard(4096);
+                // println!("consumer len:{}", consumer.len());
             }
         };
 
