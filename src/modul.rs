@@ -20,6 +20,10 @@ pub struct Stats {
     pub bpm: u16,
     pub bar_count: usize,
     pub bar_length: f32,
+    pub input_channel_count: u16,
+    pub input_buffer_size: u32,
+    pub output_channel_count: u16,
+    pub output_buffer_size: u32,
 }
 
 pub struct Modul {
@@ -63,10 +67,23 @@ impl Modul {
 
         input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
 
+        let output_buffer_size = match output_device
+            .default_output_config()
+            .unwrap()
+            .config()
+            .buffer_size
+        {
+            BufferSize::Default => 512,
+            BufferSize::Fixed(v) => v,
+        };
         let stats = Stats {
             bpm: config.bpm,
             bar_count: config.bar_count,
             bar_length,
+            input_channel_count: input_config.channels,
+            input_buffer_size: BUFFER_SIZE,
+            output_channel_count: output_config.channels,
+            output_buffer_size,
         };
 
         // sample rate * channel count(4 on personal mac) * bar length in seconds * bar count

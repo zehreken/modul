@@ -23,6 +23,22 @@ impl WindowStats {
             ui.label(format!("bpm: {}", modul.stats.bpm));
             ui.label(format!("bar count: {}", modul.stats.bar_count));
             ui.label(format!("bar length: {} sec", modul.stats.bar_length));
+            ui.label(format!(
+                "input channel count: {}",
+                modul.stats.input_channel_count
+            ));
+            ui.label(format!(
+                "input buffer size: {}",
+                modul.stats.input_buffer_size
+            ));
+            ui.label(format!(
+                "output channel count: {}",
+                modul.stats.output_channel_count
+            ));
+            ui.label(format!(
+                "output buffer size: {}",
+                modul.stats.output_buffer_size
+            ));
         });
     }
 }
