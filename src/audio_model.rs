@@ -39,6 +39,7 @@ pub struct AudioModel {
     pub show_beat: Arc<AtomicBool>,
     pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
+    pub output_channel_count: usize,
 }
 
 pub struct Input {
@@ -60,7 +61,6 @@ impl AudioModel {
             .store(self.metronome.get_beat_index(), Ordering::SeqCst);
 
         while !self.input_consumer.is_empty() {
-            let mut audio_index = 0;
             let t = self.input_consumer.pop().unwrap();
             let t_index = t.index; // this is the cursor(kind of)
             let t_sample = t.sample; // this is the signal that came from the input channel
@@ -107,8 +107,13 @@ impl AudioModel {
             }
             self.writing_tape.push(sample);
 
-            audio_index = t_index;
-            self.audio_index.store(audio_index, Ordering::SeqCst);
+            self.audio_index.store(t_index, Ordering::SeqCst);
+        }
+
+        // This is to prevent left/right switching
+        if self.output_producer.len() % self.output_channel_count != 0 {
+            println!("output_producer.len % 4 is not 0, fixing");
+            self.output_producer.push(0.0).unwrap();
         }
 
         if sample_count > 0 {

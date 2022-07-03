@@ -70,7 +70,7 @@ pub mod utils {
             // But this got rid of the glitchy sound
             if consumer.len() > 4096 {
                 consumer.discard(4096);
-                // println!("consumer len:{}", consumer.len());
+                println!("Discarded 4096 samples, consumer: {}", consumer.len());
             }
         };
 
@@ -97,7 +97,7 @@ pub mod utils {
 
     pub fn _write_tape(tape: &Tape<f32>, name: &str) {
         let spec = hound::WavSpec {
-            channels: 4,
+            channels: 4, // TODO: Fix this hardcoded value
             sample_rate: 44100,
             bits_per_sample: 16,
             sample_format: hound::SampleFormat::Int,
@@ -113,7 +113,7 @@ pub mod utils {
 
     pub fn write(buffer: &[f32], name: &str) {
         let spec = hound::WavSpec {
-            channels: 4,
+            channels: 4, // TODO: Fix this hardcoded value
             sample_rate: 44100,
             bits_per_sample: 16,
             sample_format: hound::SampleFormat::Int,
