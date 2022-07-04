@@ -54,7 +54,7 @@ impl Modul {
         println!("input sample rate: {:?}", input_config.sample_rate);
         let bar_length = 4.0 * 60.0 / config.bpm as f32; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
 
-        let output_config: StreamConfig = input_device.default_output_config().unwrap().into();
+        let output_config: StreamConfig = output_device.default_output_config().unwrap().into();
 
         /*
         ATTENTION:
