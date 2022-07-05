@@ -1,3 +1,5 @@
+use egui::Color32;
+
 use crate::modul;
 use std::time::Instant;
 
@@ -23,6 +25,10 @@ impl WindowStats {
             ui.label(format!("bpm: {}", modul.stats.bpm));
             ui.label(format!("bar count: {}", modul.stats.bar_count));
             ui.label(format!("bar length: {} sec", modul.stats.bar_length));
+            ui.colored_label(
+                Color32::from_rgb(255, 0, 55),
+                format!("input device: {}", modul.stats.input_device_name),
+            );
             ui.label(format!(
                 "input channel count: {}",
                 modul.stats.input_channel_count
@@ -31,6 +37,10 @@ impl WindowStats {
                 "input buffer size: {}",
                 modul.stats.input_buffer_size
             ));
+            ui.colored_label(
+                Color32::from_rgb(255, 00, 55),
+                format!("output device: {}", modul.stats.output_device_name),
+            );
             ui.label(format!(
                 "output channel count: {}",
                 modul.stats.output_channel_count

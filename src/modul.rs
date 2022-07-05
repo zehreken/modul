@@ -20,10 +20,12 @@ pub struct Stats {
     pub bpm: u16,
     pub bar_count: usize,
     pub bar_length: f32,
+    pub input_device_name: String,
     pub input_channel_count: u16,
     pub input_buffer_size: u32,
     pub output_channel_count: u16,
     pub output_buffer_size: u32,
+    pub output_device_name: String,
 }
 
 pub struct Modul {
@@ -80,8 +82,10 @@ impl Modul {
             bpm: config.bpm,
             bar_count: config.bar_count,
             bar_length,
+            input_device_name: input_device.name().unwrap(),
             input_channel_count: input_config.channels,
             input_buffer_size: BUFFER_SIZE,
+            output_device_name: output_device.name().unwrap(),
             output_channel_count: output_config.channels,
             output_buffer_size,
         };

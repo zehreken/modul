@@ -1,3 +1,4 @@
+pub mod window_controls;
 pub mod window_metronome;
 pub mod window_stats;
 pub mod window_tapes;
@@ -11,6 +12,8 @@ pub struct Windows {
     show_stats: bool,
     is_play_through: bool,
     window_stats: window_stats::WindowStats,
+    show_controls: bool,
+    window_controls: window_controls::WindowControls,
 }
 
 impl Windows {
@@ -23,6 +26,8 @@ impl Windows {
             show_stats: false,
             is_play_through: false,
             window_stats: window_stats::WindowStats::default(),
+            show_controls: false,
+            window_controls: window_controls::WindowControls::default(),
         }
     }
 
@@ -35,6 +40,7 @@ impl Windows {
                 ui.checkbox(&mut self.show_tapes, "tapes");
                 ui.checkbox(&mut self.show_metronome, "metronome");
                 ui.checkbox(&mut self.show_stats, "stats");
+                ui.checkbox(&mut &mut self.show_controls, "controls");
                 if ui
                     .checkbox(&mut self.is_play_through, "play through")
                     .changed()
@@ -58,6 +64,9 @@ impl Windows {
         }
         if self.show_stats {
             self.window_stats.draw(ctx, modul);
+        }
+        if self.show_controls {
+            self.window_controls.draw(ctx, modul);
         }
     }
 
