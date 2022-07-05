@@ -98,21 +98,6 @@ impl WindowTapes {
                             Key::R => {
                                 modul.record();
                             }
-                            Key::O => {
-                                modul.pause();
-                            }
-                            Key::P => {
-                                modul.play();
-                            }
-                            Key::T => {
-                                modul.record_playback();
-                            }
-                            Key::Y => {
-                                modul.play_through();
-                            }
-                            Key::W => {
-                                modul.write();
-                            }
                             Key::C => {
                                 modul.clear();
                             }
@@ -124,6 +109,23 @@ impl WindowTapes {
                                 } else {
                                     modul.unmute();
                                 }
+                            }
+                            Key::O => {
+                                // Obsolete, useless
+                                modul.pause();
+                            }
+                            Key::P => {
+                                // Obsolete, useless
+                                modul.play();
+                            }
+                            Key::T => {
+                                modul.record_playback();
+                            }
+                            Key::Y => {
+                                modul.play_through();
+                            }
+                            Key::W => {
+                                modul.write();
                             }
                             Key::N => {
                                 // Use this to create new song
