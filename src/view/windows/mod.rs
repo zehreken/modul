@@ -2,6 +2,8 @@ pub mod window_controls;
 pub mod window_metronome;
 pub mod window_stats;
 pub mod window_tapes;
+use egui::TextureHandle;
+
 use crate::modul::Modul;
 
 pub struct Windows {
@@ -32,6 +34,10 @@ impl Windows {
     }
 
     pub fn draw(&mut self, ctx: &egui::Context, modul: &mut Modul) {
+        let mut texture_handle: Option<TextureHandle> = Option::None;
+        let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
+            ctx.load_texture("assets/green_square.jpg", egui::ColorImage::example())
+        });
         egui::TopBottomPanel::top("").show(ctx, |ui| {
             // egui::trace!(ui); // What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
             ui.horizontal(|ui| {
@@ -60,7 +66,7 @@ impl Windows {
             self.window_tapes.draw(ctx, modul);
         }
         if self.show_metronome {
-            self.window_metronome.draw(ctx, modul);
+            self.window_metronome.draw(ctx, modul, texture);
         }
         if self.show_stats {
             self.window_stats.draw(ctx, modul);
