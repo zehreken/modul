@@ -1,12 +1,5 @@
-use crate::modul;
-
+#[derive(Default)]
 pub struct WindowControls {}
-
-impl Default for WindowControls {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl WindowControls {
     pub fn draw(&mut self, ctx: &egui::Context) {

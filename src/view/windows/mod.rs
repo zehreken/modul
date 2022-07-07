@@ -36,7 +36,7 @@ impl Windows {
     pub fn draw(&mut self, ctx: &egui::Context, modul: &mut Modul) {
         let mut texture_handle: Option<TextureHandle> = Option::None;
         let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
-            ctx.load_texture("assets/green_square.jpg", egui::ColorImage::example())
+            ctx.load_texture("assets/alien.png", egui::ColorImage::example())
         });
         egui::TopBottomPanel::top("").show(ctx, |ui| {
             // egui::trace!(ui); // What does this do https://github.com/emilk/egui/blob/master/egui_demo_lib/src/wrap_app.rs
@@ -46,7 +46,7 @@ impl Windows {
                 ui.checkbox(&mut self.show_tapes, "tapes");
                 ui.checkbox(&mut self.show_metronome, "metronome");
                 ui.checkbox(&mut self.show_stats, "stats");
-                ui.checkbox(&mut &mut self.show_controls, "controls");
+                ui.checkbox(&mut self.show_controls, "controls");
                 if ui
                     .checkbox(&mut self.is_play_through, "play through")
                     .changed()
