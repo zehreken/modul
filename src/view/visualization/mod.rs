@@ -11,17 +11,9 @@ pub struct Quad {
     pub bindings: Bindings,
 }
 
-fn load_image() -> image::DynamicImage {
-    // Use the open function to load an image from a Path.
-    // ```open``` returns a dynamic image.
-    let im = image::open(&Path::new("assets/atlas_gr.png")).expect("image not found");
-    println!("{}", im.as_bytes().len());
-    im
-}
-
 impl Quad {
     pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32, fragment: &str) -> Quad {
-        let image = load_image();
+        let image = super::load_image(Path::new("assets/atlas_gr.png"));
         let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
         #[rustfmt::skip]
         let vertices: [Vertex; 4] = [

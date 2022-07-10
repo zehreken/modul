@@ -1,5 +1,7 @@
 mod visualization;
 mod windows;
+use std::path::Path;
+
 use self::windows::Windows;
 
 use crate::modul;
@@ -20,21 +22,22 @@ const SELF: (i32, i32, i32, i32) = (163, 181, 188, 182);
 const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, SELF];
 
 struct Stage {
-    egui_mq: egui_mq::EguiMq,
     small_quad: visualization::Quad,
     big_quad: visualization::Quad,
     windows: windows::Windows,
     modul: modul::Modul,
+    egui_mq: egui_mq::EguiMq,
 }
 
 impl Stage {
-    fn new(ctx: &mut mq::Context, config: Config) -> Self {
+    fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
+        let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
-            egui_mq: egui_mq::EguiMq::new(ctx),
-            small_quad: visualization::Quad::new(ctx, 0.25, 0.5, material::COLOR_BAR),
-            big_quad: visualization::Quad::new(ctx, 1.0, 1.0, material::TEXTURE),
-            windows: windows::Windows::new(),
+            small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
+            big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
+            windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
+            egui_mq,
         }
     }
 }
@@ -160,4 +163,23 @@ pub fn start(config: Config) {
     mq::start(conf, |mut ctx| {
         mq::UserData::owning(Stage::new(&mut ctx, config), ctx)
     });
+}
+
+pub fn load_image(path: &Path) -> image::DynamicImage {
+    // Use the open function to load an image from a Path.
+    // ```open``` returns a dynamic image.
+    let im = image::open(path).expect("image not found");
+    println!("atlas image: {}", im.as_bytes().len());
+    im
+}
+
+fn load_image_for_ui(path: &Path) -> Result<egui::ColorImage, image::ImageError> {
+    let image = image::io::Reader::open(path)?.decode()?;
+    let size = [image.width() as _, image.height() as _];
+    let image_buffer = image.to_rgba8();
+    let pixels = image_buffer.as_flat_samples();
+    Ok(egui::ColorImage::from_rgba_unmultiplied(
+        size,
+        pixels.as_slice(),
+    ))
 }
