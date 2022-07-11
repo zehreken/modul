@@ -28,10 +28,10 @@ impl WindowMetronome {
         egui::Window::new("metronome").show(ctx, |ui| {
             ctx.request_repaint();
             ui.label(format!("time {}", modul.get_audio_index()));
-            let r = ui.checkbox(is_running, "run");
-            if r.changed() {
-                modul.switch_metronome(*is_running);
-            }
+            // let r = ui.checkbox(is_running, "run");
+            // if r.changed() {
+            //     modul.switch_metronome(*is_running);
+            // }
 
             let desired_size = ui.available_width() * vec2(1.0, 0.02);
             let (_id, rect) = ui.allocate_space(desired_size);

@@ -39,7 +39,9 @@ impl Windows {
                 ui.label("modul ❤ ");
                 ui.separator();
                 ui.checkbox(&mut self.show_tapes, "tapes");
-                ui.checkbox(&mut self.show_metronome, "metronome");
+                if ui.checkbox(&mut self.show_metronome, "metronome").changed() {
+                    modul.switch_metronome(self.show_metronome);
+                };
                 ui.checkbox(&mut self.show_stats, "stats");
                 ui.checkbox(&mut self.show_controls, "controls");
                 if ui
