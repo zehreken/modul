@@ -2,6 +2,8 @@ use crate::modul::Modul;
 use crate::modul_utils::utils::TAPE_COUNT;
 use egui::*;
 
+use super::Drawable;
+
 pub struct WindowTapes {
     selected_tape: usize,
     tape_volumes: [f32; TAPE_COUNT],
@@ -18,16 +20,16 @@ impl Default for WindowTapes {
     }
 }
 
-impl WindowTapes {
-    pub fn draw(&mut self, ctx: &egui::Context, modul: &mut Modul) {
+impl Drawable for WindowTapes {
+    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul) {
         let Self {
             selected_tape,
             tape_volumes,
             tape_mute_states,
         } = self;
 
-        egui::Window::new("tapes").show(ctx, |ui| {
-            ctx.request_repaint();
+        egui::Window::new("tapes").show(egui_ctx, |ui| {
+            egui_ctx.request_repaint();
             ui.heading("tapes");
 
             if modul.is_recording_playback() {

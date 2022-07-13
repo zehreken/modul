@@ -74,7 +74,7 @@ impl Windows {
             self.window_stats.draw(ctx, modul);
         }
         if self.show_controls {
-            self.window_controls.draw(ctx);
+            self.window_controls.draw(ctx, modul);
         }
     }
 

@@ -1,9 +1,11 @@
+use super::Drawable;
+
 #[derive(Default)]
 pub struct WindowControls {}
 
-impl WindowControls {
-    pub fn draw(&mut self, ctx: &egui::Context) {
-        egui::Window::new("controls").show(ctx, |ui| {
+impl Drawable for WindowControls {
+    fn draw(&mut self, egui_ctx: &egui::Context, _modul: &mut crate::modul::Modul) {
+        egui::Window::new("controls").show(egui_ctx, |ui| {
             // ctx.request_repaint();
             ui.label("Controls");
             ui.label("select tape [1-8]");

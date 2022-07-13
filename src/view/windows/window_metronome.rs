@@ -32,7 +32,7 @@ impl Drawable for WindowMetronome {
         egui::Window::new("metronome").show(ctx, |ui| {
             ctx.request_repaint();
             ui.label(format!("time: {}", modul.get_audio_index()));
-            ui.label(format!("sign: 4/4"));
+            ui.label("sign: 4/4");
             // let r = ui.checkbox(is_running, "run");
             // if r.changed() {
             //     modul.switch_metronome(*is_running);
