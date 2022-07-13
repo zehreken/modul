@@ -3,8 +3,10 @@ use std::path::Path;
 use crate::modul;
 use egui::*;
 
+use super::Drawable;
+
 pub struct WindowMetronome {
-    is_running: bool,
+    _is_running: bool,
     texture: egui::TextureHandle,
 }
 
@@ -15,19 +17,22 @@ impl WindowMetronome {
         let texture: &egui::TextureHandle =
             texture_handle.get_or_insert_with(|| ctx.load_texture("green_square", image.clone()));
         Self {
-            is_running: false,
+            _is_running: false,
             texture: texture.clone(),
         }
     }
-    pub fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
+}
+impl Drawable for WindowMetronome {
+    fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
         let Self {
-            is_running,
+            _is_running,
             texture,
         } = self;
 
         egui::Window::new("metronome").show(ctx, |ui| {
             ctx.request_repaint();
-            ui.label(format!("time {}", modul.get_audio_index()));
+            ui.label(format!("time: {}", modul.get_audio_index()));
+            ui.label(format!("sign: 4/4"));
             // let r = ui.checkbox(is_running, "run");
             // if r.changed() {
             //     modul.switch_metronome(*is_running);

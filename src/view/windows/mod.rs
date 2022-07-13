@@ -1,9 +1,14 @@
 pub mod window_controls;
+pub mod window_log;
 pub mod window_metronome;
 pub mod window_stats;
 pub mod window_tapes;
 
 use crate::modul::Modul;
+
+trait Drawable {
+    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul);
+}
 
 pub struct Windows {
     show_tapes: bool,
