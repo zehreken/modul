@@ -5,6 +5,7 @@ use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::RingBuffer;
+use std::collections::VecDeque;
 use std::sync::atomic::AtomicU32;
 use std::sync::{
     atomic::AtomicBool,
@@ -42,6 +43,7 @@ pub struct Modul {
     _show_beat: Arc<AtomicBool>,
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
+    pub message_history: VecDeque<String>,
 }
 
 impl Modul {
@@ -66,6 +68,8 @@ impl Modul {
         */
         const BUFFER_SIZE: u32 = 128; // Suggested buffer size for recording is 128, in my tests even 32 works fine
         const RING_BUFFER_CAPACITY: usize = 8192;
+
+        let message_history = VecDeque::with_capacity(10);
 
         input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
 
@@ -173,7 +177,15 @@ impl Modul {
             _show_beat: Arc::clone(&show_beat),
             beat_index: Arc::clone(&beat_index),
             stats,
+            message_history,
         }
+    }
+
+    pub fn add_message(&mut self, message: String) {
+        if self.message_history.len() == self.message_history.capacity() {
+            self.message_history.pop_front();
+        }
+        self.message_history.push_back(message);
     }
 
     pub fn _get_time(&self) -> f32 {

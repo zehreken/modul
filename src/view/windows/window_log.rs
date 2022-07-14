@@ -1,14 +1,16 @@
-use std::collections::VecDeque;
-
+use super::Drawable;
 use crate::modul;
 
-use super::Drawable;
-
 #[derive(Default)]
-pub struct WindowLog {
-    message_history: VecDeque<String>,
-}
+pub struct WindowLog {}
 
 impl Drawable for WindowLog {
-    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut modul::Modul) {}
+    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut modul::Modul) {
+        egui::Window::new("log").show(egui_ctx, |ui| {
+            ui.label("logs");
+            for message in &modul.message_history {
+                ui.label(message.to_string());
+            }
+        });
+    }
 }

@@ -20,6 +20,8 @@ pub struct Windows {
     window_stats: window_stats::WindowStats,
     show_controls: bool,
     window_controls: window_controls::WindowControls,
+    show_log: bool,
+    window_log: window_log::WindowLog,
 }
 
 impl Windows {
@@ -34,6 +36,8 @@ impl Windows {
             window_stats: window_stats::WindowStats::default(),
             show_controls: false,
             window_controls: window_controls::WindowControls::default(),
+            show_log: true,
+            window_log: window_log::WindowLog::default(),
         }
     }
 
@@ -75,6 +79,9 @@ impl Windows {
         }
         if self.show_controls {
             self.window_controls.draw(ctx, modul);
+        }
+        if self.show_log {
+            self.window_log.draw(ctx, modul);
         }
     }
 
