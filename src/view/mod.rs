@@ -43,7 +43,9 @@ impl Stage {
 }
 
 impl mq::EventHandler for Stage {
-    fn update(&mut self, _ctx: &mut mq::Context) {}
+    fn update(&mut self, _ctx: &mut mq::Context) {
+        self.modul.update();
+    }
 
     fn draw(&mut self, ctx: &mut mq::Context) {
         ctx.clear(Some((1., 1., 1., 1.)), None, None);

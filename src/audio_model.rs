@@ -40,6 +40,7 @@ pub struct AudioModel {
     pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
     pub output_channel_count: usize,
+    pub message_producer: Producer<String>,
 }
 
 pub struct Input {
@@ -100,7 +101,12 @@ impl AudioModel {
             let r = self.output_producer.push(sum);
             match r {
                 Ok(_) => {}
-                Err(_e) => eprintln!("buffer is full: {}", self.output_producer.len()),
+                Err(_e) => {
+                    self.message_producer
+                        .push("buffer is full".to_string())
+                        .unwrap();
+                    eprintln!("buffer is full: {}", self.output_producer.len());
+                }
             }
             if self.is_recording_playback.load(Ordering::SeqCst) {
                 sample += t_sample;
@@ -112,6 +118,9 @@ impl AudioModel {
 
         // This is to prevent left/right switching
         if self.output_producer.len() % self.output_channel_count != 0 {
+            self.message_producer
+                .push("output_producer.len % 4 is not 0, fixing".to_string())
+                .unwrap();
             println!("output_producer.len % 4 is not 0, fixing");
             self.output_producer.push(0.0).unwrap();
         }

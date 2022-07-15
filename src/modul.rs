@@ -4,7 +4,7 @@ use super::Config;
 use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
-use ringbuf::RingBuffer;
+use ringbuf::{Consumer, RingBuffer};
 use std::collections::VecDeque;
 use std::sync::atomic::AtomicU32;
 use std::sync::{
@@ -44,6 +44,7 @@ pub struct Modul {
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
     pub message_history: VecDeque<String>,
+    message_consumer: Consumer<String>,
 }
 
 impl Modul {
@@ -112,6 +113,9 @@ impl Modul {
             tape_length, bar_length, writing_tape_capacity
         );
 
+        let message_buffer: RingBuffer<String> = RingBuffer::new(10);
+        let (message_producer, message_consumer) = message_buffer.split();
+
         let input_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
 
@@ -156,6 +160,7 @@ impl Modul {
                 input_config.sample_rate.0 * input_config.channels as u32,
             ),
             output_channel_count: output_config.channels as usize,
+            message_producer,
         };
 
         std::thread::spawn(move || loop {
@@ -178,6 +183,14 @@ impl Modul {
             beat_index: Arc::clone(&beat_index),
             stats,
             message_history,
+            message_consumer,
+        }
+    }
+
+    pub fn update(&mut self) {
+        while !self.message_consumer.is_empty() {
+            let message = self.message_consumer.pop().unwrap();
+            self.add_message(message);
         }
     }
 
