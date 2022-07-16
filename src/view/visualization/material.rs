@@ -6,7 +6,7 @@ pub const _SDF_BOX: &str = include_str!("shaders/sdf_box.frag");
 pub const COLOR_BAR: &str = include_str!("shaders/color_bar.frag");
 pub const TEXTURE: &str = include_str!("shaders/texture.frag");
 
-pub fn meta() -> ShaderMeta {
+pub fn text_shader_meta() -> ShaderMeta {
     ShaderMeta {
         uniforms: UniformBlockLayout {
             uniforms: vec![
@@ -16,6 +16,18 @@ pub fn meta() -> ShaderMeta {
             ],
         },
         images: vec!["tex".to_string()],
+    }
+}
+
+pub fn meta() -> ShaderMeta {
+    ShaderMeta {
+        uniforms: UniformBlockLayout {
+            uniforms: vec![
+                UniformDesc::new("offset", UniformType::Float2),
+                UniformDesc::new("wavepoint", UniformType::Float1),
+            ],
+        },
+        images: vec![],
     }
 }
 

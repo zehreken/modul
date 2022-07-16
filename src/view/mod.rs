@@ -70,13 +70,13 @@ impl mq::EventHandler for Stage {
 
         // Play-through
         if self.modul.is_play_through() {
+            // 8 is the index of the last element
             let wavepoint = self.modul.get_sample_averages()[8];
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(&self.big_quad.pipeline);
             ctx.apply_bindings(&self.big_quad.bindings);
             ctx.apply_uniforms(&material::Uniforms {
                 offset: (0.0, 0.0),
-                // 8 is the index of the last element
                 wavepoint,
                 text,
             });

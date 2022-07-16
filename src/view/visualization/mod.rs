@@ -33,7 +33,13 @@ impl Quad {
             images: vec![texture],
         };
 
-        let shader = Shader::new(ctx, material::VERTEX, fragment, material::meta()).unwrap();
+        let shader = Shader::new(
+            ctx,
+            material::VERTEX,
+            fragment,
+            material::text_shader_meta(),
+        )
+        .unwrap();
         let color_blend = BlendState::new(
             mq::Equation::Add,
             mq::BlendFactor::Value(BlendValue::SourceColor),
