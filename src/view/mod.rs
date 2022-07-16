@@ -18,8 +18,8 @@ const BOMB: (i32, i32, i32, i32) = (178, 191, 189, 178);
 const ZONE: (i32, i32, i32, i32) = (170, 191, 190, 181);
 const WILD: (i32, i32, i32, i32) = (167, 185, 188, 180);
 const SOUL: (i32, i32, i32, i32) = (163, 191, 165, 188);
-const SELF: (i32, i32, i32, i32) = (163, 181, 188, 182);
-const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, SELF];
+const GTFO: (i32, i32, i32, i32) = (183, 164, 182, 191);
+const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GTFO];
 
 struct Stage {
     small_quad: visualization::Quad,
