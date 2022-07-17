@@ -103,9 +103,8 @@ impl AudioModel {
                 Ok(_) => {}
                 Err(_e) => {
                     self.message_producer
-                        .push("buffer is full".to_string())
+                        .push(format!("buffer is full: {}", self.output_producer.len()))
                         .unwrap();
-                    eprintln!("buffer is full: {}", self.output_producer.len());
                 }
             }
             if self.is_recording_playback.load(Ordering::SeqCst) {
@@ -121,7 +120,6 @@ impl AudioModel {
             self.message_producer
                 .push("output_producer.len % 4 is not 0, fixing".to_string())
                 .unwrap();
-            println!("output_producer.len % 4 is not 0, fixing");
             self.output_producer.push(0.0).unwrap();
         }
 
