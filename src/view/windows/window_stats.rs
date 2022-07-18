@@ -1,25 +1,15 @@
 use egui::Color32;
 
 use crate::modul;
-use std::time::Instant;
 
 use super::Drawable;
 
-pub struct WindowStats {
-    instant: Instant,
-}
-
-impl Default for WindowStats {
-    fn default() -> Self {
-        Self {
-            instant: Instant::now(),
-        }
-    }
-}
+#[derive(Default)]
+pub struct WindowStats {}
 
 impl Drawable for WindowStats {
     fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut modul::Modul) {
-        let Self { instant } = self;
+        let instant = modul.instant;
         egui::Window::new("stats").show(egui_ctx, |ui| {
             egui_ctx.request_repaint();
             ui.label(format!("time: {:0.1} sec", instant.elapsed().as_secs_f32()));

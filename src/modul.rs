@@ -45,6 +45,7 @@ pub struct Modul {
     pub stats: Stats,
     pub message_history: VecDeque<String>,
     message_consumer: Consumer<String>,
+    pub instant: std::time::Instant,
 }
 
 impl Modul {
@@ -183,6 +184,7 @@ impl Modul {
             stats,
             message_history,
             message_consumer,
+            instant: std::time::Instant::now(),
         }
     }
 
@@ -194,6 +196,7 @@ impl Modul {
     }
 
     pub fn add_message(&mut self, message: String) {
+        let message = format!("[{:5.2}] {}", self.instant.elapsed().as_secs_f32(), message);
         if self.message_history.len() == 10 {
             self.message_history.pop_front();
         }
