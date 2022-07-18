@@ -71,7 +71,6 @@ impl Modul {
         const RING_BUFFER_CAPACITY: usize = 8192;
 
         let message_history = VecDeque::with_capacity(10);
-
         input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
 
         let output_buffer_size = match output_device
@@ -195,7 +194,7 @@ impl Modul {
     }
 
     pub fn add_message(&mut self, message: String) {
-        if self.message_history.len() == self.message_history.capacity() {
+        if self.message_history.len() == 10 {
             self.message_history.pop_front();
         }
         self.message_history.push_back(message);
