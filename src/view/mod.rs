@@ -24,6 +24,7 @@ const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GT
 struct Stage {
     small_quad: visualization::Quad,
     big_quad: visualization::Quad,
+    cube: visualization::cube::Cube,
     windows: windows::Windows,
     modul: modul::Modul,
     egui_mq: egui_mq::EguiMq,
@@ -35,6 +36,7 @@ impl Stage {
         Self {
             small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
             big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
+            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,
@@ -61,6 +63,7 @@ impl mq::EventHandler for Stage {
                 offset: (
                     -0.75_f32 + (i % 4) as f32 * 0.5_f32,
                     -0.5_f32 + (i / 4) as f32 * 1.0_f32,
+                    0.0,
                 ),
                 wavepoint: self.modul.get_sample_averages()[i],
                 text: (0, 0, 0, 0),
@@ -71,16 +74,29 @@ impl mq::EventHandler for Stage {
         // Play-through
         if self.modul.is_play_through() {
             // 8 is the index of the last element
+            // let wavepoint = self.modul.get_sample_averages()[8];
+            // let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
+            // ctx.apply_pipeline(&self.big_quad.pipeline);
+            // ctx.apply_bindings(&self.big_quad.bindings);
+            // ctx.apply_uniforms(&material::Uniforms {
+            //     offset: (0.0, 0.0, 0.0),
+            //     wavepoint,
+            //     text,
+            // });
+            // ctx.draw(0, 6, 1);
+
+            // Draw cube
+            // 8 is the index of the last element
             let wavepoint = self.modul.get_sample_averages()[8];
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            ctx.apply_pipeline(&self.big_quad.pipeline);
-            ctx.apply_bindings(&self.big_quad.bindings);
+            ctx.apply_pipeline(&self.cube.pipeline);
+            ctx.apply_bindings(&self.cube.bindings);
             ctx.apply_uniforms(&material::Uniforms {
-                offset: (0.0, 0.0),
+                offset: (0.0, 0.0, 0.0),
                 wavepoint,
                 text,
             });
-            ctx.draw(0, 6, 1);
+            ctx.draw(0, 36, 1);
         }
         // ============
 

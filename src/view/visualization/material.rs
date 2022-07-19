@@ -10,7 +10,7 @@ pub fn text_shader_meta() -> ShaderMeta {
     ShaderMeta {
         uniforms: UniformBlockLayout {
             uniforms: vec![
-                UniformDesc::new("offset", UniformType::Float2),
+                UniformDesc::new("offset", UniformType::Float3),
                 UniformDesc::new("wavepoint", UniformType::Float1),
                 UniformDesc::new("text", UniformType::Int4),
             ],
@@ -23,7 +23,7 @@ pub fn meta() -> ShaderMeta {
     ShaderMeta {
         uniforms: UniformBlockLayout {
             uniforms: vec![
-                UniformDesc::new("offset", UniformType::Float2),
+                UniformDesc::new("offset", UniformType::Float3),
                 UniformDesc::new("wavepoint", UniformType::Float1),
             ],
         },
@@ -38,14 +38,21 @@ pub struct Vec2 {
 }
 
 #[repr(C)]
+pub struct Vec3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+#[repr(C)]
 pub struct Vertex {
-    pub pos: Vec2,
+    pub pos: Vec3,
     pub uv: Vec2,
 }
 
 #[repr(C)]
 pub struct Uniforms {
-    pub offset: (f32, f32),
+    pub offset: (f32, f32, f32),
     pub wavepoint: f32,
     pub text: (i32, i32, i32, i32),
 }
