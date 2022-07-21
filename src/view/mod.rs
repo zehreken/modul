@@ -38,7 +38,7 @@ impl Stage {
         Self {
             small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
             big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
-            cube: visualization::cube::Cube::new(mq_ctx, 0.1, 0.1, material::COLOR_BAR),
+            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::COLOR_BAR),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,
@@ -54,9 +54,9 @@ impl mq::EventHandler for Stage {
 
     fn draw(&mut self, ctx: &mut mq::Context) {
         let (width, height) = ctx.screen_size();
-        let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 100.0);
+        let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 10.0);
         let view = Mat4::look_at_rh(
-            vec3(0.0, 0.0, -1.0),
+            vec3(0.0, 0.0, -3.0),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0),
         );
@@ -112,7 +112,7 @@ impl mq::EventHandler for Stage {
                 text,
                 mvp: view_proj * model,
             });
-            ctx.draw(12, 12, 1);
+            ctx.draw(0, 36, 1);
         }
         // ============
 

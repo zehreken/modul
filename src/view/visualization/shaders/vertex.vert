@@ -8,7 +8,7 @@ out lowp vec2 texcoord;
 
 void main()
 {
-    gl_Position = vec4(pos + offset, 1.0) * mvp;
+    gl_Position = mvp * vec4(pos + offset, 1.0);
 
     texcoord = uv;
     texcoord.x *= 1.6; // Fix aspect ratio
