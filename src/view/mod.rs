@@ -1,5 +1,6 @@
 mod visualization;
 mod windows;
+use glam::{vec3, Mat4};
 use std::path::Path;
 
 use self::windows::Windows;
@@ -28,6 +29,7 @@ struct Stage {
     windows: windows::Windows,
     modul: modul::Modul,
     egui_mq: egui_mq::EguiMq,
+    rotation: f32,
 }
 
 impl Stage {
@@ -36,10 +38,11 @@ impl Stage {
         Self {
             small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
             big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
-            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
+            cube: visualization::cube::Cube::new(mq_ctx, 0.1, 0.1, material::COLOR_BAR),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,
+            rotation: 0.0,
         }
     }
 }
@@ -50,7 +53,18 @@ impl mq::EventHandler for Stage {
     }
 
     fn draw(&mut self, ctx: &mut mq::Context) {
-        ctx.clear(Some((1., 1., 1., 1.)), None, None);
+        let (width, height) = ctx.screen_size();
+        let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 100.0);
+        let view = Mat4::look_at_rh(
+            vec3(0.0, 0.0, -1.0),
+            vec3(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0),
+        );
+        let view_proj = proj * view;
+
+        self.rotation += 0.01;
+        let model = Mat4::from_rotation_y(self.rotation);
+
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
@@ -67,6 +81,7 @@ impl mq::EventHandler for Stage {
                 ),
                 wavepoint: self.modul.get_sample_averages()[i],
                 text: (0, 0, 0, 0),
+                mvp: view_proj * model,
             });
             ctx.draw(0, 6, 1);
         }
@@ -95,8 +110,9 @@ impl mq::EventHandler for Stage {
                 offset: (0.0, 0.0, 0.0),
                 wavepoint,
                 text,
+                mvp: view_proj * model,
             });
-            ctx.draw(0, 36, 1);
+            ctx.draw(12, 12, 1);
         }
         // ============
 

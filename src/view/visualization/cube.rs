@@ -50,6 +50,7 @@ impl Cube {
 
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
+        #[rustfmt::skip]
         let indices: [u16; 36] = [
             0, 1, 2, 0, 2, 3, // front
             4, 5, 6, 4, 6, 7, // back
@@ -86,6 +87,8 @@ impl Cube {
             ],
             shader,
             PipelineParams {
+                depth_test: Comparison::LessOrEqual,
+                depth_write: true,
                 color_blend: Some(color_blend),
                 alpha_blend: Some(alpha_blend),
                 ..Default::default()
