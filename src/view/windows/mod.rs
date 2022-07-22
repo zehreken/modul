@@ -53,6 +53,7 @@ impl Windows {
                 };
                 ui.checkbox(&mut self.show_stats, "stats");
                 ui.checkbox(&mut self.show_controls, "controls");
+                ui.checkbox(&mut &mut self.show_log, "log");
                 if ui
                     .checkbox(&mut self.is_play_through, "play through")
                     .changed()
