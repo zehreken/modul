@@ -80,16 +80,6 @@ impl AudioModel {
                 sample += tape_sample;
             }
 
-            // sine wave for metronome
-            if self.metronome.is_running && self.metronome.show_beat() {
-                const FREQ: f32 = 440.0;
-                sample +=
-                    (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
-
-                // println!("t_index: {}, t_sample: {}", t_index, t_sample);
-            }
-            // ========
-
             let mut sum = sample;
             if self.is_play_through.load(Ordering::SeqCst) {
                 sum += t_sample;
@@ -97,6 +87,15 @@ impl AudioModel {
                     sample_averages[8] = t_sample;
                 }
             }
+
+            // sine wave for metronome
+            if self.metronome.is_running && self.metronome.show_beat() {
+                const FREQ: f32 = 440.0;
+                sum += (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
+
+                // println!("t_index: {}, t_sample: {}", t_index, t_sample);
+            }
+            // ========
 
             let r = self.output_producer.push(sum);
             match r {
