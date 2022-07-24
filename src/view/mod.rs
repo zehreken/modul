@@ -56,14 +56,14 @@ impl mq::EventHandler for Stage {
         let (width, height) = ctx.screen_size();
         let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 10.0);
         let view = Mat4::look_at_rh(
-            vec3(0.0, 0.0, -3.0),
+            vec3(0.0, 0.0, 3.0),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0),
         );
         let view_proj = proj * view;
 
         self.rotation += 0.01;
-        let model = Mat4::from_rotation_y(self.rotation);
+        let model = Mat4::from_rotation_x(self.rotation) * Mat4::from_rotation_y(self.rotation);
 
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
@@ -89,7 +89,14 @@ impl mq::EventHandler for Stage {
         // Play-through
         if self.modul.is_play_through() {
             // 8 is the index of the last element
-            // let wavepoint = self.modul.get_sample_averages()[8];
+            let wavepoint = self.modul.get_sample_averages()[8];
+            self.rotation += if wavepoint > 0.05 {
+                -wavepoint
+            } else {
+                wavepoint
+            };
+
+            // Draw text plane
             // let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             // ctx.apply_pipeline(&self.big_quad.pipeline);
             // ctx.apply_bindings(&self.big_quad.bindings);
@@ -97,12 +104,12 @@ impl mq::EventHandler for Stage {
             //     offset: (0.0, 0.0, 0.0),
             //     wavepoint,
             //     text,
+            //     mvp: view_proj,
             // });
             // ctx.draw(0, 6, 1);
+            // ============
 
             // Draw cube
-            // 8 is the index of the last element
-            let wavepoint = self.modul.get_sample_averages()[8];
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(&self.cube.pipeline);
             ctx.apply_bindings(&self.cube.bindings);
@@ -113,6 +120,7 @@ impl mq::EventHandler for Stage {
                 mvp: view_proj * model,
             });
             ctx.draw(0, 36, 1);
+            // ============
         }
         // ============
 
