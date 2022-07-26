@@ -58,9 +58,14 @@ impl Modul {
         let mut input_config: StreamConfig = input_device.default_input_config().unwrap().into();
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
-        let bar_length = 4.0 * 60.0 / config.bpm as f32; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
+
+        let beats = 4.0;
+        let seconds_per_beat = 60.0 / config.bpm as f32;
+        let bar_length = beats * seconds_per_beat; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
 
         let output_config: StreamConfig = output_device.default_output_config().unwrap().into();
+        println!("output channel count: {}", output_config.channels);
+        println!("output sample rate: {:?}", output_config.sample_rate);
 
         /*
         ATTENTION:

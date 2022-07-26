@@ -211,7 +211,6 @@ pub fn load_image(path: &Path) -> image::DynamicImage {
     // Use the open function to load an image from a Path.
     // ```open``` returns a dynamic image.
     let im = image::open(path).expect("image not found");
-    println!("atlas image: {}", im.as_bytes().len());
     im
 }
 

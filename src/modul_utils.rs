@@ -97,9 +97,9 @@ pub mod utils {
 
     pub fn _write_tape(tape: &Tape<f32>, name: &str) {
         let spec = hound::WavSpec {
-            channels: 4, // TODO: Fix this hardcoded value
-            sample_rate: 44100,
-            bits_per_sample: 16,
+            channels: 4,         // TODO: Fix this hardcoded value
+            sample_rate: 44100,  // TODO: Fix this hardcoded value
+            bits_per_sample: 16, // TODO: Fix this hardcoded value
             sample_format: hound::SampleFormat::Int,
         };
 
@@ -113,9 +113,9 @@ pub mod utils {
 
     pub fn write(buffer: &[f32], name: &str) {
         let spec = hound::WavSpec {
-            channels: 4, // TODO: Fix this hardcoded value
-            sample_rate: 44100,
-            bits_per_sample: 16,
+            channels: 4,         // TODO: Fix this hardcoded value
+            sample_rate: 44100,  // TODO: Fix this hardcoded value
+            bits_per_sample: 16, // TODO: Fix this hardcoded value
             sample_format: hound::SampleFormat::Int,
         };
 
