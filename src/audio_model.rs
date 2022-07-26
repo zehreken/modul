@@ -115,9 +115,13 @@ impl AudioModel {
         }
 
         // This is to prevent left/right switching
-        if self.output_producer.len() % self.output_channel_count != 0 {
+        let output_channel_count = self.output_channel_count;
+        if self.output_producer.len() % output_channel_count != 0 {
             self.message_producer
-                .push("output_producer.len % 4 is not 0, fixing".to_string())
+                .push(format!(
+                    "output_producer.len % {} is not 0, fixing",
+                    output_channel_count
+                ))
                 .unwrap();
             self.output_producer.push(0.0).unwrap();
         }
