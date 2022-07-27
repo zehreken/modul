@@ -90,8 +90,11 @@ impl AudioModel {
 
             // sine wave for metronome
             if self.metronome.is_running && self.metronome.show_beat() {
-                const FREQ: f32 = 440.0;
-                sum += (t_index as f32 * 2.0 * std::f32::consts::PI * FREQ / 44100.0).sin() * 0.05;
+                let first_beat = self.metronome.get_beat_index() % 4 == 0;
+                let freq: f32 = if first_beat { 523.25 } else { 440.0 };
+                let volume = 0.2;
+                sum +=
+                    (t_index as f32 * 2.0 * std::f32::consts::PI * freq / 44100.0).sin() * volume;
 
                 // println!("t_index: {}, t_sample: {}", t_index, t_sample);
             }
