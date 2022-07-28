@@ -5,6 +5,7 @@ pub mod window_stats;
 pub mod window_tapes;
 
 use crate::modul::Modul;
+use egui::Key;
 
 trait Drawable {
     fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul);
@@ -98,11 +99,31 @@ impl Windows {
             {
                 if *pressed {
                     match key {
-                        egui::Key::R => {
+                        Key::R => {
                             modul.record();
                         }
-                        egui::Key::C => {
+                        Key::C => {
                             modul.clear();
+                        }
+                        Key::O => {
+                            // Obsolete, useless
+                            modul.pause();
+                        }
+                        Key::P => {
+                            // Obsolete, useless
+                            modul.play();
+                        }
+                        Key::T => {
+                            modul.record_playback();
+                        }
+                        Key::Y => {
+                            modul.play_through();
+                        }
+                        Key::W => {
+                            modul.write();
+                        }
+                        Key::Escape => {
+                            std::process::exit(0);
                         }
                         _ => {}
                     }

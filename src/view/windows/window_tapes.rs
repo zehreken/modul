@@ -97,12 +97,6 @@ impl Drawable for WindowTapes {
                                     modul.set_selected_tape(7);
                                 }
                             }
-                            // Key::R => {
-                            //     modul.record();
-                            // }
-                            // Key::C => {
-                            //     modul.clear();
-                            // }
                             Key::M => {
                                 tape_mute_states[*selected_tape] =
                                     !tape_mute_states[*selected_tape];
@@ -111,26 +105,6 @@ impl Drawable for WindowTapes {
                                 } else {
                                     modul.unmute();
                                 }
-                            }
-                            Key::O => {
-                                // Obsolete, useless
-                                modul.pause();
-                            }
-                            Key::P => {
-                                // Obsolete, useless
-                                modul.play();
-                            }
-                            Key::T => {
-                                modul.record_playback();
-                            }
-                            Key::Y => {
-                                modul.play_through();
-                            }
-                            Key::W => {
-                                modul.write();
-                            }
-                            Key::N => {
-                                // Use this to create new song
                             }
                             Key::ArrowUp => {
                                 if tape_volumes[*selected_tape] < 1.0 {
@@ -143,9 +117,6 @@ impl Drawable for WindowTapes {
                                     tape_volumes[*selected_tape] -= 0.05;
                                 }
                                 modul.volume_down();
-                            }
-                            Key::Escape => {
-                                std::process::exit(0);
                             }
                             _ => {}
                         }
