@@ -97,12 +97,12 @@ impl Drawable for WindowTapes {
                                     modul.set_selected_tape(7);
                                 }
                             }
-                            Key::R => {
-                                modul.record();
-                            }
-                            Key::C => {
-                                modul.clear();
-                            }
+                            // Key::R => {
+                            //     modul.record();
+                            // }
+                            // Key::C => {
+                            //     modul.clear();
+                            // }
                             Key::M => {
                                 tape_mute_states[*selected_tape] =
                                     !tape_mute_states[*selected_tape];

@@ -67,6 +67,8 @@ impl Windows {
                     }
                 }
             });
+
+            self.check_input(ui, modul);
         });
 
         if self.show_tapes {
@@ -86,7 +88,26 @@ impl Windows {
         }
     }
 
-    pub fn _check_input() {
-        todo!("Move input stuff from window_tapes.rs")
+    fn check_input(&mut self, ui: &mut egui::Ui, modul: &mut Modul) {
+        for e in ui.input().events.iter() {
+            if let egui::Event::Key {
+                key,
+                pressed,
+                modifiers: _,
+            } = e
+            {
+                if *pressed {
+                    match key {
+                        egui::Key::R => {
+                            modul.record();
+                        }
+                        egui::Key::C => {
+                            modul.clear();
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
     }
 }
