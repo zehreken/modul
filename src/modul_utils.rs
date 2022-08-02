@@ -8,6 +8,8 @@ pub mod utils {
     // Currently only 4/4 time signature is supported
 
     pub const TAPE_COUNT: usize = 8;
+    pub const SAMPLE_GRAPH_SIZE: usize = 200;
+
     #[derive(Debug)]
     pub enum ModulAction {
         SelectTape(usize),

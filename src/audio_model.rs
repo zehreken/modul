@@ -36,6 +36,7 @@ pub struct AudioModel {
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
     pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
+    pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
     pub show_beat: Arc<AtomicBool>,
     pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
@@ -136,6 +137,31 @@ impl AudioModel {
         self.check_user_input();
     }
 
+    fn update_waveform(&self, audio: &Vec<f32>) {
+        let mut counter = 0;
+        let mut temp = vec![];
+        let mut sum = 0.0;
+        // Adding 1 to make sure that we have samples more than SAMPLE_GRAPH_SIZE
+        // Be my guest if you find a smarter way to do that
+        let size = audio.len() / (SAMPLE_GRAPH_SIZE + 1);
+        for sample in audio {
+            if *sample < 0.0 {
+                sum -= *sample
+            } else {
+                sum += *sample
+            };
+            if counter >= size {
+                temp.push(sum);
+                sum = 0.0;
+                counter = 0;
+            }
+            counter += 1;
+        }
+        self.samples_for_graphs.lock().unwrap()[self.selected_tape] = temp[0..SAMPLE_GRAPH_SIZE]
+            .try_into()
+            .expect("Error setting samples_for_graphs");
+    }
+
     fn check_user_input(&mut self) {
         for c in self.key_receiver.try_iter() {
             match c {
@@ -148,6 +174,8 @@ impl AudioModel {
                         for t in self.recording_tape.iter() {
                             audio[t.index] = t.sample;
                         }
+
+                        self.update_waveform(&audio);
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
@@ -182,6 +210,7 @@ impl AudioModel {
                 ModulAction::Clear => {
                     println!("clear {}", self.selected_tape);
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
+                    self.update_waveform(&vec![0.0; SAMPLE_GRAPH_SIZE]);
                 }
                 ModulAction::Mute => {
                     self.tape_model.tapes[self.selected_tape].mute();

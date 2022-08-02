@@ -40,6 +40,7 @@ pub struct Modul {
     is_recording_playback: Arc<AtomicBool>,
     is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
+    pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
     _show_beat: Arc<AtomicBool>,
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
@@ -141,6 +142,7 @@ impl Modul {
         let is_recording_playback = Arc::new(AtomicBool::new(false));
         let is_play_through = Arc::new(AtomicBool::new(false));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
+        let samples_for_graphs = Arc::new(Mutex::new([[0.0; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]));
         let show_beat = Arc::new(AtomicBool::new(false));
         let beat_index = Arc::new(AtomicU32::new(0));
 
@@ -158,6 +160,7 @@ impl Modul {
             audio_index: Arc::clone(&audio_index),
             writing_tape: Vec::with_capacity(writing_tape_capacity),
             sample_averages: Arc::clone(&sample_averages),
+            samples_for_graphs: Arc::clone(&samples_for_graphs),
             show_beat: Arc::clone(&show_beat),
             beat_index: Arc::clone(&beat_index),
             metronome: Metronome::new(
@@ -184,6 +187,7 @@ impl Modul {
             is_play_through: Arc::clone(&is_play_through),
             key_sender,
             sample_averages: Arc::clone(&sample_averages),
+            samples_for_graphs: Arc::clone(&samples_for_graphs),
             _show_beat: Arc::clone(&show_beat),
             beat_index: Arc::clone(&beat_index),
             stats,

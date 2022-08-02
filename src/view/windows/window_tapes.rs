@@ -1,9 +1,6 @@
 use crate::modul::Modul;
-use crate::modul_utils::utils::TAPE_COUNT;
-use egui::plot::{Line, Value, Values};
-use egui::widgets::plot::Plot;
+use crate::modul_utils::utils::{SAMPLE_GRAPH_SIZE, TAPE_COUNT};
 use egui::*;
-use std::f64::consts::TAU;
 
 use super::Drawable;
 
@@ -156,20 +153,6 @@ fn draw_tape(
             }
         });
 
-        let n = 10;
-        let circle_points = (0..=n).map(|i| {
-            let t = remap(i as f64, 0.0..=(n as f64), 0.0..=TAU);
-            let r = 1.0;
-            Value::new(r * t.cos() + 1.0_f64, r * t.sin() + 1.0_f64)
-        });
-        let line = Line::new(Values::from_values_iter(circle_points))
-            .color(Color32::from_rgb(100, 200, 100))
-            .style(plot::LineStyle::Solid)
-            .name("circle");
-
-        Plot::new("my_plot")
-            .view_aspect(2.0)
-            .show(ui, |plot_ui| plot_ui.line(line));
         let desired_size = ui.available_width() * vec2(1.0, 0.02);
         let (_id, rect) = ui.allocate_space(desired_size);
 
@@ -179,6 +162,37 @@ fn draw_tape(
         let mut shapes = vec![];
 
         let time = modul.get_audio_index() as f32 / modul.tape_length as f32;
+        // Waveform
+        let wavepoints = modul.samples_for_graphs.lock().unwrap()[id];
+        let mut index = -1;
+        let points: Vec<Pos2> = wavepoints
+            .iter()
+            .map(|i| {
+                index += 1;
+                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, -*i * 0.02)
+            })
+            .collect();
+
+        index = -1;
+        let points_neg: Vec<Pos2> = wavepoints
+            .iter()
+            .map(|i| {
+                index += 1;
+                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, *i * 0.02)
+            })
+            .collect();
+
+        shapes.push(epaint::Shape::line(
+            points,
+            Stroke::new(1.0, Color32::WHITE),
+        ));
+
+        shapes.push(epaint::Shape::line(
+            points_neg,
+            Stroke::new(1.0, Color32::WHITE),
+        ));
+        // Waveform
+
         let points: Vec<Pos2> = (0..2)
             .map(|i| to_screen * pos2(time, -1.0 + 2.0 * i as f32))
             .collect();
