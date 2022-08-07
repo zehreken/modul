@@ -173,25 +173,28 @@ fn draw_tape(
             })
             .collect();
 
-        index = -1;
-        let points_neg: Vec<Pos2> = wavepoints
-            .iter()
-            .map(|i| {
-                index += 1;
-                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, *i * 0.02)
-            })
-            .collect();
-
         shapes.push(epaint::Shape::line(
             points,
             Stroke::new(1.0, Color32::WHITE),
         ));
-
-        shapes.push(epaint::Shape::line(
-            points_neg,
-            Stroke::new(1.0, Color32::WHITE),
-        ));
         // Waveform
+
+        // Second waveform
+        // https://github.com/not-fl3/egui-miniquad/issues/42
+        // index = -1;
+        // let points_neg: Vec<Pos2> = wavepoints
+        //     .iter()
+        //     .map(|i| {
+        //         index += 1;
+        //         to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, *i * 0.02)
+        //     })
+        //     .collect();
+
+        // shapes.push(epaint::Shape::line(
+        //     points_neg,
+        //     Stroke::new(1.0, Color32::WHITE),
+        // ));
+        // Second waveform
 
         let points: Vec<Pos2> = (0..2)
             .map(|i| to_screen * pos2(time, -1.0 + 2.0 * i as f32))
