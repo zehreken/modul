@@ -56,7 +56,7 @@ impl Windows {
                 };
                 ui.checkbox(&mut self.show_stats, "stats");
                 ui.checkbox(&mut self.show_controls, "controls");
-                ui.checkbox(&mut &mut self.show_log, "log");
+                ui.checkbox(&mut self.show_log, "log");
                 if ui
                     .checkbox(&mut self.is_play_through, "play through")
                     .changed()
@@ -110,14 +110,6 @@ impl Windows {
                             } else {
                                 modul.clear();
                             }
-                        }
-                        Key::O => {
-                            // Obsolete, useless
-                            modul.pause();
-                        }
-                        Key::P => {
-                            // Obsolete, useless
-                            modul.play();
                         }
                         Key::T => {
                             modul.record_playback();

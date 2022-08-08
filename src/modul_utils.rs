@@ -14,8 +14,6 @@ pub mod utils {
     pub enum ModulAction {
         SelectTape(usize),
         Record,
-        _Pause,
-        _Play,
         Playback,
         PlayThrough,
         Write,

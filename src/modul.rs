@@ -2,7 +2,7 @@ use super::audio_model::*;
 use super::modul_utils::utils::*;
 use super::Config;
 use crate::metronome::Metronome;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::{Consumer, RingBuffer};
 use std::collections::VecDeque;
@@ -31,8 +31,8 @@ pub struct Stats {
 
 pub struct Modul {
     pub tape_length: usize,
-    input_stream: Stream,
-    output_stream: Stream,
+    _input_stream: Stream,
+    _output_stream: Stream,
     _time: f32,
     audio_index: Arc<AtomicUsize>,
     key_sender: Sender<ModulAction>,
@@ -156,6 +156,7 @@ impl Modul {
             is_recording_playback: Arc::clone(&is_recording_playback),
             is_play_through: Arc::clone(&is_play_through),
             selected_tape: 0,
+            secondary_tapes: [false; TAPE_COUNT],
             output_producer,
             audio_index: Arc::clone(&audio_index),
             writing_tape: Vec::with_capacity(writing_tape_capacity),
@@ -170,6 +171,7 @@ impl Modul {
             output_channel_count: output_config.channels as usize,
             message_producer,
         };
+        audio_model.secondary_tapes[0] = true;
 
         std::thread::spawn(move || loop {
             audio_model.update();
@@ -178,8 +180,8 @@ impl Modul {
 
         Modul {
             tape_length,
-            input_stream,
-            output_stream,
+            _input_stream: input_stream,
+            _output_stream: output_stream,
             _time: 0.0,
             audio_index: Arc::clone(&audio_index),
             is_recording: Arc::clone(&is_recording),
@@ -256,18 +258,6 @@ impl Modul {
 
     pub fn record(&mut self) {
         self.key_sender.send(ModulAction::Record).unwrap();
-    }
-
-    pub fn pause(&self) {
-        // self.key_sender.send(ModulAction::Pause).unwrap();
-        self.input_stream.pause().unwrap();
-        self.output_stream.pause().unwrap();
-    }
-
-    pub fn play(&self) {
-        // self.key_sender.send(ModulAction::Play).unwrap();
-        self.input_stream.play().unwrap();
-        self.output_stream.play().unwrap();
     }
 
     pub fn record_playback(&self) {

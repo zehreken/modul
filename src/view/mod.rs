@@ -210,8 +210,7 @@ pub fn start(config: Config) {
 pub fn load_image(path: &Path) -> image::DynamicImage {
     // Use the open function to load an image from a Path.
     // ```open``` returns a dynamic image.
-    let im = image::open(path).expect("image not found");
-    im
+    image::open(path).expect("image not found")
 }
 
 fn load_image_for_ui(path: &Path) -> Result<egui::ColorImage, image::ImageError> {

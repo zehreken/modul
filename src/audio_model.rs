@@ -32,6 +32,7 @@ pub struct AudioModel {
     pub is_recording_playback: Arc<AtomicBool>,
     pub is_play_through: Arc<AtomicBool>,
     pub selected_tape: usize,
+    pub secondary_tapes: [bool; TAPE_COUNT],
     pub output_producer: Producer<f32>,
     pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
@@ -235,9 +236,6 @@ impl AudioModel {
                 }
                 ModulAction::StopMetronome => {
                     self.metronome.is_running = false;
-                }
-                _a => {
-                    println!("Unhandled action: {:?}", _a);
                 }
             }
         }
