@@ -161,7 +161,6 @@ fn draw_tape(
 
         let mut shapes = vec![];
 
-        let time = modul.get_audio_index() as f32 / modul.tape_length as f32;
         // Waveform
         let wavepoints = modul.samples_for_graphs.lock().unwrap()[id];
         let mut index = -1;
@@ -196,6 +195,7 @@ fn draw_tape(
         // ));
         // Second waveform
 
+        let time = modul.get_audio_index() as f32 / modul.tape_length as f32;
         let points: Vec<Pos2> = (0..2)
             .map(|i| to_screen * pos2(time, -1.0 + 2.0 * i as f32))
             .collect();

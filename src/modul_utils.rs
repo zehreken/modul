@@ -19,7 +19,7 @@ pub mod utils {
         Playback,
         PlayThrough,
         Write,
-        _ClearAll,
+        ClearAll,
         Clear,
         Mute,
         Unmute,

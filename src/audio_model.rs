@@ -137,7 +137,7 @@ impl AudioModel {
         self.check_user_input();
     }
 
-    fn update_waveform(&self, audio: &Vec<f32>) {
+    fn update_waveform(&self, id: usize, audio: &Vec<f32>) {
         let mut counter = 0;
         let mut temp = vec![];
         let mut sum = 0.0;
@@ -157,7 +157,7 @@ impl AudioModel {
             }
             counter += 1;
         }
-        self.samples_for_graphs.lock().unwrap()[self.selected_tape] = temp[0..SAMPLE_GRAPH_SIZE]
+        self.samples_for_graphs.lock().unwrap()[id] = temp[0..SAMPLE_GRAPH_SIZE]
             .try_into()
             .expect("Error setting samples_for_graphs");
     }
@@ -175,7 +175,7 @@ impl AudioModel {
                             audio[t.index] = t.sample;
                         }
 
-                        self.update_waveform(&audio);
+                        self.update_waveform(self.selected_tape, &audio);
 
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
@@ -201,16 +201,19 @@ impl AudioModel {
                     // write_tape(&tape, "test");
                     write(&self.writing_tape, "full");
                 }
-                ModulAction::_ClearAll => {
-                    println!("clear all");
-                    for tape in self.tape_model.tapes.iter_mut() {
-                        tape.clear(0.0);
+                ModulAction::ClearAll => {
+                    self.message_producer.push("Clear all".to_owned()).unwrap();
+                    for id in 0..TAPE_COUNT {
+                        self.tape_model.tapes[id].clear(0.0);
+                        self.update_waveform(id, &vec![0.0; SAMPLE_GRAPH_SIZE]);
                     }
                 }
                 ModulAction::Clear => {
-                    println!("clear {}", self.selected_tape);
+                    self.message_producer
+                        .push(format!("Clear {}", self.selected_tape))
+                        .unwrap();
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
-                    self.update_waveform(&vec![0.0; SAMPLE_GRAPH_SIZE]);
+                    self.update_waveform(self.selected_tape, &vec![0.0; SAMPLE_GRAPH_SIZE]);
                 }
                 ModulAction::Mute => {
                     self.tape_model.tapes[self.selected_tape].mute();

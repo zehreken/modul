@@ -282,8 +282,8 @@ impl Modul {
         self.key_sender.send(ModulAction::Write).unwrap();
     }
 
-    pub fn _clear_all(&self) {
-        self.key_sender.send(ModulAction::_ClearAll).unwrap();
+    pub fn clear_all(&self) {
+        self.key_sender.send(ModulAction::ClearAll).unwrap();
     }
 
     pub fn clear(&self) {

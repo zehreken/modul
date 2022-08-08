@@ -5,7 +5,8 @@ pub mod window_stats;
 pub mod window_tapes;
 
 use crate::modul::Modul;
-use egui::Key;
+use egui::{Key, Modifiers};
+// use std::collections::HashMap;
 
 trait Drawable {
     fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul);
@@ -23,6 +24,7 @@ pub struct Windows {
     window_controls: window_controls::WindowControls,
     show_log: bool,
     window_log: window_log::WindowLog,
+    // inventory: HashMap<bool, dyn Drawable>,
 }
 
 impl Windows {
@@ -94,16 +96,20 @@ impl Windows {
             if let egui::Event::Key {
                 key,
                 pressed,
-                modifiers: _,
+                modifiers,
             } = e
             {
                 if *pressed {
                     match key {
-                        Key::R => {
+                        Key::Space => {
                             modul.record();
                         }
                         Key::C => {
-                            modul.clear();
+                            if *modifiers == Modifiers::SHIFT {
+                                modul.clear_all();
+                            } else {
+                                modul.clear();
+                            }
                         }
                         Key::O => {
                             // Obsolete, useless
