@@ -203,7 +203,9 @@ impl AudioModel {
                     write(&self.writing_tape, "full");
                 }
                 ModulAction::ClearAll => {
-                    self.message_producer.push("Clear all".to_owned()).unwrap();
+                    self.message_producer
+                        .push("Cleared all tapes".to_owned())
+                        .unwrap();
                     for id in 0..TAPE_COUNT {
                         self.tape_model.tapes[id].clear(0.0);
                         self.update_waveform(id, &vec![0.0; SAMPLE_GRAPH_SIZE]);
@@ -211,7 +213,7 @@ impl AudioModel {
                 }
                 ModulAction::Clear => {
                     self.message_producer
-                        .push(format!("Clear {}", self.selected_tape))
+                        .push(format!("Cleared tape {}", self.selected_tape + 1))
                         .unwrap();
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
                     self.update_waveform(self.selected_tape, &vec![0.0; SAMPLE_GRAPH_SIZE]);
