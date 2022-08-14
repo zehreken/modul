@@ -140,7 +140,7 @@ impl Modul {
 
         let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
-        let is_play_through = Arc::new(AtomicBool::new(false));
+        let is_play_through = Arc::new(AtomicBool::new(true));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
         let samples_for_graphs = Arc::new(Mutex::new([[0.0; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]));
         let show_beat = Arc::new(AtomicBool::new(false));

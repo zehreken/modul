@@ -1,4 +1,5 @@
 use crate::metronome::Metronome;
+use crate::modul_utils::utils;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
@@ -93,7 +94,11 @@ impl AudioModel {
             // sine wave for metronome
             if self.metronome.is_running && self.metronome.show_beat() {
                 let first_beat = self.metronome.get_beat_index() % 4 == 0;
-                let freq: f32 = if first_beat { 523.25 } else { 440.0 };
+                let freq: f32 = if first_beat {
+                    utils::C_FREQ
+                } else {
+                    utils::A_FREQ
+                };
                 let volume = 0.2;
                 sum +=
                     (t_index as f32 * 2.0 * std::f32::consts::PI * freq / 44100.0).sin() * volume;
