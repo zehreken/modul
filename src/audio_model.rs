@@ -4,7 +4,6 @@ use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
-use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
@@ -28,7 +27,7 @@ pub struct AudioModel {
     pub recording_tape: Vec<Input>,
     pub tape_model: TapeModel,
     pub input_consumer: Consumer<Input>,
-    pub key_receiver: Receiver<ModulAction>,
+    pub action_consumer: Consumer<ModulAction>,
     pub is_recording: Arc<AtomicBool>,
     pub is_recording_playback: Arc<AtomicBool>,
     pub is_play_through: Arc<AtomicBool>,
@@ -169,8 +168,9 @@ impl AudioModel {
     }
 
     fn check_user_input(&mut self) {
-        for c in self.key_receiver.try_iter() {
-            match c {
+        while !self.action_consumer.is_empty() {
+            let action = self.action_consumer.pop().unwrap();
+            match action {
                 ModulAction::Record => {
                     if self.is_recording.load(Ordering::SeqCst) {
                         self.is_recording.store(false, Ordering::SeqCst);

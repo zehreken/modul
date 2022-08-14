@@ -4,13 +4,10 @@ use super::Config;
 use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
-use ringbuf::{Consumer, RingBuffer};
+use ringbuf::{Consumer, Producer, RingBuffer};
 use std::collections::VecDeque;
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicU32;
-use std::sync::{
-    atomic::AtomicBool,
-    mpsc::{channel, Sender},
-};
 use std::sync::{Arc, Mutex};
 use std::{
     sync::atomic::{AtomicUsize, Ordering},
@@ -35,7 +32,7 @@ pub struct Modul {
     _output_stream: Stream,
     _time: f32,
     audio_index: Arc<AtomicUsize>,
-    key_sender: Sender<ModulAction>,
+    action_producer: Producer<ModulAction>,
     is_recording: Arc<AtomicBool>,
     is_recording_playback: Arc<AtomicBool>,
     is_play_through: Arc<AtomicBool>,
@@ -125,7 +122,8 @@ impl Modul {
         let input_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
 
-        let (key_sender, key_receiver) = channel();
+        let action_ring_buffer: RingBuffer<ModulAction> = RingBuffer::new(16);
+        let (action_producer, action_consumer) = action_ring_buffer.split();
 
         let output_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
@@ -151,7 +149,7 @@ impl Modul {
             recording_tape,
             tape_model,
             input_consumer,
-            key_receiver,
+            action_consumer,
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
             is_play_through: Arc::clone(&is_play_through),
@@ -187,7 +185,7 @@ impl Modul {
             is_recording: Arc::clone(&is_recording),
             is_recording_playback: Arc::clone(&is_recording_playback),
             is_play_through: Arc::clone(&is_play_through),
-            key_sender,
+            action_producer,
             sample_averages: Arc::clone(&sample_averages),
             samples_for_graphs: Arc::clone(&samples_for_graphs),
             _show_beat: Arc::clone(&show_beat),
@@ -235,8 +233,8 @@ impl Modul {
     }
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
-        self.key_sender
-            .send(ModulAction::SelectTape(selected_tape))
+        self.action_producer
+            .push(ModulAction::SelectTape(selected_tape))
             .unwrap();
     }
 
@@ -248,52 +246,56 @@ impl Modul {
         self.beat_index.load(Ordering::SeqCst)
     }
 
-    pub fn switch_metronome(&self, is_active: bool) {
+    pub fn switch_metronome(&mut self, is_active: bool) {
         if is_active {
-            self.key_sender.send(ModulAction::StartMetronome).unwrap();
+            self.action_producer
+                .push(ModulAction::StartMetronome)
+                .unwrap();
         } else {
-            self.key_sender.send(ModulAction::StopMetronome).unwrap();
+            self.action_producer
+                .push(ModulAction::StopMetronome)
+                .unwrap();
         }
     }
 
     pub fn record(&mut self) {
-        self.key_sender.send(ModulAction::Record).unwrap();
+        self.action_producer.push(ModulAction::Record).unwrap();
     }
 
-    pub fn record_playback(&self) {
-        self.key_sender.send(ModulAction::Playback).unwrap();
+    pub fn record_playback(&mut self) {
+        self.action_producer.push(ModulAction::Playback).unwrap();
     }
 
-    pub fn play_through(&self) {
-        self.key_sender.send(ModulAction::PlayThrough).unwrap();
+    pub fn play_through(&mut self) {
+        self.action_producer.push(ModulAction::PlayThrough).unwrap();
     }
 
-    pub fn write(&self) {
-        self.key_sender.send(ModulAction::Write).unwrap();
+    pub fn write(&mut self) {
+        self.action_producer.push(ModulAction::Write).unwrap();
     }
 
-    pub fn clear_all(&self) {
-        self.key_sender.send(ModulAction::ClearAll).unwrap();
+    pub fn clear_all(&mut self) {
+        self.action_producer.push(ModulAction::ClearAll).unwrap();
     }
 
-    pub fn clear(&self) {
-        self.key_sender.send(ModulAction::Clear).unwrap();
+    pub fn clear(&mut self) {
+        self.action_producer.push(ModulAction::Clear).unwrap();
     }
 
-    pub fn mute(&self) {
-        self.key_sender.send(ModulAction::Mute).unwrap();
+    pub fn mute(&mut self) {
+        self.action_producer.push(ModulAction::Mute).unwrap();
     }
 
-    pub fn unmute(&self) {
-        self.key_sender.send(ModulAction::Unmute).unwrap();
+    pub fn unmute(&mut self) {
+        self.action_producer.push(ModulAction::Unmute).unwrap();
     }
 
-    pub fn volume_up(&self) {
-        self.key_sender.send(ModulAction::VolumeUp).unwrap();
+    pub fn volume_up(&mut self) {
+        self.action_producer.push(ModulAction::VolumeUp).unwrap();
     }
 
-    pub fn volume_down(&self) {
-        self.key_sender.send(ModulAction::VolumeDown).unwrap();
+    pub fn volume_down(&mut self) {
+        self.action_producer.push(ModulAction::VolumeDown).unwrap();
     }
 
     pub fn get_sample_averages(&self) -> [f32; TAPE_COUNT + 1] {
