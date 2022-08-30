@@ -44,7 +44,7 @@ pub struct Modul {
     beat_index: Arc<AtomicU32>,
     pub stats: Stats,
     pub message_history: VecDeque<String>,
-    message_consumer: Consumer<String>,
+    log_consumer: Consumer<String>,
     pub instant: std::time::Instant,
 }
 
@@ -176,7 +176,7 @@ impl Modul {
                 input_config.sample_rate.0 * input_config.channels as u32,
             ),
             output_channel_count: output_config.channels as usize,
-            message_producer,
+            log_producer: message_producer,
         };
         audio_model.secondary_tapes[0] = true;
 
@@ -203,7 +203,7 @@ impl Modul {
             beat_index: Arc::clone(&beat_index),
             stats,
             message_history,
-            message_consumer,
+            log_consumer: message_consumer,
             instant: std::time::Instant::now(),
         }
     }
@@ -215,8 +215,8 @@ impl Modul {
                 ModulMessage::Recording(is_recording) => self.is_recording = is_recording,
             }
         }
-        while !self.message_consumer.is_empty() {
-            let message = self.message_consumer.pop().unwrap();
+        while !self.log_consumer.is_empty() {
+            let message = self.log_consumer.pop().unwrap();
             self.add_message(message);
         }
     }

@@ -44,7 +44,7 @@ pub struct AudioModel {
     pub beat_index: Arc<AtomicU32>,
     pub metronome: Metronome,
     pub output_channel_count: usize,
-    pub message_producer: Producer<String>,
+    pub log_producer: Producer<String>,
 }
 
 pub struct Input {
@@ -112,7 +112,7 @@ impl AudioModel {
             match r {
                 Ok(_) => {}
                 Err(_e) => {
-                    self.message_producer
+                    self.log_producer
                         .push(format!("buffer is full: {}", self.output_producer.len()))
                         .unwrap();
                 }
@@ -128,7 +128,7 @@ impl AudioModel {
         // This is to prevent left/right switching
         let output_channel_count = self.output_channel_count;
         if self.output_producer.len() % output_channel_count != 0 {
-            self.message_producer
+            self.log_producer
                 .push(format!(
                     "output_producer.len % {} is not 0, fixing",
                     output_channel_count
@@ -216,7 +216,7 @@ impl AudioModel {
                     write(&self.writing_tape, "full");
                 }
                 ModulAction::ClearAll => {
-                    self.message_producer
+                    self.log_producer
                         .push("Cleared all tapes".to_owned())
                         .unwrap();
                     for id in 0..TAPE_COUNT {
@@ -225,7 +225,7 @@ impl AudioModel {
                     }
                 }
                 ModulAction::Clear => {
-                    self.message_producer
+                    self.log_producer
                         .push(format!("Cleared tape {}", self.selected_tape + 1))
                         .unwrap();
                     self.tape_model.tapes[self.selected_tape].clear(0.0);
