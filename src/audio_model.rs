@@ -31,8 +31,8 @@ pub struct AudioModel {
     pub audio_message_producer: Producer<ModulMessage>,
     pub audio_message_consumer: Consumer<ModulMessage>,
     pub is_recording: bool,
-    pub is_recording_playback: Arc<AtomicBool>,
-    pub is_play_through: Arc<AtomicBool>,
+    pub is_recording_playback: bool,
+    pub is_play_through: bool,
     pub selected_tape: usize,
     pub secondary_tapes: [bool; TAPE_COUNT],
     pub output_producer: Producer<f32>,
@@ -85,7 +85,7 @@ impl AudioModel {
             }
 
             let mut sum = sample;
-            if self.is_play_through.load(Ordering::SeqCst) {
+            if self.is_play_through {
                 sum += t_sample;
                 if t_sample > sample_averages[8] {
                     sample_averages[8] = t_sample;
@@ -117,7 +117,7 @@ impl AudioModel {
                         .unwrap();
                 }
             }
-            if self.is_recording_playback.load(Ordering::SeqCst) {
+            if self.is_recording_playback {
                 sample += t_sample;
             }
             self.writing_tape.push(sample);
@@ -199,16 +199,16 @@ impl AudioModel {
                     }
                 }
                 ModulAction::Playback => {
-                    self.is_recording_playback.store(
-                        !self.is_recording_playback.load(Ordering::SeqCst),
-                        Ordering::SeqCst,
-                    );
+                    self.is_recording_playback = !self.is_recording_playback;
+                    self.audio_message_producer
+                        .push(ModulMessage::RecordingPlayback(self.is_recording_playback))
+                        .unwrap();
                 }
                 ModulAction::PlayThrough => {
-                    self.is_play_through.store(
-                        !self.is_play_through.load(Ordering::SeqCst),
-                        Ordering::SeqCst,
-                    );
+                    self.is_play_through = !self.is_play_through;
+                    self.audio_message_producer
+                        .push(ModulMessage::PlayThrough(self.is_play_through))
+                        .unwrap();
                 }
                 ModulAction::Write => {
                     // let tape = merge_tapes(&self.tape_model.tapes);

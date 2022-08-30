@@ -13,6 +13,8 @@ pub mod utils {
     #[derive(Debug)]
     pub enum ModulMessage {
         Recording(bool),
+        RecordingPlayback(bool),
+        PlayThrough(bool),
     }
 
     #[derive(Debug)]
