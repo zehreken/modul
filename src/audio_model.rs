@@ -28,7 +28,9 @@ pub struct AudioModel {
     pub tape_model: TapeModel,
     pub input_consumer: Consumer<Input>,
     pub action_consumer: Consumer<ModulAction>,
-    pub is_recording: Arc<AtomicBool>,
+    pub audio_message_producer: Producer<ModulMessage>,
+    pub audio_message_consumer: Consumer<ModulMessage>,
+    pub is_recording: bool,
     pub is_recording_playback: Arc<AtomicBool>,
     pub is_play_through: Arc<AtomicBool>,
     pub selected_tape: usize,
@@ -68,7 +70,7 @@ impl AudioModel {
             let t_index = t.index; // this is the cursor(kind of)
             let t_sample = t.sample; // this is the signal that came from the input channel
 
-            if self.is_recording.load(Ordering::SeqCst) {
+            if self.is_recording {
                 self.recording_tape.push(t);
             }
 
@@ -172,8 +174,11 @@ impl AudioModel {
             let action = self.action_consumer.pop().unwrap();
             match action {
                 ModulAction::Record => {
-                    if self.is_recording.load(Ordering::SeqCst) {
-                        self.is_recording.store(false, Ordering::SeqCst);
+                    if self.is_recording {
+                        self.is_recording = false;
+                        self.audio_message_producer
+                            .push(ModulMessage::Recording(self.is_recording))
+                            .unwrap();
 
                         let mut audio = vec![0.0; self.tape_length];
 
@@ -186,7 +191,10 @@ impl AudioModel {
                         self.tape_model.tapes[self.selected_tape].audio = audio;
                         self.recording_tape.clear();
                     } else {
-                        self.is_recording.store(true, Ordering::SeqCst);
+                        self.is_recording = true;
+                        self.audio_message_producer
+                            .push(ModulMessage::Recording(self.is_recording))
+                            .unwrap();
                         self.recording_tape.clear();
                     }
                 }

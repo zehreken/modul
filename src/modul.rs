@@ -33,7 +33,9 @@ pub struct Modul {
     _time: f32,
     audio_index: Arc<AtomicUsize>,
     action_producer: Producer<ModulAction>,
-    is_recording: Arc<AtomicBool>,
+    modul_message_producer: Producer<ModulMessage>,
+    modul_message_consumer: Consumer<ModulMessage>,
+    is_recording: bool,
     is_recording_playback: Arc<AtomicBool>,
     is_play_through: Arc<AtomicBool>,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
@@ -125,6 +127,12 @@ impl Modul {
         let action_ring_buffer: RingBuffer<ModulAction> = RingBuffer::new(16);
         let (action_producer, action_consumer) = action_ring_buffer.split();
 
+        let message_ring_buffer_to: RingBuffer<ModulMessage> = RingBuffer::new(16);
+        let (modul_message_producer, audio_message_consumer) = message_ring_buffer_to.split();
+
+        let message_ring_buffer_from: RingBuffer<ModulMessage> = RingBuffer::new(16);
+        let (audio_message_producer, modul_message_consumer) = message_ring_buffer_from.split();
+
         let output_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
@@ -136,7 +144,6 @@ impl Modul {
         let output_stream =
             create_output_stream_live(&output_device, &output_config, output_consumer);
 
-        let is_recording = Arc::new(AtomicBool::new(false));
         let is_recording_playback = Arc::new(AtomicBool::new(false));
         let is_play_through = Arc::new(AtomicBool::new(true));
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
@@ -150,7 +157,9 @@ impl Modul {
             tape_model,
             input_consumer,
             action_consumer,
-            is_recording: Arc::clone(&is_recording),
+            audio_message_producer,
+            audio_message_consumer,
+            is_recording: false,
             is_recording_playback: Arc::clone(&is_recording_playback),
             is_play_through: Arc::clone(&is_play_through),
             selected_tape: 0,
@@ -182,10 +191,12 @@ impl Modul {
             _output_stream: output_stream,
             _time: 0.0,
             audio_index: Arc::clone(&audio_index),
-            is_recording: Arc::clone(&is_recording),
+            is_recording: false,
             is_recording_playback: Arc::clone(&is_recording_playback),
             is_play_through: Arc::clone(&is_play_through),
             action_producer,
+            modul_message_producer,
+            modul_message_consumer,
             sample_averages: Arc::clone(&sample_averages),
             samples_for_graphs: Arc::clone(&samples_for_graphs),
             _show_beat: Arc::clone(&show_beat),
@@ -198,6 +209,12 @@ impl Modul {
     }
 
     pub fn update(&mut self) {
+        while !self.modul_message_consumer.is_empty() {
+            let message = self.modul_message_consumer.pop().unwrap();
+            match message {
+                ModulMessage::Recording(is_recording) => self.is_recording = is_recording,
+            }
+        }
         while !self.message_consumer.is_empty() {
             let message = self.message_consumer.pop().unwrap();
             self.add_message(message);
@@ -221,7 +238,7 @@ impl Modul {
     }
 
     pub fn is_recording(&self) -> bool {
-        self.is_recording.load(Ordering::SeqCst)
+        self.is_recording
     }
 
     pub fn is_recording_playback(&self) -> bool {

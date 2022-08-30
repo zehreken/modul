@@ -11,6 +11,11 @@ pub mod utils {
     pub const C_FREQ: f32 = 523.25;
 
     #[derive(Debug)]
+    pub enum ModulMessage {
+        Recording(bool),
+    }
+
+    #[derive(Debug)]
     pub enum ModulAction {
         SelectTape(usize),
         Record,
