@@ -6,13 +6,8 @@ use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::collections::VecDeque;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, Mutex};
-use std::{
-    sync::atomic::{AtomicUsize, Ordering},
-    time::Duration,
-};
+use std::time::Duration;
 
 pub struct Stats {
     pub bpm: u16,
@@ -188,7 +183,7 @@ impl Modul {
             _input_stream: input_stream,
             _output_stream: output_stream,
             _time: 0.0,
-            audio_index: audio_index,
+            audio_index,
             is_recording: false,
             is_recording_playback: false,
             is_play_through: false,

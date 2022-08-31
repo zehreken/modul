@@ -3,7 +3,6 @@ use crate::modul_utils::utils;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
-use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
