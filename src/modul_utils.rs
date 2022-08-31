@@ -12,6 +12,7 @@ pub mod utils {
 
     #[derive(Debug)]
     pub enum ModulMessage {
+        AudioIndex(usize),
         Recording(bool),
         RecordingPlayback(bool),
         PlayThrough(bool),

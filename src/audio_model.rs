@@ -33,10 +33,10 @@ pub struct AudioModel {
     pub is_recording: bool,
     pub is_recording_playback: bool,
     pub is_play_through: bool,
+    pub audio_index: usize,
     pub selected_tape: usize,
     pub secondary_tapes: [bool; TAPE_COUNT],
     pub output_producer: Producer<f32>,
-    pub audio_index: Arc<AtomicUsize>,
     pub writing_tape: Vec<f32>,
     pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
     pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
@@ -68,6 +68,7 @@ impl AudioModel {
         while !self.input_consumer.is_empty() {
             let t = self.input_consumer.pop().unwrap();
             let t_index = t.index; // this is the cursor(kind of)
+            self.audio_index = t_index;
             let t_sample = t.sample; // this is the signal that came from the input channel
 
             if self.is_recording {
@@ -121,9 +122,11 @@ impl AudioModel {
                 sample += t_sample;
             }
             self.writing_tape.push(sample);
-
-            self.audio_index.store(t_index, Ordering::SeqCst);
         }
+
+        self.audio_message_producer
+            .push(ModulMessage::AudioIndex(self.audio_index))
+            .expect("audio message buffer is full");
 
         // This is to prevent left/right switching
         let output_channel_count = self.output_channel_count;

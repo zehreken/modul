@@ -31,7 +31,7 @@ pub struct Modul {
     _input_stream: Stream,
     _output_stream: Stream,
     _time: f32,
-    audio_index: Arc<AtomicUsize>,
+    audio_index: usize,
     action_producer: Producer<ModulAction>,
     modul_message_producer: Producer<ModulMessage>,
     modul_message_consumer: Consumer<ModulMessage>,
@@ -127,10 +127,10 @@ impl Modul {
         let action_ring_buffer: RingBuffer<ModulAction> = RingBuffer::new(16);
         let (action_producer, action_consumer) = action_ring_buffer.split();
 
-        let message_ring_buffer_to: RingBuffer<ModulMessage> = RingBuffer::new(16);
+        let message_ring_buffer_to: RingBuffer<ModulMessage> = RingBuffer::new(2_usize.pow(10));
         let (modul_message_producer, audio_message_consumer) = message_ring_buffer_to.split();
 
-        let message_ring_buffer_from: RingBuffer<ModulMessage> = RingBuffer::new(16);
+        let message_ring_buffer_from: RingBuffer<ModulMessage> = RingBuffer::new(2_usize.pow(10));
         let (audio_message_producer, modul_message_consumer) = message_ring_buffer_from.split();
 
         let output_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
@@ -139,7 +139,7 @@ impl Modul {
         let input_stream =
             create_input_stream_live(&input_device, &input_config, tape_length, input_producer);
 
-        let audio_index = Arc::new(AtomicUsize::new(0));
+        let audio_index = 0;
 
         let output_stream =
             create_output_stream_live(&output_device, &output_config, output_consumer);
@@ -160,10 +160,10 @@ impl Modul {
             is_recording: false,
             is_recording_playback: false,
             is_play_through: false,
+            audio_index,
             selected_tape: 0,
             secondary_tapes: [false; TAPE_COUNT],
             output_producer,
-            audio_index: Arc::clone(&audio_index),
             writing_tape: Vec::with_capacity(writing_tape_capacity),
             sample_averages: Arc::clone(&sample_averages),
             samples_for_graphs: Arc::clone(&samples_for_graphs),
@@ -188,7 +188,7 @@ impl Modul {
             _input_stream: input_stream,
             _output_stream: output_stream,
             _time: 0.0,
-            audio_index: Arc::clone(&audio_index),
+            audio_index: audio_index,
             is_recording: false,
             is_recording_playback: false,
             is_play_through: false,
@@ -210,6 +210,7 @@ impl Modul {
         while !self.modul_message_consumer.is_empty() {
             let message = self.modul_message_consumer.pop().unwrap();
             match message {
+                ModulMessage::AudioIndex(value) => self.audio_index = value,
                 ModulMessage::Recording(is_recording) => self.is_recording = is_recording,
                 ModulMessage::RecordingPlayback(is_recording_playback) => {
                     self.is_recording_playback = is_recording_playback
@@ -238,7 +239,7 @@ impl Modul {
     }
 
     pub fn get_audio_index(&self) -> usize {
-        self.audio_index.load(Ordering::SeqCst)
+        self.audio_index
     }
 
     pub fn is_recording(&self) -> bool {
