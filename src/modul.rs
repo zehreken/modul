@@ -40,8 +40,8 @@ pub struct Modul {
     is_play_through: bool,
     sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
     pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
-    _show_beat: Arc<AtomicBool>,
-    beat_index: Arc<AtomicU32>,
+    _show_beat: bool,
+    beat_index: u32,
     pub stats: Stats,
     pub message_history: VecDeque<String>,
     log_consumer: Consumer<String>,
@@ -146,8 +146,8 @@ impl Modul {
 
         let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
         let samples_for_graphs = Arc::new(Mutex::new([[0.0; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]));
-        let show_beat = Arc::new(AtomicBool::new(false));
-        let beat_index = Arc::new(AtomicU32::new(0));
+        let show_beat = false;
+        let beat_index = 0;
 
         let mut audio_model: AudioModel = AudioModel {
             tape_length,
@@ -167,8 +167,8 @@ impl Modul {
             writing_tape: Vec::with_capacity(writing_tape_capacity),
             sample_averages: Arc::clone(&sample_averages),
             samples_for_graphs: Arc::clone(&samples_for_graphs),
-            show_beat: Arc::clone(&show_beat),
-            beat_index: Arc::clone(&beat_index),
+            show_beat,
+            beat_index,
             metronome: Metronome::new(
                 config.bpm,
                 input_config.sample_rate.0 * input_config.channels as u32,
@@ -197,8 +197,8 @@ impl Modul {
             modul_message_consumer,
             sample_averages: Arc::clone(&sample_averages),
             samples_for_graphs: Arc::clone(&samples_for_graphs),
-            _show_beat: Arc::clone(&show_beat),
-            beat_index: Arc::clone(&beat_index),
+            _show_beat: show_beat,
+            beat_index,
             stats,
             message_history,
             log_consumer: message_consumer,
@@ -210,7 +210,7 @@ impl Modul {
         while !self.modul_message_consumer.is_empty() {
             let message = self.modul_message_consumer.pop().unwrap();
             match message {
-                ModulMessage::AudioIndex(value) => self.audio_index = value,
+                ModulMessage::AudioIndex(audio_index) => self.audio_index = audio_index,
                 ModulMessage::Recording(is_recording) => self.is_recording = is_recording,
                 ModulMessage::RecordingPlayback(is_recording_playback) => {
                     self.is_recording_playback = is_recording_playback
@@ -218,6 +218,8 @@ impl Modul {
                 ModulMessage::PlayThrough(is_play_through) => {
                     self.is_play_through = is_play_through
                 }
+                ModulMessage::ShowBeat(show_beat) => self._show_beat = show_beat,
+                ModulMessage::BeatIndex(beat_index) => self.beat_index = beat_index,
             }
         }
         while !self.log_consumer.is_empty() {
@@ -261,11 +263,11 @@ impl Modul {
     }
 
     pub fn _show_beat(&self) -> bool {
-        self._show_beat.load(Ordering::SeqCst)
+        self._show_beat
     }
 
     pub fn get_beat_index(&self) -> u32 {
-        self.beat_index.load(Ordering::SeqCst)
+        self.beat_index
     }
 
     pub fn switch_metronome(&mut self, is_active: bool) {

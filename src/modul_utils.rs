@@ -16,6 +16,8 @@ pub mod utils {
         Recording(bool),
         RecordingPlayback(bool),
         PlayThrough(bool),
+        ShowBeat(bool),
+        BeatIndex(u32),
     }
 
     #[derive(Debug)]
