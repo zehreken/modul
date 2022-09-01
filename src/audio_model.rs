@@ -3,7 +3,6 @@ use crate::modul_utils::utils;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
 use ringbuf::{Consumer, Producer};
-use std::sync::{Arc, Mutex};
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; TAPE_COUNT],
@@ -37,8 +36,8 @@ pub struct AudioModel {
     pub secondary_tapes: [bool; TAPE_COUNT],
     pub output_producer: Producer<f32>,
     pub writing_tape: Vec<f32>,
-    pub sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
-    pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
+    pub sample_averages: [f32; TAPE_COUNT + 1],
+    pub samples_for_graphs: [[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT],
     pub show_beat: bool,
     pub beat_index: u32,
     pub metronome: Metronome,
@@ -145,13 +144,16 @@ impl AudioModel {
         }
 
         if sample_count > 0 {
-            *self.sample_averages.lock().unwrap() = sample_averages;
+            self.sample_averages = sample_averages;
+            self.audio_message_producer
+                .push(ModulMessage::SampleAverages(self.sample_averages))
+                .unwrap();
         }
 
         self.check_user_input();
     }
 
-    fn update_waveform(&self, id: usize, audio: &Vec<f32>) {
+    fn update_waveform(&mut self, id: usize, audio: &Vec<f32>) {
         let mut counter = 0;
         let mut temp = vec![];
         let mut sum = 0.0;
@@ -171,9 +173,12 @@ impl AudioModel {
             }
             counter += 1;
         }
-        self.samples_for_graphs.lock().unwrap()[id] = temp[0..SAMPLE_GRAPH_SIZE]
+        self.samples_for_graphs[id] = temp[0..SAMPLE_GRAPH_SIZE]
             .try_into()
             .expect("Error setting samples_for_graphs");
+        self.audio_message_producer
+            .push(ModulMessage::SamplesForGraphs(self.samples_for_graphs))
+            .unwrap();
     }
 
     fn check_user_input(&mut self) {

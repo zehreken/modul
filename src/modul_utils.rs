@@ -18,6 +18,8 @@ pub mod utils {
         PlayThrough(bool),
         ShowBeat(bool),
         BeatIndex(u32),
+        SampleAverages([f32; TAPE_COUNT + 1]),
+        SamplesForGraphs([[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]),
     }
 
     #[derive(Debug)]

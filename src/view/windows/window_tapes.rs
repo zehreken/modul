@@ -162,7 +162,7 @@ fn draw_tape(
         let mut shapes = vec![];
 
         // Waveform
-        let wavepoints = modul.samples_for_graphs.lock().unwrap()[id];
+        let wavepoints = modul.samples_for_graphs[id];
         let mut index = -1;
         let points: Vec<Pos2> = wavepoints
             .iter()

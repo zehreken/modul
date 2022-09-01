@@ -6,7 +6,6 @@ use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::{Consumer, Producer, RingBuffer};
 use std::collections::VecDeque;
-use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 pub struct Stats {
@@ -33,8 +32,8 @@ pub struct Modul {
     is_recording: bool,
     is_recording_playback: bool,
     is_play_through: bool,
-    sample_averages: Arc<Mutex<[f32; TAPE_COUNT + 1]>>,
-    pub samples_for_graphs: Arc<Mutex<[[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]>>,
+    sample_averages: [f32; TAPE_COUNT + 1],
+    pub samples_for_graphs: [[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT],
     _show_beat: bool,
     beat_index: u32,
     pub stats: Stats,
@@ -139,8 +138,8 @@ impl Modul {
         let output_stream =
             create_output_stream_live(&output_device, &output_config, output_consumer);
 
-        let sample_averages = Arc::new(Mutex::new([0.0; TAPE_COUNT + 1]));
-        let samples_for_graphs = Arc::new(Mutex::new([[0.0; SAMPLE_GRAPH_SIZE]; TAPE_COUNT]));
+        let sample_averages = [0.0; TAPE_COUNT + 1];
+        let samples_for_graphs = [[0.0; SAMPLE_GRAPH_SIZE]; TAPE_COUNT];
         let show_beat = false;
         let beat_index = 0;
 
@@ -160,8 +159,8 @@ impl Modul {
             secondary_tapes: [false; TAPE_COUNT],
             output_producer,
             writing_tape: Vec::with_capacity(writing_tape_capacity),
-            sample_averages: Arc::clone(&sample_averages),
-            samples_for_graphs: Arc::clone(&samples_for_graphs),
+            sample_averages: sample_averages,
+            samples_for_graphs: samples_for_graphs,
             show_beat,
             beat_index,
             metronome: Metronome::new(
@@ -190,8 +189,8 @@ impl Modul {
             action_producer,
             modul_message_producer,
             modul_message_consumer,
-            sample_averages: Arc::clone(&sample_averages),
-            samples_for_graphs: Arc::clone(&samples_for_graphs),
+            sample_averages: sample_averages,
+            samples_for_graphs: samples_for_graphs,
             _show_beat: show_beat,
             beat_index,
             stats,
@@ -215,6 +214,12 @@ impl Modul {
                 }
                 ModulMessage::ShowBeat(show_beat) => self._show_beat = show_beat,
                 ModulMessage::BeatIndex(beat_index) => self.beat_index = beat_index,
+                ModulMessage::SampleAverages(sample_averages) => {
+                    self.sample_averages = sample_averages
+                }
+                ModulMessage::SamplesForGraphs(samples_for_graphs) => {
+                    self.samples_for_graphs = samples_for_graphs
+                }
             }
         }
         while !self.log_consumer.is_empty() {
@@ -318,6 +323,6 @@ impl Modul {
     }
 
     pub fn get_sample_averages(&self) -> [f32; TAPE_COUNT + 1] {
-        *self.sample_averages.lock().unwrap()
+        self.sample_averages
     }
 }
