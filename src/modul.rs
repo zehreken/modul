@@ -27,7 +27,7 @@ pub struct Modul {
     _time: f32,
     audio_index: usize,
     action_producer: Producer<ModulAction>,
-    modul_message_producer: Producer<ModulMessage>,
+    _modul_message_producer: Producer<ModulMessage>,
     modul_message_consumer: Consumer<ModulMessage>,
     is_recording: bool,
     is_recording_playback: bool,
@@ -155,7 +155,7 @@ impl Modul {
             is_recording_playback: false,
             is_play_through: false,
             audio_index,
-            selected_tape: 0,
+            primary_tape: 0,
             secondary_tapes: [false; TAPE_COUNT],
             output_producer,
             writing_tape: Vec::with_capacity(writing_tape_capacity),
@@ -187,7 +187,7 @@ impl Modul {
             is_recording_playback: false,
             is_play_through: false,
             action_producer,
-            modul_message_producer,
+            _modul_message_producer: modul_message_producer,
             modul_message_consumer,
             sample_averages: sample_averages,
             samples_for_graphs: samples_for_graphs,
@@ -258,7 +258,7 @@ impl Modul {
 
     pub fn set_selected_tape(&mut self, selected_tape: usize) {
         self.action_producer
-            .push(ModulAction::SelectTape(selected_tape))
+            .push(ModulAction::SelectPrimaryTape(selected_tape))
             .unwrap();
     }
 

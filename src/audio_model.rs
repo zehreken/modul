@@ -32,7 +32,7 @@ pub struct AudioModel {
     pub is_recording_playback: bool,
     pub is_play_through: bool,
     pub audio_index: usize,
-    pub selected_tape: usize,
+    pub primary_tape: usize,
     pub secondary_tapes: [bool; TAPE_COUNT],
     pub output_producer: Producer<f32>,
     pub writing_tape: Vec<f32>,
@@ -185,6 +185,12 @@ impl AudioModel {
         while !self.action_consumer.is_empty() {
             let action = self.action_consumer.pop().unwrap();
             match action {
+                ModulAction::SelectPrimaryTape(primary_tape) => {
+                    self.primary_tape = primary_tape.clamp(0, TAPE_COUNT);
+                }
+                ModulAction::SelectSecondaryTape(secondary_tape) => {
+                    // todo
+                }
                 ModulAction::Record => {
                     if self.is_recording {
                         self.is_recording = false;
@@ -198,9 +204,9 @@ impl AudioModel {
                             audio[t.index] = t.sample;
                         }
 
-                        self.update_waveform(self.selected_tape, &audio);
+                        self.update_waveform(self.primary_tape, &audio);
 
-                        self.tape_model.tapes[self.selected_tape].audio = audio;
+                        self.tape_model.tapes[self.primary_tape].audio = audio;
                         self.recording_tape.clear();
                     } else {
                         self.is_recording = true;
@@ -229,10 +235,10 @@ impl AudioModel {
                 }
                 ModulAction::Clear => {
                     self.log_producer
-                        .push(format!("Cleared tape {}", self.selected_tape + 1))
+                        .push(format!("Cleared tape {}", self.primary_tape + 1))
                         .unwrap();
-                    self.tape_model.tapes[self.selected_tape].clear(0.0);
-                    self.update_waveform(self.selected_tape, &vec![0.0; SAMPLE_GRAPH_SIZE]);
+                    self.tape_model.tapes[self.primary_tape].clear(0.0);
+                    self.update_waveform(self.primary_tape, &vec![0.0; SAMPLE_GRAPH_SIZE]);
                 }
                 ModulAction::ClearAll => {
                     self.log_producer
@@ -244,19 +250,16 @@ impl AudioModel {
                     }
                 }
                 ModulAction::Mute => {
-                    self.tape_model.tapes[self.selected_tape].mute();
+                    self.tape_model.tapes[self.primary_tape].mute();
                 }
                 ModulAction::Unmute => {
-                    self.tape_model.tapes[self.selected_tape].unmute();
-                }
-                ModulAction::SelectTape(tape) => {
-                    self.selected_tape = tape.clamp(0, TAPE_COUNT);
+                    self.tape_model.tapes[self.primary_tape].unmute();
                 }
                 ModulAction::VolumeUp => {
-                    self.tape_model.tapes[self.selected_tape].volume_up();
+                    self.tape_model.tapes[self.primary_tape].volume_up();
                 }
                 ModulAction::VolumeDown => {
-                    self.tape_model.tapes[self.selected_tape].volume_down();
+                    self.tape_model.tapes[self.primary_tape].volume_down();
                 }
                 ModulAction::StartMetronome => {
                     self.metronome.is_running = true;

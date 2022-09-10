@@ -44,16 +44,18 @@ impl Drawable for WindowTapes {
                 if let egui::Event::Key {
                     key,
                     pressed,
-                    modifiers: _,
+                    modifiers,
                 } = e
                 {
                     if *pressed {
                         match key {
                             Key::Num1 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 0;
-                                    modul.set_selected_tape(0);
-                                }
+                                select_tape(
+                                    modul,
+                                    selected_tape,
+                                    0,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num2 => {
                                 if !modul.is_recording() {
@@ -124,6 +126,16 @@ impl Drawable for WindowTapes {
                 }
             }
         });
+    }
+}
+
+fn select_tape(modul: &mut Modul, selected_tape: &mut usize, tape: usize, is_secondary: bool) {
+    if is_secondary {
+    } else {
+        if !modul.is_recording() {
+            *selected_tape = tape;
+            modul.set_selected_tape(*selected_tape);
+        }
     }
 }
 
