@@ -5,7 +5,8 @@ use egui::*;
 use super::Drawable;
 
 pub struct WindowTapes {
-    selected_tape: usize,
+    primary_tape: usize,
+    secondary_tapes: [bool; TAPE_COUNT],
     tape_volumes: [f32; TAPE_COUNT],
     tape_mute_states: [bool; TAPE_COUNT],
 }
@@ -13,7 +14,8 @@ pub struct WindowTapes {
 impl Default for WindowTapes {
     fn default() -> Self {
         Self {
-            selected_tape: 0,
+            primary_tape: 0,
+            secondary_tapes: [false; TAPE_COUNT],
             tape_volumes: [1.0; TAPE_COUNT],
             tape_mute_states: [false; TAPE_COUNT],
         }
@@ -23,7 +25,8 @@ impl Default for WindowTapes {
 impl Drawable for WindowTapes {
     fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul) {
         let Self {
-            selected_tape,
+            primary_tape,
+            secondary_tapes,
             tape_volumes,
             tape_mute_states,
         } = self;
@@ -36,7 +39,15 @@ impl Drawable for WindowTapes {
                 ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
             }
             for i in 0..TAPE_COUNT {
-                draw_tape(ui, selected_tape, tape_volumes, tape_mute_states, modul, i);
+                draw_tape(
+                    ui,
+                    primary_tape,
+                    secondary_tapes[i],
+                    tape_volumes,
+                    tape_mute_states,
+                    modul,
+                    i,
+                );
             }
 
             // Keyboard input
@@ -52,71 +63,92 @@ impl Drawable for WindowTapes {
                             Key::Num1 => {
                                 select_tape(
                                     modul,
-                                    selected_tape,
+                                    primary_tape,
                                     0,
+                                    secondary_tapes,
                                     *modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num2 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 1;
-                                    modul.set_selected_tape(1);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    1,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num3 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 2;
-                                    modul.set_selected_tape(2);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    2,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num4 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 3;
-                                    modul.set_selected_tape(3);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    3,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num5 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 4;
-                                    modul.set_selected_tape(4);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    4,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num6 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 5;
-                                    modul.set_selected_tape(5);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    5,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num7 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 6;
-                                    modul.set_selected_tape(6);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    6,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::Num8 => {
-                                if !modul.is_recording() {
-                                    *selected_tape = 7;
-                                    modul.set_selected_tape(7);
-                                }
+                                select_tape(
+                                    modul,
+                                    primary_tape,
+                                    7,
+                                    secondary_tapes,
+                                    *modifiers == Modifiers::SHIFT,
+                                );
                             }
                             Key::M => {
-                                tape_mute_states[*selected_tape] =
-                                    !tape_mute_states[*selected_tape];
-                                if tape_mute_states[*selected_tape] {
+                                tape_mute_states[*primary_tape] = !tape_mute_states[*primary_tape];
+                                if tape_mute_states[*primary_tape] {
                                     modul.mute();
                                 } else {
                                     modul.unmute();
                                 }
                             }
                             Key::ArrowUp => {
-                                if tape_volumes[*selected_tape] < 1.0 {
-                                    tape_volumes[*selected_tape] += 0.05;
+                                if tape_volumes[*primary_tape] < 1.0 {
+                                    tape_volumes[*primary_tape] += 0.05;
                                 }
                                 modul.volume_up();
                             }
                             Key::ArrowDown => {
-                                if tape_volumes[*selected_tape] > 0.0 {
-                                    tape_volumes[*selected_tape] -= 0.05;
+                                if tape_volumes[*primary_tape] > 0.0 {
+                                    tape_volumes[*primary_tape] -= 0.05;
                                 }
                                 modul.volume_down();
                             }
@@ -129,19 +161,28 @@ impl Drawable for WindowTapes {
     }
 }
 
-fn select_tape(modul: &mut Modul, selected_tape: &mut usize, tape: usize, is_secondary: bool) {
+fn select_tape(
+    modul: &mut Modul,
+    primary_tape: &mut usize,
+    tape: usize,
+    secondary_tapes: &mut [bool; TAPE_COUNT],
+    is_secondary: bool,
+) {
     if is_secondary {
+        secondary_tapes[tape] = !secondary_tapes[tape];
+        modul.select_secondary_tape(tape);
     } else {
         if !modul.is_recording() {
-            *selected_tape = tape;
-            modul.set_selected_tape(*selected_tape);
+            *primary_tape = tape;
+            modul.select_primary_tape(*primary_tape);
         }
     }
 }
 
 fn draw_tape(
     ui: &mut Ui,
-    selected_tape: &mut usize,
+    primary_tape: &mut usize,
+    is_secondary: bool,
     tape_volumes: &mut [f32; TAPE_COUNT],
     tape_mute_states: &mut [bool; TAPE_COUNT],
     modul: &mut Modul,
@@ -150,17 +191,23 @@ fn draw_tape(
     ui.group(|ui| {
         ui.horizontal(|ui| {
             if ui
-                .selectable_label(*selected_tape == id, (id + 1).to_string())
+                .selectable_label(*primary_tape == id, (id + 1).to_string())
                 .clicked()
                 && !modul.is_recording()
             {
-                *selected_tape = id;
-                modul.set_selected_tape(id);
+                *primary_tape = id;
+                modul.select_primary_tape(id);
             }
+            let (color, text) = if is_secondary {
+                (Color32::YELLOW, "s")
+            } else {
+                (Color32::WHITE, "")
+            };
+            ui.colored_label(color, text);
 
             ui.label(format!("{:0.2}", tape_volumes[id]));
 
-            if *selected_tape == id && modul.is_recording() {
+            if *primary_tape == id && modul.is_recording() {
                 ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");
             }
         });

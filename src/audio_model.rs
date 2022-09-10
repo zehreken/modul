@@ -189,7 +189,7 @@ impl AudioModel {
                     self.primary_tape = primary_tape.clamp(0, TAPE_COUNT);
                 }
                 ModulAction::SelectSecondaryTape(secondary_tape) => {
-                    // todo
+                    self.secondary_tapes[secondary_tape] = !self.secondary_tapes[secondary_tape];
                 }
                 ModulAction::Record => {
                     if self.is_recording {

@@ -256,9 +256,15 @@ impl Modul {
         self.is_play_through
     }
 
-    pub fn set_selected_tape(&mut self, selected_tape: usize) {
+    pub fn select_primary_tape(&mut self, primary_tape: usize) {
         self.action_producer
-            .push(ModulAction::SelectPrimaryTape(selected_tape))
+            .push(ModulAction::SelectPrimaryTape(primary_tape))
+            .unwrap();
+    }
+
+    pub fn select_secondary_tape(&mut self, secondary_tape: usize) {
+        self.action_producer
+            .push(ModulAction::SelectSecondaryTape(secondary_tape))
             .unwrap();
     }
 
