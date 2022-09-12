@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign};
+
 #[derive(Clone)]
 pub struct Tape<T> {
     volume: f32,
@@ -5,7 +7,7 @@ pub struct Tape<T> {
     pub audio: Vec<T>,
 }
 
-impl<T: Clone> Tape<T> {
+impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
     pub fn new(default: T, length: usize) -> Self {
         Self {
             volume: 1.0,
@@ -45,6 +47,12 @@ impl<T: Clone> Tape<T> {
     pub fn clear(&mut self, default: T) {
         for i in 0..self.audio.len() {
             self.audio[i] = default.clone();
+        }
+    }
+
+    pub fn add(&mut self, other: Vec<T>) {
+        for i in 0..self.audio.len() {
+            self.audio[i] += other[i];
         }
     }
 }

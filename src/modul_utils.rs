@@ -26,6 +26,7 @@ pub mod utils {
     pub enum ModulAction {
         SelectPrimaryTape(usize),
         SelectSecondaryTape(usize),
+        MergeTapes,
         Record,
         Playback,
         PlayThrough,

@@ -181,6 +181,22 @@ impl AudioModel {
             .unwrap();
     }
 
+    fn merge_tapes(&mut self) {
+        let primary_tape = self.primary_tape;
+        let secondary_tapes = self.secondary_tapes;
+
+        for i in 0..TAPE_COUNT {
+            if secondary_tapes[i] && i != primary_tape {
+                self.tape_model.tapes[primary_tape].add(self.tape_model.tapes[i].audio.clone());
+            }
+        }
+
+        self.update_waveform(
+            primary_tape,
+            &self.tape_model.tapes[primary_tape].audio.clone(),
+        );
+    }
+
     fn check_user_input(&mut self) {
         while !self.action_consumer.is_empty() {
             let action = self.action_consumer.pop().unwrap();
@@ -190,6 +206,14 @@ impl AudioModel {
                 }
                 ModulAction::SelectSecondaryTape(secondary_tape) => {
                     self.secondary_tapes[secondary_tape] = !self.secondary_tapes[secondary_tape];
+                }
+                ModulAction::MergeTapes => {
+                    let message = format!(
+                        "Merging tapes, primary: {}, secondary: {:?}",
+                        self.primary_tape, self.secondary_tapes
+                    );
+                    self.log_producer.push(message).unwrap();
+                    self.merge_tapes();
                 }
                 ModulAction::Record => {
                     if self.is_recording {

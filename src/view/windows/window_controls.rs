@@ -9,8 +9,10 @@ impl Drawable for WindowControls {
             // ctx.request_repaint();
             ui.label("Controls");
             ui.label("select tape [1-8]");
+            ui.label("select secondary tape shift+[1-8]");
             ui.label("record tape toggle (space)");
             ui.label("clear tape (C)");
+            ui.label("clear all tapes shift+C");
             ui.label("mute/unmute tape (M)");
             ui.label("record live toggle (T)");
             ui.label("play-through toggle (Y)");

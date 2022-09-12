@@ -170,7 +170,6 @@ impl Modul {
             output_channel_count: output_config.channels as usize,
             log_producer: message_producer,
         };
-        audio_model.secondary_tapes[0] = true;
 
         std::thread::spawn(move || loop {
             audio_model.update();
@@ -266,6 +265,10 @@ impl Modul {
         self.action_producer
             .push(ModulAction::SelectSecondaryTape(secondary_tape))
             .unwrap();
+    }
+
+    pub fn merge_tapes(&mut self) {
+        self.action_producer.push(ModulAction::MergeTapes).unwrap();
     }
 
     pub fn _show_beat(&self) -> bool {

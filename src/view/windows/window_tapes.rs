@@ -140,6 +140,9 @@ impl Drawable for WindowTapes {
                                     modul.unmute();
                                 }
                             }
+                            Key::N => {
+                                modul.merge_tapes();
+                            }
                             Key::ArrowUp => {
                                 if tape_volumes[*primary_tape] < 1.0 {
                                     tape_volumes[*primary_tape] += 0.05;
