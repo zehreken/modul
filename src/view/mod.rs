@@ -137,11 +137,11 @@ impl mq::EventHandler for Stage {
         ctx.commit_frame();
     }
 
-    fn mouse_motion_event(&mut self, ctx: &mut mq::Context, x: f32, y: f32) {
+    fn mouse_motion_event(&mut self, _ctx: &mut mq::Context, x: f32, y: f32) {
         self.egui_mq.mouse_motion_event(x, y);
     }
 
-    fn mouse_wheel_event(&mut self, ctx: &mut mq::Context, dx: f32, dy: f32) {
+    fn mouse_wheel_event(&mut self, _ctx: &mut mq::Context, dx: f32, dy: f32) {
         self.egui_mq.mouse_wheel_event(dx, dy);
     }
 
