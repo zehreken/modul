@@ -14,8 +14,9 @@ impl WindowMetronome {
     pub fn new(ctx: &egui::Context) -> Self {
         let image = super::super::load_image_for_ui(Path::new("assets/green_square.jpg")).unwrap();
         let mut texture_handle: Option<TextureHandle> = Option::None;
-        let texture: &egui::TextureHandle =
-            texture_handle.get_or_insert_with(|| ctx.load_texture("green_square", image.clone()));
+        let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
+            ctx.load_texture("green_square", image.clone(), TextureFilter::Linear)
+        });
         Self {
             _is_running: false,
             texture: texture.clone(),

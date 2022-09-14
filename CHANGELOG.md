@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2022-09-15
+### Changed
+- Update miniquad, egui-miniquad and egui versions to the latest 
+
 ## [0.0.1] - 2022-09-14
 ### Added
-- This CHANGELOG file to hopefully serve as an evolving example of a
+- Add this CHANGELOG file to hopefully serve as an evolving example of a
   standardized open source project CHANGELOG.
