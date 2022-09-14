@@ -9,6 +9,7 @@ pub struct WindowTapes {
     secondary_tapes: [bool; TAPE_COUNT],
     tape_volumes: [f32; TAPE_COUNT],
     tape_mute_states: [bool; TAPE_COUNT],
+    tape_solo_states: [bool; TAPE_COUNT],
 }
 
 impl Default for WindowTapes {
@@ -18,6 +19,7 @@ impl Default for WindowTapes {
             secondary_tapes: [false; TAPE_COUNT],
             tape_volumes: [1.0; TAPE_COUNT],
             tape_mute_states: [false; TAPE_COUNT],
+            tape_solo_states: [false; TAPE_COUNT],
         }
     }
 }
@@ -29,6 +31,7 @@ impl Drawable for WindowTapes {
             secondary_tapes,
             tape_volumes,
             tape_mute_states,
+            tape_solo_states,
         } = self;
 
         egui::Window::new("tapes").show(egui_ctx, |ui| {
@@ -45,6 +48,7 @@ impl Drawable for WindowTapes {
                     secondary_tapes[i],
                     tape_volumes,
                     tape_mute_states,
+                    tape_solo_states,
                     modul,
                     i,
                 );
@@ -143,6 +147,14 @@ impl Drawable for WindowTapes {
                             Key::N => {
                                 modul.merge_tapes();
                             }
+                            Key::S => {
+                                tape_solo_states[*primary_tape] = !tape_solo_states[*primary_tape];
+                                if tape_solo_states[*primary_tape] {
+                                    modul.solo();
+                                } else {
+                                    modul.unsolo();
+                                }
+                            }
                             Key::ArrowUp => {
                                 if tape_volumes[*primary_tape] < 1.0 {
                                     tape_volumes[*primary_tape] += 0.05;
@@ -188,6 +200,7 @@ fn draw_tape(
     is_secondary: bool,
     tape_volumes: &mut [f32; TAPE_COUNT],
     tape_mute_states: &mut [bool; TAPE_COUNT],
+    tape_solo_states: &mut [bool; TAPE_COUNT],
     modul: &mut Modul,
     id: usize,
 ) {
@@ -209,6 +222,10 @@ fn draw_tape(
             ui.colored_label(color, text);
 
             ui.label(format!("{:0.2}", tape_volumes[id]));
+
+            if tape_solo_states[id] {
+                ui.colored_label(Color32::RED, "solo");
+            }
 
             if *primary_tape == id && modul.is_recording() {
                 ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");

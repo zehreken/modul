@@ -4,6 +4,7 @@ use std::ops::{Add, AddAssign};
 pub struct Tape<T> {
     volume: f32,
     is_muted: bool,
+    is_solo: bool,
     pub audio: Vec<T>,
 }
 
@@ -12,6 +13,7 @@ impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
         Self {
             volume: 1.0,
             is_muted: false,
+            is_solo: false,
             audio: vec![default; length],
         }
     }
@@ -30,6 +32,18 @@ impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
 
     pub fn unmute(&mut self) {
         self.is_muted = false;
+    }
+
+    pub fn solo(&mut self) {
+        self.is_solo = true;
+    }
+
+    pub fn unsolo(&mut self) {
+        self.is_solo = false;
+    }
+
+    pub fn is_solo(&self) -> bool {
+        self.is_solo
     }
 
     pub fn volume_up(&mut self) {

@@ -35,6 +35,8 @@ pub mod utils {
         ClearAll,
         Mute,
         Unmute,
+        Solo,
+        Unsolo,
         VolumeUp,
         VolumeDown,
         StartMetronome,

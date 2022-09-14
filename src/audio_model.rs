@@ -279,6 +279,12 @@ impl AudioModel {
                 ModulAction::Unmute => {
                     self.tape_model.tapes[self.primary_tape].unmute();
                 }
+                ModulAction::Solo => {
+                    self.tape_model.tapes[self.primary_tape].solo();
+                }
+                ModulAction::Unsolo => {
+                    self.tape_model.tapes[self.primary_tape].unsolo();
+                }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.primary_tape].volume_up();
                 }
