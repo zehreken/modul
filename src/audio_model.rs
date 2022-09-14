@@ -80,8 +80,17 @@ impl AudioModel {
 
             // send audio to output
             let mut sample: f32 = 0.0;
+            let is_there_any_solo = self.tape_model.tapes.iter().any(|tape| tape.is_solo());
             for (tape, average) in self.tape_model.tapes.iter().zip(sample_averages.iter_mut()) {
-                let tape_sample = tape.audio[t_index] * tape.get_volume();
+                let tape_sample = if !is_there_any_solo {
+                    tape.audio[t_index] * tape.get_volume()
+                } else {
+                    if tape.is_solo() {
+                        tape.audio[t_index] * tape.get_volume()
+                    } else {
+                        0.0
+                    }
+                };
                 if tape_sample > *average {
                     *average = tape_sample;
                 }
