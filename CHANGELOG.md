@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update miniquad, egui-miniquad and egui versions to the latest 
 
+### Fixed
+- Fix metronome. It used to drag but now it keeps time well.
+
 ## [0.0.1] - 2022-09-14
 ### Added
 - Add this CHANGELOG file to hopefully serve as an evolving example of a
