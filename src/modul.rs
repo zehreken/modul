@@ -165,7 +165,8 @@ impl Modul {
             beat_index,
             metronome: Metronome::new(
                 config.bpm,
-                input_config.sample_rate.0 * input_config.channels as u32,
+                input_config.sample_rate.0,
+                input_config.channels as u32,
             ),
             output_channel_count: output_config.channels as usize,
             log_producer: message_producer,

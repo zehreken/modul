@@ -64,7 +64,7 @@ pub mod utils {
             }
 
             if consumer_fell_behind {
-                eprintln!("[AudioIn] Audio processing thread fell behind");
+                println!("[AudioIn] Audio processing thread fell behind");
             }
         };
 

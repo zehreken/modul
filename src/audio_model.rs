@@ -55,9 +55,6 @@ impl AudioModel {
         let mut sample_averages = [0.0; TAPE_COUNT + 1];
         let sample_count = self.input_consumer.len();
 
-        // Update metronome
-        self.metronome.update(sample_count as u32);
-
         self.show_beat = self.metronome.show_beat();
         self.audio_message_producer
             .push(ModulMessage::ShowBeat(self.show_beat))
@@ -120,6 +117,8 @@ impl AudioModel {
                 // println!("t_index: {}, t_sample: {}", t_index, t_sample);
             }
             // ========
+
+            self.metronome.update();
 
             let r = self.output_producer.push(sum);
             match r {
