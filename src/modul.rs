@@ -101,15 +101,16 @@ impl Modul {
             * config.bar_count as f32) as usize;
         tape_length -= tape_length % input_config.channels as usize;
 
-        let recording_tape = vec![];
         let tape_model = TapeModel::new(tape_length);
 
-        let writing_tape_capacity =
-            input_config.sample_rate.0 as usize * input_config.channels as usize * 10 * 60;
+        let ten_minutes_in_seconds = 10 * 60;
+        let preallocated_capacity = input_config.sample_rate.0 as usize
+            * input_config.channels as usize
+            * ten_minutes_in_seconds;
 
         println!(
             "tape length: {}, bar length: {} seconds, writing tape: {}",
-            tape_length, bar_length, writing_tape_capacity
+            tape_length, bar_length, preallocated_capacity
         );
 
         let message_buffer: RingBuffer<String> = RingBuffer::new(10);
@@ -145,7 +146,7 @@ impl Modul {
 
         let mut audio_model: AudioModel = AudioModel {
             tape_length,
-            recording_tape,
+            recording_tape: Vec::with_capacity(preallocated_capacity),
             tape_model,
             input_consumer,
             action_consumer,
@@ -158,7 +159,7 @@ impl Modul {
             primary_tape: 0,
             secondary_tapes: [false; TAPE_COUNT],
             output_producer,
-            writing_tape: Vec::with_capacity(writing_tape_capacity),
+            writing_tape: Vec::with_capacity(preallocated_capacity),
             sample_averages: sample_averages,
             samples_for_graphs: samples_for_graphs,
             show_beat,

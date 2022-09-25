@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add solo feature
+- Add solo feature.
 
 ### Changed
-- Update miniquad, egui-miniquad and egui versions to the latest 
+- Update miniquad, egui-miniquad and egui versions to the latest.
+- Preallocate 10 minutes worth of memory.
 
 ### Fixed
 - Fix metronome. It used to drag but now it keeps time well.
