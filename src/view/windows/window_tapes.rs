@@ -243,11 +243,18 @@ fn draw_tape(
         // Waveform
         let wavepoints = modul.samples_for_graphs[id];
         let mut index = -1;
+        let mut max = 0.0;
+        for p in wavepoints {
+            if p > max {
+                max = p;
+            }
+        }
+        max = max / 5.0; // 5 is for scaling up
         let points: Vec<Pos2> = wavepoints
             .iter()
             .map(|i| {
                 index += 1;
-                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, -*i * 0.02)
+                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, -*i / max)
             })
             .collect();
 

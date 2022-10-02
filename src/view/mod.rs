@@ -202,9 +202,6 @@ pub fn start(config: Config) {
         high_dpi: true,
         ..Default::default()
     };
-    // mq::start(conf, |mut ctx| {
-    //     mq::UserData::owning(Stage::new(&mut ctx, config), ctx)
-    // });
 
     mq::start(conf, |mut ctx| Box::new(Stage::new(&mut ctx, config)));
 }

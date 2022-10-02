@@ -39,7 +39,7 @@ impl Windows {
             window_stats: window_stats::WindowStats::default(),
             show_controls: false,
             window_controls: window_controls::WindowControls::default(),
-            show_log: true,
+            show_log: false,
             window_log: window_log::WindowLog::default(),
         }
     }
