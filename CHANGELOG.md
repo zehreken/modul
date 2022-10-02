@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix metronome. It used to drag but now it keeps time well.
+- Fix tape waveform graphs, they are scaled based on the maximum value.
 
 ## [0.0.1] - 2022-09-14
 ### Added
