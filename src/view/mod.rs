@@ -24,7 +24,7 @@ const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GT
 
 struct Stage {
     small_quad: visualization::Quad,
-    big_quad: visualization::Quad,
+    _big_quad: visualization::Quad,
     cube: visualization::cube::Cube,
     windows: windows::Windows,
     modul: modul::Modul,
@@ -37,8 +37,8 @@ impl Stage {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
             small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
-            big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
-            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::COLOR_BAR),
+            _big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
+            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,

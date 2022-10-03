@@ -11,5 +11,4 @@ void main()
     gl_Position = mvp * vec4(pos + offset, 1.0);
 
     texcoord = uv;
-    texcoord.x *= 1.6; // Fix aspect ratio, probably unnecessary with perspective camera
 }
