@@ -6,7 +6,7 @@ pub mod utils {
     use ringbuf::{Consumer, Producer};
 
     pub const TAPE_COUNT: usize = 8;
-    pub const SAMPLE_GRAPH_SIZE: usize = 200;
+    pub const SAMPLE_GRAPH_SIZE: usize = 100;
     pub const A_FREQ: f32 = 440.0;
     pub const C_FREQ: f32 = 523.25;
 

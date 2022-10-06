@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update miniquad, egui-miniquad and egui versions to the latest.
 - Preallocate 10 minutes worth of memory.
+- Reduce SAMPLE_GRAPH_SIZE to 100, temporary fix for segmentation fault.
 
 ### Fixed
 - Fix metronome. It used to drag but now it keeps time well.
 - Fix tape waveform graphs, they are scaled based on the maximum value.
+- Fix vertex shaders, remove unnecessary arithmetic.
 
 ## [0.0.1] - 2022-09-14
 ### Added

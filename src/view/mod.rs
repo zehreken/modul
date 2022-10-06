@@ -1,6 +1,6 @@
 mod visualization;
 mod windows;
-use glam::{vec3, Mat4};
+use glam::{vec3, Mat4, Quat};
 use std::path::Path;
 
 use self::windows::Windows;
@@ -36,7 +36,7 @@ impl Stage {
     fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
-            small_quad: visualization::Quad::new(mq_ctx, 0.25, 0.5, material::COLOR_BAR),
+            small_quad: visualization::Quad::new(mq_ctx, 0.75, 0.75, material::COLOR_BAR),
             _big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
             cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
@@ -63,7 +63,7 @@ impl mq::EventHandler for Stage {
         let view_proj = proj * view;
 
         self.rotation += 0.01;
-        let model = Mat4::from_rotation_x(self.rotation) * Mat4::from_rotation_y(self.rotation);
+        let model = Mat4::from_quat(Quat::IDENTITY);
 
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
@@ -75,8 +75,8 @@ impl mq::EventHandler for Stage {
         for i in 0..TAPE_COUNT {
             ctx.apply_uniforms(&material::Uniforms {
                 offset: (
-                    -0.75_f32 + (i % 4) as f32 * 0.5_f32,
-                    -0.5_f32 + (i / 4) as f32 * 1.0_f32,
+                    -2.25 + (i % 4) as f32 * 1.5_f32,
+                    -0.75_f32 + (i / 4) as f32 * 1.5_f32,
                     0.0,
                 ),
                 wavepoint: self.modul.get_sample_averages()[i],
@@ -110,6 +110,7 @@ impl mq::EventHandler for Stage {
             // ============
 
             // Draw cube
+            let model = Mat4::from_rotation_x(self.rotation) * Mat4::from_rotation_y(self.rotation);
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(&self.cube.pipeline);
             ctx.apply_bindings(&self.cube.bindings);
