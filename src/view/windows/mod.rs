@@ -50,19 +50,22 @@ impl Windows {
             ui.horizontal(|ui| {
                 ui.label("modul ❤ ");
                 ui.separator();
-                ui.checkbox(&mut self.show_tapes, "tapes");
-                if ui.checkbox(&mut self.show_metronome, "metronome").changed() {
-                    modul.switch_metronome(self.show_metronome);
-                };
-                ui.checkbox(&mut self.show_stats, "stats");
-                ui.checkbox(&mut self.show_controls, "controls");
-                ui.checkbox(&mut self.show_log, "log");
-                if ui
-                    .checkbox(&mut self.is_play_through, "play through")
-                    .changed()
-                {
-                    modul.play_through();
-                }
+
+                ui.menu_button("Tools", |ui| {
+                    ui.checkbox(&mut self.show_tapes, "tapes");
+                    if ui.checkbox(&mut self.show_metronome, "metronome").changed() {
+                        modul.switch_metronome(self.show_metronome);
+                    };
+                    ui.checkbox(&mut self.show_stats, "stats");
+                    ui.checkbox(&mut self.show_controls, "controls");
+                    ui.checkbox(&mut self.show_log, "log");
+                    if ui
+                        .checkbox(&mut self.is_play_through, "play through")
+                        .changed()
+                    {
+                        modul.play_through();
+                    }
+                });
                 #[cfg(not(target_arch = "wasm32"))]
                 {
                     if ui.button("Quit").clicked() {
