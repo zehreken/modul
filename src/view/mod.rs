@@ -23,8 +23,8 @@ const GTFO: (i32, i32, i32, i32) = (183, 164, 182, 191);
 const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GTFO];
 
 struct Stage {
-    small_quad: visualization::Quad,
-    _big_quad: visualization::Quad,
+    small_quad: visualization::quad::Quad,
+    _big_quad: visualization::quad::Quad,
     cube: visualization::cube::Cube,
     windows: windows::Windows,
     modul: modul::Modul,
@@ -36,8 +36,8 @@ impl Stage {
     fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
-            small_quad: visualization::Quad::new(mq_ctx, 0.75, 0.75, material::COLOR_BAR),
-            _big_quad: visualization::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
+            small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::COLOR_BAR),
+            _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
             cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
