@@ -3,7 +3,7 @@ pub mod utils {
     use crate::tape::Tape;
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
-    use ringbuf::{Consumer, Producer};
+    use ringbuf::{HeapConsumer, HeapProducer};
 
     pub const TAPE_COUNT: usize = 8;
     pub const SAMPLE_GRAPH_SIZE: usize = 100;
@@ -47,7 +47,7 @@ pub mod utils {
         input_device: &Device,
         config: &StreamConfig,
         tape_length: usize,
-        mut producer: Producer<Input>,
+        mut producer: HeapProducer<Input>,
     ) -> Stream {
         let mut index = 0;
         let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
@@ -76,7 +76,7 @@ pub mod utils {
     pub fn create_output_stream_live(
         output_device: &Device,
         config: &StreamConfig,
-        mut consumer: Consumer<f32>,
+        mut consumer: HeapConsumer<f32>,
     ) -> Stream {
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
@@ -85,8 +85,8 @@ pub mod utils {
             // Consumer capacity is equal to 8192, I don't know what I intented to achieve here
             // But this got rid of the glitchy sound
             if consumer.len() > 4096 {
-                consumer.discard(4096);
-                println!("Discarded 4096 samples, consumer: {}", consumer.len());
+                consumer.skip(4096);
+                println!("Skipped 4096 samples, consumer: {}", consumer.len());
             }
         };
 

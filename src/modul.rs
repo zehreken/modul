@@ -4,7 +4,7 @@ use super::Config;
 use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
-use ringbuf::{Consumer, Producer, RingBuffer};
+use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
 use std::collections::VecDeque;
 use std::time::Duration;
 
@@ -26,9 +26,9 @@ pub struct Modul {
     _output_stream: Stream,
     _time: f32,
     audio_index: usize,
-    action_producer: Producer<ModulAction>,
-    _modul_message_producer: Producer<ModulMessage>,
-    modul_message_consumer: Consumer<ModulMessage>,
+    action_producer: HeapProducer<ModulAction>,
+    _modul_message_producer: HeapProducer<ModulMessage>,
+    modul_message_consumer: HeapConsumer<ModulMessage>,
     is_recording: bool,
     is_recording_playback: bool,
     is_play_through: bool,
@@ -38,7 +38,7 @@ pub struct Modul {
     beat_index: u32,
     pub stats: Stats,
     pub message_history: VecDeque<String>,
-    log_consumer: Consumer<String>,
+    log_consumer: HeapConsumer<String>,
     pub instant: std::time::Instant,
 }
 
@@ -113,22 +113,22 @@ impl Modul {
             tape_length, bar_length, preallocated_capacity
         );
 
-        let message_buffer: RingBuffer<String> = RingBuffer::new(10);
+        let message_buffer: HeapRb<String> = HeapRb::new(10);
         let (message_producer, message_consumer) = message_buffer.split();
 
-        let input_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
+        let input_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
         let (input_producer, input_consumer) = input_ring_buffer.split();
 
-        let action_ring_buffer: RingBuffer<ModulAction> = RingBuffer::new(16);
+        let action_ring_buffer: HeapRb<ModulAction> = HeapRb::new(16);
         let (action_producer, action_consumer) = action_ring_buffer.split();
 
-        let message_ring_buffer_to: RingBuffer<ModulMessage> = RingBuffer::new(2_usize.pow(10));
+        let message_ring_buffer_to: HeapRb<ModulMessage> = HeapRb::new(2_usize.pow(10));
         let (modul_message_producer, audio_message_consumer) = message_ring_buffer_to.split();
 
-        let message_ring_buffer_from: RingBuffer<ModulMessage> = RingBuffer::new(2_usize.pow(10));
+        let message_ring_buffer_from: HeapRb<ModulMessage> = HeapRb::new(2_usize.pow(10));
         let (audio_message_producer, modul_message_consumer) = message_ring_buffer_from.split();
 
-        let output_ring_buffer = RingBuffer::new(RING_BUFFER_CAPACITY);
+        let output_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
         let (output_producer, output_consumer) = output_ring_buffer.split();
 
         let input_stream =

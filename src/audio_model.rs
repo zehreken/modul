@@ -2,7 +2,7 @@ use crate::metronome::Metronome;
 use crate::modul_utils::utils;
 use crate::modul_utils::utils::*;
 use crate::tape::Tape;
-use ringbuf::{Consumer, Producer};
+use ringbuf::{HeapConsumer, HeapProducer};
 
 pub struct TapeModel {
     pub tapes: [Tape<f32>; TAPE_COUNT],
@@ -24,17 +24,17 @@ pub struct AudioModel {
     pub tape_length: usize,
     pub recording_tape: Vec<Input>,
     pub tape_model: TapeModel,
-    pub input_consumer: Consumer<Input>,
-    pub action_consumer: Consumer<ModulAction>,
-    pub audio_message_producer: Producer<ModulMessage>,
-    pub audio_message_consumer: Consumer<ModulMessage>,
+    pub input_consumer: HeapConsumer<Input>,
+    pub action_consumer: HeapConsumer<ModulAction>,
+    pub audio_message_producer: HeapProducer<ModulMessage>,
+    pub audio_message_consumer: HeapConsumer<ModulMessage>,
     pub is_recording: bool,
     pub is_recording_playback: bool,
     pub is_play_through: bool,
     pub audio_index: usize,
     pub primary_tape: usize,
     pub secondary_tapes: [bool; TAPE_COUNT],
-    pub output_producer: Producer<f32>,
+    pub output_producer: HeapProducer<f32>,
     pub writing_tape: Vec<f32>,
     pub sample_averages: [f32; TAPE_COUNT + 1],
     pub samples_for_graphs: [[f32; SAMPLE_GRAPH_SIZE]; TAPE_COUNT],
@@ -42,7 +42,7 @@ pub struct AudioModel {
     pub beat_index: u32,
     pub metronome: Metronome,
     pub output_channel_count: usize,
-    pub log_producer: Producer<String>,
+    pub log_producer: HeapProducer<String>,
 }
 
 pub struct Input {

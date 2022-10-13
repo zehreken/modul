@@ -8,8 +8,8 @@ edition = "2021"
 
 [dependencies]
 hound = "3.4.0"
-ringbuf = "0.2.3"
-cpal = "0.13.1"
+ringbuf = "0.3"
+cpal = "0.14"
 array-init = "2.0.0"
 miniquad = { version = "=0.3.13" }
 egui-miniquad = "0.12.0"
