@@ -13,8 +13,9 @@ float circle(vec2 pos, float radius)
 void main()
 {
     vec2 uv = texcoord;
-    uv -= vec2(1.6, 1.0) * 0.5;
-    float c = sign(circle(vec2(uv.x * 0.25, uv.y), wavepoint));
+    uv -= 0.5; // This moves origin to the center
+    float c = sign(circle(uv, wavepoint));
+    c = 1 - c;
 
-    fragColor = vec4(c, c, c, 1.0);
+    fragColor = vec4(c, c, c, c);
 }

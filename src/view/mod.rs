@@ -37,8 +37,8 @@ impl Stage {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
             small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::COLOR_BAR),
-            _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::TEXTURE),
-            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
+            _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
+            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,
@@ -83,6 +83,8 @@ impl mq::EventHandler for Stage {
                 text: (0, 0, 0, 0),
                 mvp: view_proj * model,
             });
+            // This is what it is called a drawcall in Unity for instance
+            // And it is expensive
             ctx.draw(0, 6, 1);
         }
 
