@@ -36,7 +36,7 @@ impl Stage {
     fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         Self {
-            small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::COLOR_BAR),
+            small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::SDF_EYE),
             _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
             cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
@@ -98,10 +98,10 @@ impl mq::EventHandler for Stage {
                 wavepoint
             };
 
-            // Draw text plane
+            // Draw big plane
             // let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            // ctx.apply_pipeline(&self.big_quad.pipeline);
-            // ctx.apply_bindings(&self.big_quad.bindings);
+            // ctx.apply_pipeline(&self._big_quad.pipeline);
+            // ctx.apply_bindings(&self._big_quad.bindings);
             // ctx.apply_uniforms(&material::Uniforms {
             //     offset: (0.0, 0.0, 0.0),
             //     wavepoint,
