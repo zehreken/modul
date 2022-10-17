@@ -21,7 +21,7 @@ void main()
     uv -= 0.5; // This moves origin to the center
 
     float radius = 0.4;
-    vec2 eye = vec2(uv.x, uv.y * clamp((100.0 - pow(wavepoint, 0.5) * 999.0), 2.0, 100.0));
+    vec2 eye = vec2(uv.x, uv.y * clamp((100.0 - pow(wavepoint, 0.5) * 999.0), 1.5, 100.0));
     float eye_v = clamp(1.0 - sign(circle(eye, radius)), 0.0, 1.0);
 
     vec2 iris = uv;
@@ -34,9 +34,9 @@ void main()
     eye_v -= iris_v;
     iris_v -= iris_two_v;
 
-    vec3 eye_color = getColor(vec3(200.0, 68.0, 36.0)) * eye_v;
-    vec3 iris_color = getColor(vec3(87.0, 134.0, 188.0)) * iris_v;
-    vec3 iris_two_color = getColor(vec3(233.0, 195.0, 110.0)) * iris_two_v;
+    vec3 eye_color = getColor(vec3(227.0, 227.0, 227.0)) * eye_v;
+    vec3 iris_color = getColor(vec3(56.0, 138.0, 232.0)) * iris_v;
+    vec3 iris_two_color = getColor(vec3(51.0, 51.0, 51.0)) * iris_two_v;
     vec3 color = eye_color + iris_color + iris_two_color;
 
     fragColor = vec4(color, 1.0);
