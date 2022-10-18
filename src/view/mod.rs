@@ -3,7 +3,7 @@ mod windows;
 use glam::{vec3, Mat4, Quat};
 use std::path::Path;
 
-use self::windows::Windows;
+use self::{visualization::object::Object, windows::Windows};
 
 use crate::modul;
 use crate::modul::Modul;
@@ -26,6 +26,7 @@ struct Stage {
     small_quad: visualization::quad::Quad,
     _big_quad: visualization::quad::Quad,
     cube: visualization::cube::Cube,
+    new_obj: Object,
     windows: windows::Windows,
     modul: modul::Modul,
     egui_mq: egui_mq::EguiMq,
@@ -39,6 +40,7 @@ impl Stage {
             small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::SDF_EYE),
             _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
             cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
+            new_obj: Object::new(mq_ctx),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
             modul: modul::Modul::new(config),
             egui_mq,
@@ -87,6 +89,18 @@ impl mq::EventHandler for Stage {
             // And it is expensive
             ctx.draw(0, 6, 1);
         }
+
+        // Draw generic item
+        ctx.apply_pipeline(&self.new_obj.shape.get_pipeline());
+        ctx.apply_bindings(&self.new_obj.shape.get_bindings());
+        ctx.apply_uniforms(&material::Uniforms {
+            offset: (0.0, 0.0, 0.0),
+            wavepoint: self.modul.get_sample_averages()[0],
+            text: (0, 0, 0, 0),
+            mvp: view_proj,
+        });
+        ctx.draw(0, 6, 1);
+        // ================
 
         // Play-through
         if self.modul.is_play_through() {

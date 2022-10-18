@@ -1,4 +1,5 @@
 use super::material::*;
+use super::object::*;
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};
@@ -7,6 +8,16 @@ use std::path::Path;
 pub struct Quad {
     pub pipeline: Pipeline,
     pub bindings: Bindings,
+}
+
+impl Shape for Quad {
+    fn get_pipeline(&self) -> &Pipeline {
+        &self.pipeline
+    }
+
+    fn get_bindings(&self) -> &Bindings {
+        &self.bindings
+    }
 }
 
 impl Quad {
