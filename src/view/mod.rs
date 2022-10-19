@@ -3,7 +3,10 @@ mod windows;
 use glam::{vec3, Mat4, Quat};
 use std::path::Path;
 
-use self::{visualization::object::Object, windows::Windows};
+use self::{
+    visualization::object::{Object, Shape},
+    windows::Windows,
+};
 
 use crate::modul;
 use crate::modul::Modul;
@@ -70,8 +73,8 @@ impl mq::EventHandler for Stage {
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
-        ctx.apply_pipeline(&self.small_quad.pipeline);
-        ctx.apply_bindings(&self.small_quad.bindings);
+        ctx.apply_pipeline(self.small_quad.get_pipeline());
+        ctx.apply_bindings(self.small_quad.get_bindings());
 
         // Pass data to shader
         for i in 0..TAPE_COUNT {
@@ -113,23 +116,23 @@ impl mq::EventHandler for Stage {
             };
 
             // Draw big plane
-            // let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            // ctx.apply_pipeline(&self._big_quad.pipeline);
-            // ctx.apply_bindings(&self._big_quad.bindings);
-            // ctx.apply_uniforms(&material::Uniforms {
-            //     offset: (0.0, 0.0, 0.0),
-            //     wavepoint,
-            //     text,
-            //     mvp: view_proj,
-            // });
-            // ctx.draw(0, 6, 1);
+            let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
+            ctx.apply_pipeline(self._big_quad.get_pipeline());
+            ctx.apply_bindings(self._big_quad.get_bindings());
+            ctx.apply_uniforms(&material::Uniforms {
+                offset: (0.0, 0.0, 0.0),
+                wavepoint,
+                text,
+                mvp: view_proj,
+            });
+            ctx.draw(0, 6, 1);
             // ============
 
             // Draw cube
             let model = Mat4::from_rotation_x(self.rotation) * Mat4::from_rotation_y(self.rotation);
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            ctx.apply_pipeline(&self.cube.pipeline);
-            ctx.apply_bindings(&self.cube.bindings);
+            ctx.apply_pipeline(self.cube.get_pipeline());
+            ctx.apply_bindings(self.cube.get_bindings());
             ctx.apply_uniforms(&material::Uniforms {
                 offset: (0.0, 0.0, 0.0),
                 wavepoint,

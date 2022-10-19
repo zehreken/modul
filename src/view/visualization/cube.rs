@@ -1,13 +1,23 @@
 use std::path::Path;
 
-use super::material::*;
+use super::{material::*, object::Shape};
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};
 
 pub struct Cube {
-    pub pipeline: Pipeline,
-    pub bindings: Bindings,
+    pipeline: Pipeline,
+    bindings: Bindings,
+}
+
+impl Shape for Cube {
+    fn get_pipeline(&self) -> &Pipeline {
+        &self.pipeline
+    }
+
+    fn get_bindings(&self) -> &Bindings {
+        &self.bindings
+    }
 }
 
 impl Cube {

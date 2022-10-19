@@ -6,8 +6,8 @@ use mq::{BlendState, BlendValue};
 use std::path::Path;
 
 pub struct Quad {
-    pub pipeline: Pipeline,
-    pub bindings: Bindings,
+    pipeline: Pipeline,
+    bindings: Bindings,
 }
 
 impl Shape for Quad {
