@@ -1,20 +1,68 @@
 use glam::{Quat, Vec3};
 use miniquad::{Bindings, Pipeline};
 
-use super::{material, quad::Quad};
+use super::quad::Quad;
 use miniquad::graphics::GraphicsContext;
 
 pub struct Object {
     pub shape: Box<dyn Shape>,
-    // shader
     pub transform: Transform,
 }
 
 impl Object {
-    pub fn new(ctx: &mut GraphicsContext) -> Self {
+    pub fn new(ctx: &mut GraphicsContext, shader: &str) -> ObjectBuilder {
+        ObjectBuilder::new(ctx, shader)
+    }
+
+    pub fn update() {}
+
+    // pub fn get_pipeline()
+    // pub fn get_bindings()
+}
+
+pub struct ObjectBuilder {
+    shape: Box<dyn Shape>,
+    transform: Transform,
+}
+
+impl ObjectBuilder {
+    pub fn new(ctx: &mut GraphicsContext, shader: &str) -> Self {
         Self {
-            shape: Box::new(Quad::new(ctx, 1.0, 1.0, material::DEBUG_COLOR)),
+            shape: Box::new(Quad::new(ctx, 1.0, 1.0, shader)),
             transform: Transform::default(),
+        }
+    }
+
+    pub fn shape(mut self, shape: Box<dyn Shape>) -> Self {
+        self.shape = shape;
+        self
+    }
+
+    // pub fn shader(mut self, shader: &str) -> Self {
+    //     self.shader = shader.to_owned();
+    //     self
+    // }
+
+    pub fn position(mut self, position: Vec3) -> Self {
+        self.transform.position = position;
+        self
+    }
+
+    pub fn rotation(mut self, rotation: Quat) -> Self {
+        self.transform.rotation = rotation;
+        self
+    }
+
+    pub fn scale(mut self, scale: Vec3) -> Self {
+        self.transform.scale = scale;
+        self
+    }
+
+    pub fn build(self) -> Object {
+        Object {
+            shape: self.shape,
+            // shader: self.shader,
+            transform: self.transform,
         }
     }
 }
