@@ -14,10 +14,15 @@ impl Object {
         ObjectBuilder::new(ctx, shader)
     }
 
-    pub fn update() {}
+    pub fn update(&self) {}
 
-    // pub fn get_pipeline()
-    // pub fn get_bindings()
+    pub fn get_pipeline(&self) -> &Pipeline {
+        self.shape.get_pipeline()
+    }
+
+    pub fn get_bindings(&self) -> &Bindings {
+        self.shape.get_bindings()
+    }
 }
 
 pub struct ObjectBuilder {
@@ -28,7 +33,7 @@ pub struct ObjectBuilder {
 impl ObjectBuilder {
     pub fn new(ctx: &mut GraphicsContext, shader: &str) -> Self {
         Self {
-            shape: Box::new(Quad::new(ctx, 1.0, 1.0, shader)),
+            shape: Box::new(Quad::new(ctx, shader)),
             transform: Transform::default(),
         }
     }

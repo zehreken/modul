@@ -3,10 +3,7 @@ mod windows;
 use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
 use std::path::Path;
 
-use self::{
-    visualization::object::{Object, Shape},
-    windows::Windows,
-};
+use self::{visualization::object::Object, windows::Windows};
 
 use crate::modul;
 use crate::modul::Modul;
@@ -26,10 +23,10 @@ const GTFO: (i32, i32, i32, i32) = (183, 164, 182, 191);
 const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GTFO];
 
 struct Stage {
-    small_quad: Object,
-    _big_quad: visualization::quad::Quad,
-    cube: visualization::cube::Cube,
-    new_obj: Object,
+    quads: Vec<Object>,
+    big_quad: Object,
+    cube: Object,
+    test_obj: Object,
     windows: windows::Windows,
     modul: modul::Modul,
     egui_mq: egui_mq::EguiMq,
@@ -39,14 +36,30 @@ struct Stage {
 impl Stage {
     fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
+        let mut quads = Vec::with_capacity(TAPE_COUNT);
+        for i in 0..TAPE_COUNT {
+            quads.push(
+                Object::new(mq_ctx, material::SDF_EYE)
+                    .position(Vec3::new(
+                        -2.25 + (i % 4) as f32 * 1.5_f32,
+                        -0.75_f32 + (i / 4) as f32 * 1.5_f32,
+                        0.0,
+                    ))
+                    .scale(Vec3::new(0.75, 0.75, 0.75))
+                    .build(),
+            );
+        }
         Self {
-            // small_quad: visualization::quad::Quad::new(mq_ctx, 0.75, 0.75, material::SDF_EYE),
-            small_quad: Object::new(mq_ctx, material::SDF_EYE)
-                .scale(Vec3::new(0.75, 0.75, 0.75))
+            quads,
+            big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
+            // cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
+            cube: Object::new(mq_ctx, material::SDF_CIRCLE)
+                .shape(Box::new(visualization::cube::Cube::new(
+                    mq_ctx,
+                    material::SDF_CIRCLE,
+                )))
                 .build(),
-            _big_quad: visualization::quad::Quad::new(mq_ctx, 1.0, 1.0, material::SDF_EYE),
-            cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
-            new_obj: Object::new(mq_ctx, material::DEBUG_COLOR)
+            test_obj: Object::new(mq_ctx, material::DEBUG_COLOR)
                 .position(Vec3::new(-1.0, 0.0, 0.0))
                 .build(),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
@@ -64,8 +77,13 @@ impl mq::EventHandler for Stage {
         // Update visual objects
         // self.new_obj.update() looks nicer
         self.rotation += 0.01;
-        self.new_obj.transform.position += Vec3::new(0.01, 0.0, 0.0);
-        self.new_obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        self.test_obj.transform.position += Vec3::new(0.0001, 0.0, 0.0);
+        self.test_obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+
+        for i in 0..self.quads.len() {
+            self.quads[i].transform.rotation =
+                Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        }
     }
 
     fn draw(&mut self, ctx: &mut mq::Context) {
@@ -78,38 +96,35 @@ impl mq::EventHandler for Stage {
         );
         let view_proj = proj * view;
 
-        let model = Mat4::from_quat(Quat::IDENTITY);
-
         ctx.begin_default_pass(mq::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
 
         // Draw things behind egui here
-        ctx.apply_pipeline(self.small_quad.shape.get_pipeline());
-        ctx.apply_bindings(self.small_quad.shape.get_bindings());
 
-        // Pass data to shader
-        for i in 0..TAPE_COUNT {
+        // All quads share the same vertices
+        ctx.apply_pipeline(self.quads[0].get_pipeline());
+        ctx.apply_bindings(self.quads[0].get_bindings());
+        for i in 0..self.quads.len() {
+            let model = Mat4::from_scale_rotation_translation(
+                self.quads[i].transform.scale,
+                self.quads[i].transform.rotation,
+                self.quads[i].transform.position,
+            );
             ctx.apply_uniforms(&material::Uniforms {
-                // offset: (
-                //     -2.25 + (i % 4) as f32 * 1.5_f32,
-                //     -0.75_f32 + (i / 4) as f32 * 1.5_f32,
-                //     0.0,
-                // ),
                 mvp: view_proj * model,
                 wavepoint: self.modul.get_sample_averages()[i],
                 text: (0, 0, 0, 0),
             });
-            // This is what it is called a drawcall in Unity for instance
-            // And it is expensive
+
             ctx.draw(0, 6, 1);
         }
 
         // Draw generic item
         let model = Mat4::from_rotation_translation(
-            self.new_obj.transform.rotation,
-            self.new_obj.transform.position,
+            self.test_obj.transform.rotation,
+            self.test_obj.transform.position,
         );
-        ctx.apply_pipeline(&self.new_obj.shape.get_pipeline());
-        ctx.apply_bindings(&self.new_obj.shape.get_bindings());
+        ctx.apply_pipeline(&self.test_obj.get_pipeline());
+        ctx.apply_bindings(&self.test_obj.get_bindings());
         ctx.apply_uniforms(&material::Uniforms {
             mvp: view_proj * model,
             wavepoint: self.modul.get_sample_averages()[0],
@@ -130,8 +145,8 @@ impl mq::EventHandler for Stage {
 
             // Draw big plane
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            ctx.apply_pipeline(self._big_quad.get_pipeline());
-            ctx.apply_bindings(self._big_quad.get_bindings());
+            ctx.apply_pipeline(self.big_quad.get_pipeline());
+            ctx.apply_bindings(self.big_quad.get_bindings());
             ctx.apply_uniforms(&material::Uniforms {
                 // offset: (0.0, 0.0, 0.0),
                 mvp: view_proj,

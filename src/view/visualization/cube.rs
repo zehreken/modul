@@ -21,41 +21,41 @@ impl Shape for Cube {
 }
 
 impl Cube {
-    pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32, fragment: &str) -> Cube {
+    pub fn new(ctx: &mut Context, fragment: &str) -> Cube {
         let image = super::super::load_image(Path::new("assets/atlas_gr.png"));
         let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
         #[rustfmt::skip]
         let vertices: [Vertex; 24] = [
             // Front face
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
             // Back face
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
             // Top face
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
             // Bottom face
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
             // Right face
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
             // Left face
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 0.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
         ];
 
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);

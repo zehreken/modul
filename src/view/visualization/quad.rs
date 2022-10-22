@@ -21,15 +21,15 @@ impl Shape for Quad {
 }
 
 impl Quad {
-    pub fn new(ctx: &mut Context, scale_x: f32, scale_y: f32, fragment: &str) -> Quad {
+    pub fn new(ctx: &mut Context, fragment: &str) -> Quad {
         let image = super::super::load_image(Path::new("assets/atlas_gr.png"));
         let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
         #[rustfmt::skip]
         let vertices: [Vertex; 4] = [
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y: -1.0 * scale_y, z: 0.0}, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y: -1.0 * scale_y, z: 0.0}, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
-            Vertex { pos : Vec3 { x:  1.0 * scale_x, y:  1.0 * scale_y, z: 0.0}, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
-            Vertex { pos : Vec3 { x: -1.0 * scale_x, y:  1.0 * scale_y, z: 0.0}, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
+            Vertex { pos : Vec3 { x: -1.0, y: -1.0, z: 0.0}, uv: Vec2 { x: 0.0, y: 0.0 } }, // bottom left
+            Vertex { pos : Vec3 { x:  1.0, y: -1.0, z: 0.0}, uv: Vec2 { x: 1.0, y: 0.0 } }, // bottom right
+            Vertex { pos : Vec3 { x:  1.0, y:  1.0, z: 0.0}, uv: Vec2 { x: 1.0, y: 1.0 } }, // top right
+            Vertex { pos : Vec3 { x: -1.0, y:  1.0, z: 0.0}, uv: Vec2 { x: 0.0, y: 1.0 } }, // top left
         ];
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 

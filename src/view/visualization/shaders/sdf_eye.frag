@@ -39,5 +39,5 @@ void main()
     vec3 iris_two_color = getColor(vec3(51.0, 51.0, 51.0)) * iris_two_v;
     vec3 color = eye_color + iris_color + iris_two_color;
 
-    fragColor = vec4(color, 1.0);
+    fragColor = vec4(color, eye_v);
 }
