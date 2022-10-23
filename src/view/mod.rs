@@ -75,10 +75,8 @@ impl mq::EventHandler for Stage {
         self.modul.update();
 
         // Update visual objects
-        // self.new_obj.update() looks nicer
+        // self.some_obj.update() looks nicer
         self.rotation += 0.01;
-        self.test_obj.transform.position += Vec3::new(0.0001, 0.0, 0.0);
-        self.test_obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
         for i in 0..self.quads.len() {
             self.quads[i].transform.rotation =
@@ -101,6 +99,7 @@ impl mq::EventHandler for Stage {
         // Draw things behind egui here
 
         // All quads share the same vertices
+
         ctx.apply_pipeline(self.quads[0].get_pipeline());
         ctx.apply_bindings(self.quads[0].get_bindings());
         for i in 0..self.quads.len() {
@@ -119,7 +118,9 @@ impl mq::EventHandler for Stage {
         }
 
         // Draw generic item
-        let model = Mat4::from_rotation_translation(
+        /*
+        let model = Mat4::from_scale_rotation_translation(
+            self.test_obj.transform.scale,
             self.test_obj.transform.rotation,
             self.test_obj.transform.position,
         );
@@ -131,6 +132,7 @@ impl mq::EventHandler for Stage {
             text: (0, 0, 0, 0),
         });
         ctx.draw(0, 6, 1);
+        */
         // ================
 
         // Play-through
@@ -148,7 +150,6 @@ impl mq::EventHandler for Stage {
             ctx.apply_pipeline(self.big_quad.get_pipeline());
             ctx.apply_bindings(self.big_quad.get_bindings());
             ctx.apply_uniforms(&material::Uniforms {
-                // offset: (0.0, 0.0, 0.0),
                 mvp: view_proj,
                 wavepoint,
                 text,
@@ -163,7 +164,6 @@ impl mq::EventHandler for Stage {
             ctx.apply_bindings(self.cube.get_bindings());
             ctx.apply_uniforms(&material::Uniforms {
                 mvp: view_proj * model,
-                // offset: (0.0, 0.0, 0.0),
                 wavepoint,
                 text,
             });

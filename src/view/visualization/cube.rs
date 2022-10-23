@@ -97,7 +97,7 @@ impl Cube {
             ],
             shader,
             PipelineParams {
-                depth_test: Comparison::LessOrEqual,
+                depth_test: Comparison::Always,
                 depth_write: true,
                 color_blend: Some(color_blend),
                 alpha_blend: Some(alpha_blend),

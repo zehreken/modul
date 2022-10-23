@@ -25,9 +25,9 @@ void main()
     float eye_v = clamp(1.0 - sign(circle(eye, radius)), 0.0, 1.0);
 
     vec2 iris = uv;
-    float iris_v = clamp(1.0 - sign(circle(iris, radius/2.0)), 0.0, 1.0);
+    float iris_v = clamp(1.0 - sign(circle(iris, radius / 2.0)), 0.0, 1.0);
 
-    float iris_two_v = clamp(1.0 - sign(circle(iris, radius/4.0)), 0.0, 1.0);
+    float iris_two_v = clamp(1.0 - sign(circle(iris, radius / 4.0)), 0.0, 1.0);
 
     iris_v *= eye_v;
     iris_two_v *= eye_v;
