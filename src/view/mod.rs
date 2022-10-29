@@ -26,7 +26,7 @@ struct Stage {
     quads: Vec<Object>,
     big_quad: Object,
     cube: Object,
-    test_obj: Object,
+    _test_obj: Object,
     windows: windows::Windows,
     modul: modul::Modul,
     egui_mq: egui_mq::EguiMq,
@@ -59,7 +59,7 @@ impl Stage {
                     material::SDF_CIRCLE,
                 )))
                 .build(),
-            test_obj: Object::new(mq_ctx, material::DEBUG_COLOR)
+            _test_obj: Object::new(mq_ctx, material::DEBUG_COLOR)
                 .position(Vec3::new(-1.0, 0.0, 0.0))
                 .build(),
             windows: windows::Windows::new(egui_mq.egui_ctx()),
@@ -120,12 +120,12 @@ impl mq::EventHandler for Stage {
         // Draw generic item
         /*
         let model = Mat4::from_scale_rotation_translation(
-            self.test_obj.transform.scale,
-            self.test_obj.transform.rotation,
-            self.test_obj.transform.position,
+            self._test_obj.transform.scale,
+            self._test_obj.transform.rotation,
+            self._test_obj.transform.position,
         );
-        ctx.apply_pipeline(&self.test_obj.get_pipeline());
-        ctx.apply_bindings(&self.test_obj.get_bindings());
+        ctx.apply_pipeline(&self._test_obj.get_pipeline());
+        ctx.apply_bindings(&self._test_obj.get_bindings());
         ctx.apply_uniforms(&material::Uniforms {
             mvp: view_proj * model,
             wavepoint: self.modul.get_sample_averages()[0],
