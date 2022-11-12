@@ -24,7 +24,7 @@ const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GT
 
 struct Stage {
     quads: Vec<Object>,
-    big_quad: Object,
+    // big_quad: Object,
     cube: Object,
     _test_obj: Object,
     windows: windows::Windows,
@@ -39,20 +39,26 @@ impl Stage {
         let mut quads = Vec::with_capacity(TAPE_COUNT);
         for i in 0..TAPE_COUNT {
             quads.push(
-                Object::new(mq_ctx, material::SDF_EYE)
-                    .position(Vec3::new(
-                        -2.25 + (i % 4) as f32 * 1.5_f32,
-                        -0.75_f32 + (i / 4) as f32 * 1.5_f32,
-                        0.0,
-                    ))
-                    .scale(Vec3::new(0.75, 0.75, 0.75))
-                    .build(),
+                Object::new(
+                    mq_ctx,
+                    if i % 2 == 0 {
+                        material::SDF_EYE
+                    } else {
+                        material::COLOR_BAR
+                    },
+                )
+                .position(Vec3::new(
+                    -2.25 + (i % 4) as f32 * 1.5_f32,
+                    -0.75_f32 + (i / 4) as f32 * 1.5_f32,
+                    0.0,
+                ))
+                .scale(Vec3::new(0.75, 0.75, 0.75))
+                .build(),
             );
         }
         Self {
             quads,
-            big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
-            // cube: visualization::cube::Cube::new(mq_ctx, 1.0, 1.0, material::SDF_CIRCLE),
+            // big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
             cube: Object::new(mq_ctx, material::SDF_CIRCLE)
                 .shape(Box::new(visualization::cube::Cube::new(
                     mq_ctx,
@@ -100,9 +106,9 @@ impl mq::EventHandler for Stage {
 
         // All quads share the same vertices
 
-        ctx.apply_pipeline(self.quads[0].get_pipeline());
-        ctx.apply_bindings(self.quads[0].get_bindings());
         for i in 0..self.quads.len() {
+            ctx.apply_pipeline(self.quads[i].get_pipeline());
+            ctx.apply_bindings(self.quads[i].get_bindings());
             let model = Mat4::from_scale_rotation_translation(
                 self.quads[i].transform.scale,
                 self.quads[i].transform.rotation,
@@ -146,6 +152,7 @@ impl mq::EventHandler for Stage {
             };
 
             // Draw big plane
+            /*
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(self.big_quad.get_pipeline());
             ctx.apply_bindings(self.big_quad.get_bindings());
@@ -155,6 +162,7 @@ impl mq::EventHandler for Stage {
                 text,
             });
             ctx.draw(0, 6, 1);
+            */
             // ============
 
             // Draw cube
