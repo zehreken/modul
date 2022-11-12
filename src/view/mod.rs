@@ -1,6 +1,7 @@
 mod visualization;
 mod windows;
 use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
+use rand::{self, Rng};
 use std::path::Path;
 
 use self::{visualization::object::Object, windows::Windows};
@@ -37,12 +38,18 @@ impl Stage {
     fn new(mq_ctx: &mut mq::Context, config: Config) -> Self {
         let egui_mq = egui_mq::EguiMq::new(mq_ctx);
         let mut quads = Vec::with_capacity(TAPE_COUNT);
+        let mut rng = rand::thread_rng();
         for i in 0..TAPE_COUNT {
             quads.push(
                 Object::new(
                     mq_ctx,
-                    if i % 2 == 0 {
+                    // Fix later
+                    if rng.gen_range(0..3) == 0 {
                         material::SDF_EYE
+                    } else if rng.gen_range(0..3) == 1 {
+                        material::SDF_BOX
+                    } else if rng.gen_range(0..3) == 2 {
+                        material::TEXTURE
                     } else {
                         material::COLOR_BAR
                     },
