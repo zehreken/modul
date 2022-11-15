@@ -30,6 +30,8 @@ pub struct ObjectBuilder {
     transform: Transform,
 }
 
+// TODO: Improve builder pattern
+// https://rust-unofficial.github.io/patterns/patterns/creational/builder.html
 impl ObjectBuilder {
     pub fn new(ctx: &mut GraphicsContext, shader: &str) -> Self {
         Self {
