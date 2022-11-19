@@ -25,15 +25,15 @@ void main()
     
     vec4 outColor = vec4(0.0);
 
-    vec2 position = vec2(0.0, 0.4);
+    vec2 position = vec2(-0.2, 0.4);
 
-    float fontSize = 32.0;
+    // float fontSize = 32.0;
+    // vec2 U = (uv - position) * 64.0 / fontSize;
+    // U -= vec2(-2.0, -0.2);
+    // C(int(text.x));C(int(text.y));C(int(text.z));C(int(text.w));
+    // outColor /= 2.0;
+    float fontSize = 16.0;
     vec2 U = (uv - position) * 64.0 / fontSize;
-    U -= vec2(-1.4, -0.2);
-    C(int(text.x));C(int(text.y));C(int(text.z));C(int(text.w));
-    outColor /= 2.0;
-    fontSize = 16.0;
-    U = (uv - position) * 64.0 / fontSize;
     C(int(text.x));C(int(text.y));C(int(text.z));C(int(text.w));
     
     fragColor = outColor.rrrr * vec4(1.0, 0.67, 0.003, 1.0);

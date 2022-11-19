@@ -114,6 +114,8 @@ impl mq::EventHandler for Stage {
         // All quads share the same vertices
 
         for i in 0..self.quads.len() {
+            let wavepoint = self.modul.get_sample_averages()[i];
+            let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(self.quads[i].get_pipeline());
             ctx.apply_bindings(self.quads[i].get_bindings());
             let model = Mat4::from_scale_rotation_translation(
@@ -123,8 +125,8 @@ impl mq::EventHandler for Stage {
             );
             ctx.apply_uniforms(&material::Uniforms {
                 mvp: view_proj * model,
-                wavepoint: self.modul.get_sample_averages()[i],
-                text: (0, 0, 0, 0),
+                wavepoint,
+                text: text,
             });
 
             ctx.draw(0, 6, 1);
