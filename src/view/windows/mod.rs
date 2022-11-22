@@ -51,26 +51,29 @@ impl Windows {
                 ui.label("modul ❤ ");
                 ui.separator();
 
-                ui.menu_button("Tools", |ui| {
-                    ui.checkbox(&mut self.show_tapes, "tapes");
-                    if ui.checkbox(&mut self.show_metronome, "metronome").changed() {
+                ui.menu_button("View", |ui| {
+                    ui.checkbox(&mut self.show_tapes, "Tapes");
+                    if ui.checkbox(&mut self.show_metronome, "Metronome").changed() {
                         modul.switch_metronome(self.show_metronome);
                     };
-                    ui.checkbox(&mut self.show_stats, "stats");
-                    ui.checkbox(&mut self.show_controls, "controls");
-                    ui.checkbox(&mut self.show_log, "log");
-                    if ui
-                        .checkbox(&mut self.is_play_through, "play through")
-                        .changed()
-                    {
-                        modul.play_through();
-                    }
+                    ui.checkbox(&mut self.show_stats, "Stats");
+                    ui.checkbox(&mut self.show_controls, "Controls");
+                    ui.checkbox(&mut self.show_log, "Log");
                 });
+                if ui
+                    .checkbox(&mut self.is_play_through, "play through")
+                    .changed()
+                {
+                    modul.play_through();
+                }
+
                 #[cfg(not(target_arch = "wasm32"))]
                 {
-                    if ui.button("Quit").clicked() {
-                        std::process::exit(0);
-                    }
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+                        if ui.button("Quit").clicked() {
+                            std::process::exit(0);
+                        }
+                    });
                 }
             });
 
