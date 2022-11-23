@@ -8,9 +8,9 @@ out vec4 fragColor;
 uniform float wavepoint;
 uniform ivec4 text;
 
-#define C(c) U.x -= 1.0; outColor += char(U, 0 + c)
+#define C(c) U.x -= 1.0; outColor += extract_char(U, 0 + c)
 
-vec4 char(vec2 p, int c) 
+vec4 extract_char(vec2 p, int c) 
 {
     if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) return vec4(0, 0, 0, 1e5);
 	return textureGrad(tex,
