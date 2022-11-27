@@ -217,20 +217,40 @@ fn draw_tape(
                 modul.select_primary_tape(id);
             }
 
-            if is_secondary {
-                let (color, text) = (Color32::YELLOW, "🔺");
-                ui.colored_label(color, text);
-            }
+            ui.colored_label(
+                if *primary_tape == id && modul.is_recording() {
+                    Color32::RED
+                } else {
+                    Color32::WHITE
+                },
+                "⏺",
+            );
+            ui.colored_label(
+                if is_secondary {
+                    Color32::RED
+                } else {
+                    Color32::WHITE
+                },
+                "➕",
+            );
+            ui.colored_label(
+                if tape_mute_states[id] {
+                    Color32::RED
+                } else {
+                    Color32::WHITE
+                },
+                "🇲",
+            );
+            ui.colored_label(
+                if tape_solo_states[id] {
+                    Color32::RED
+                } else {
+                    Color32::WHITE
+                },
+                "🇸",
+            );
 
             ui.label(format!("{:0.2}", tape_volumes[id]));
-
-            if tape_solo_states[id] {
-                ui.colored_label(Color32::RED, "solo");
-            }
-
-            if *primary_tape == id && modul.is_recording() {
-                ui.colored_label(Color32::from_rgb(255, 0, 0), "recording");
-            }
         });
 
         let desired_size = ui.available_width() * vec2(1.0, 0.02);
