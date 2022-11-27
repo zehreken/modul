@@ -281,18 +281,38 @@ impl AudioModel {
                         self.update_waveform(id, &vec![0.0; SAMPLE_GRAPH_SIZE]);
                     }
                 }
-                ModulAction::Mute => {
-                    self.tape_model.tapes[self.primary_tape].mute();
+                ModulAction::ToggleMute => {
+                    self.tape_model.tapes[self.primary_tape].toggle_mute();
+                    for i in 0..TAPE_COUNT {
+                        if self.secondary_tapes[i] {
+                            self.tape_model.tapes[i].toggle_mute();
+                        }
+                    }
                 }
-                ModulAction::Unmute => {
-                    self.tape_model.tapes[self.primary_tape].unmute();
+                // ModulAction::Unmute => {
+                //     self.tape_model.tapes[self.primary_tape].unmute();
+                //     for i in 0..TAPE_COUNT {
+                //         if self.secondary_tapes[i] {
+                //             self.tape_model.tapes[i].unmute();
+                //         }
+                //     }
+                // }
+                ModulAction::ToggleSolo => {
+                    self.tape_model.tapes[self.primary_tape].toggle_solo();
+                    for i in 0..TAPE_COUNT {
+                        if self.secondary_tapes[i] {
+                            self.tape_model.tapes[i].toggle_solo();
+                        }
+                    }
                 }
-                ModulAction::Solo => {
-                    self.tape_model.tapes[self.primary_tape].solo();
-                }
-                ModulAction::Unsolo => {
-                    self.tape_model.tapes[self.primary_tape].unsolo();
-                }
+                // ModulA(is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // ction::Unsolo => {
+                //     self.tape_model.tapes[self.primary_tape].unsolo();
+                //     for i in 0..TAPE_COUNT {
+                //         if self.secondary_tapes[i] {
+                //             self.tape_model.tapes[i].unsolo();
+                //         }
+                //     }
+                // }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.primary_tape].volume_up();
                 }

@@ -26,20 +26,12 @@ impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
         }
     }
 
-    pub fn mute(&mut self) {
-        self.is_muted = true;
+    pub fn toggle_mute(&mut self) {
+        self.is_muted = !self.is_muted;
     }
 
-    pub fn unmute(&mut self) {
-        self.is_muted = false;
-    }
-
-    pub fn solo(&mut self) {
-        self.is_solo = true;
-    }
-
-    pub fn unsolo(&mut self) {
-        self.is_solo = false;
+    pub fn toggle_solo(&mut self) {
+        self.is_solo = !self.is_solo;
     }
 
     pub fn is_solo(&self) -> bool {

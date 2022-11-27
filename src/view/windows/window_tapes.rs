@@ -138,22 +138,34 @@ impl Drawable for WindowTapes {
                             }
                             Key::M => {
                                 tape_mute_states[*primary_tape] = !tape_mute_states[*primary_tape];
-                                if tape_mute_states[*primary_tape] {
-                                    modul.mute();
-                                } else {
-                                    modul.unmute();
+                                modul.toggle_mute();
+                                for i in 0..TAPE_COUNT {
+                                    if secondary_tapes[i] {
+                                        tape_mute_states[i] = !tape_mute_states[i];
+                                    }
                                 }
+                                // if tape_mute_states[*primary_tape] {
+                                //     modul.mute();
+                                // } else {
+                                //     modul.unmute();
+                                // }
                             }
                             Key::N => {
                                 modul.merge_tapes();
                             }
                             Key::S => {
                                 tape_solo_states[*primary_tape] = !tape_solo_states[*primary_tape];
-                                if tape_solo_states[*primary_tape] {
-                                    modul.solo();
-                                } else {
-                                    modul.unsolo();
+                                modul.toggle_solo();
+                                for i in 0..TAPE_COUNT {
+                                    if secondary_tapes[i] {
+                                        tape_solo_states[i] = !tape_solo_states[i];
+                                    }
                                 }
+                                // if tape_solo_states[*primary_tape] {
+                                //     modul.solo();
+                                // } else {
+                                //     modul.unsolo();
+                                // }
                             }
                             Key::ArrowUp => {
                                 if tape_volumes[*primary_tape] < 1.0 {
