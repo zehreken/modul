@@ -144,11 +144,6 @@ impl Drawable for WindowTapes {
                                         tape_mute_states[i] = !tape_mute_states[i];
                                     }
                                 }
-                                // if tape_mute_states[*primary_tape] {
-                                //     modul.mute();
-                                // } else {
-                                //     modul.unmute();
-                                // }
                             }
                             Key::N => {
                                 modul.merge_tapes();
@@ -161,11 +156,6 @@ impl Drawable for WindowTapes {
                                         tape_solo_states[i] = !tape_solo_states[i];
                                     }
                                 }
-                                // if tape_solo_states[*primary_tape] {
-                                //     modul.solo();
-                                // } else {
-                                //     modul.unsolo();
-                                // }
                             }
                             Key::ArrowUp => {
                                 if tape_volumes[*primary_tape] < 1.0 {
@@ -226,6 +216,7 @@ fn draw_tape(
                 *primary_tape = id;
                 modul.select_primary_tape(id);
             }
+
             let (color, text) = if is_secondary {
                 (Color32::YELLOW, "s")
             } else {

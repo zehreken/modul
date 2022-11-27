@@ -321,17 +321,9 @@ impl Modul {
         self.action_producer.push(ModulAction::ToggleMute).unwrap();
     }
 
-    // pub fn unmute(&mut self) {
-    //     self.action_producer.push(ModulAction::Unmute).unwrap();
-    // }
-
     pub fn toggle_solo(&mut self) {
         self.action_producer.push(ModulAction::ToggleSolo).unwrap();
     }
-
-    // pub fn unsolo(&mut self) {
-    //     self.action_producer.push(ModulAction::Unsolo).unwrap();
-    // }
 
     pub fn volume_up(&mut self) {
         self.action_producer.push(ModulAction::VolumeUp).unwrap();

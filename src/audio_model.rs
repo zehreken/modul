@@ -289,14 +289,6 @@ impl AudioModel {
                         }
                     }
                 }
-                // ModulAction::Unmute => {
-                //     self.tape_model.tapes[self.primary_tape].unmute();
-                //     for i in 0..TAPE_COUNT {
-                //         if self.secondary_tapes[i] {
-                //             self.tape_model.tapes[i].unmute();
-                //         }
-                //     }
-                // }
                 ModulAction::ToggleSolo => {
                     self.tape_model.tapes[self.primary_tape].toggle_solo();
                     for i in 0..TAPE_COUNT {
@@ -305,14 +297,6 @@ impl AudioModel {
                         }
                     }
                 }
-                // ModulA(is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // (is_mute)// // // // // // // // // // // // // // // // ction::Unsolo => {
-                //     self.tape_model.tapes[self.primary_tape].unsolo();
-                //     for i in 0..TAPE_COUNT {
-                //         if self.secondary_tapes[i] {
-                //             self.tape_model.tapes[i].unsolo();
-                //         }
-                //     }
-                // }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.primary_tape].volume_up();
                 }
