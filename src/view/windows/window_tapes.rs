@@ -36,11 +36,15 @@ impl Drawable for WindowTapes {
 
         egui::Window::new("tapes").show(egui_ctx, |ui| {
             egui_ctx.request_repaint();
-            ui.heading("tapes");
 
-            if modul.is_recording_playback() {
-                ui.colored_label(Color32::from_rgb(0, 255, 0), "recording");
-            }
+            ui.colored_label(
+                if modul.is_recording_playback() {
+                    Color32::RED
+                } else {
+                    Color32::WHITE
+                },
+                "MAIN TAPE ⏺",
+            );
             for i in 0..TAPE_COUNT {
                 draw_tape(
                     ui,
@@ -253,7 +257,7 @@ fn draw_tape(
             ui.label(format!("{:0.2}", tape_volumes[id]));
         });
 
-        let desired_size = ui.available_width() * vec2(1.0, 0.02);
+        let desired_size = ui.available_width() * vec2(1.0, 0.03);
         let (_id, rect) = ui.allocate_space(desired_size);
 
         let to_screen =
@@ -270,12 +274,12 @@ fn draw_tape(
                 max = p;
             }
         }
-        max = max / 5.0; // 5 is for scaling up
+        max = max / 3.0; // Division is for scaling up
         let points: Vec<Pos2> = wavepoints
             .iter()
             .map(|i| {
                 index += 1;
-                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, -*i / max)
+                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, 1.5 - *i / max)
             })
             .collect();
 
@@ -311,9 +315,9 @@ fn draw_tape(
             Stroke::new(
                 3.0,
                 if tape_mute_states[id] {
-                    Color32::from_rgb(255, 0, 0)
+                    Color32::RED
                 } else {
-                    Color32::from_rgb(0, 255, 0)
+                    Color32::GREEN
                 },
             ),
         ));
