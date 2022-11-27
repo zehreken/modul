@@ -12,10 +12,10 @@ pub struct WindowMetronome {
 
 impl WindowMetronome {
     pub fn new(ctx: &egui::Context) -> Self {
-        let image = super::super::load_image_for_ui(Path::new("assets/green_square.jpg")).unwrap();
+        let image = super::super::load_image_for_ui(Path::new("assets/ui/square.jpg")).unwrap();
         let mut texture_handle: Option<TextureHandle> = Option::None;
         let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
-            ctx.load_texture("green_square", image.clone(), TextureFilter::Linear)
+            ctx.load_texture("square", image.clone(), TextureFilter::Linear)
         });
         Self {
             _is_running: false,
@@ -54,7 +54,7 @@ impl Drawable for WindowMetronome {
             });
             shapes.push(epaint::Shape::circle_filled(
                 to_screen * pos2(0.03 + (modul.get_beat_index() % 4) as f32 * 0.082, 5.0),
-                10.0,
+                9.0,
                 if modul.get_beat_index() % 4 == 0 {
                     Color32::RED
                 } else {

@@ -217,12 +217,10 @@ fn draw_tape(
                 modul.select_primary_tape(id);
             }
 
-            let (color, text) = if is_secondary {
-                (Color32::YELLOW, "s")
-            } else {
-                (Color32::WHITE, "")
-            };
-            ui.colored_label(color, text);
+            if is_secondary {
+                let (color, text) = (Color32::YELLOW, "🔺");
+                ui.colored_label(color, text);
+            }
 
             ui.label(format!("{:0.2}", tape_volumes[id]));
 
