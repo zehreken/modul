@@ -163,13 +163,23 @@ impl Drawable for WindowTapes {
                             }
                             Key::ArrowUp => {
                                 if tape_volumes[*primary_tape] < 1.0 {
-                                    tape_volumes[*primary_tape] += 0.05;
+                                    tape_volumes[*primary_tape] += 0.01;
+                                }
+                                for i in 0..TAPE_COUNT {
+                                    if secondary_tapes[i] && tape_volumes[i] < 1.0 {
+                                        tape_volumes[i] += 0.01;
+                                    }
                                 }
                                 modul.volume_up();
                             }
                             Key::ArrowDown => {
-                                if tape_volumes[*primary_tape] > 0.0 {
-                                    tape_volumes[*primary_tape] -= 0.05;
+                                if tape_volumes[*primary_tape] > 0.01 {
+                                    tape_volumes[*primary_tape] -= 0.01;
+                                }
+                                for i in 0..TAPE_COUNT {
+                                    if secondary_tapes[i] && tape_volumes[i] > 0.01 {
+                                        tape_volumes[i] -= 0.01;
+                                    }
                                 }
                                 modul.volume_down();
                             }

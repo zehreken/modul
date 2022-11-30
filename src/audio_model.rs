@@ -299,9 +299,19 @@ impl AudioModel {
                 }
                 ModulAction::VolumeUp => {
                     self.tape_model.tapes[self.primary_tape].volume_up();
+                    for i in 0..TAPE_COUNT {
+                        if self.secondary_tapes[i] {
+                            self.tape_model.tapes[i].volume_up();
+                        }
+                    }
                 }
                 ModulAction::VolumeDown => {
                     self.tape_model.tapes[self.primary_tape].volume_down();
+                    for i in 0..TAPE_COUNT {
+                        if self.secondary_tapes[i] {
+                            self.tape_model.tapes[i].volume_down();
+                        }
+                    }
                 }
                 ModulAction::StartMetronome => {
                     self.metronome.is_running = true;
