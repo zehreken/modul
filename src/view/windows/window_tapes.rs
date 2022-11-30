@@ -221,40 +221,45 @@ fn draw_tape(
                 modul.select_primary_tape(id);
             }
 
-            ui.colored_label(
-                if *primary_tape == id && modul.is_recording() {
-                    Color32::RED
-                } else {
-                    Color32::WHITE
-                },
-                "⏺",
-            );
-            ui.colored_label(
-                if is_secondary {
-                    Color32::RED
-                } else {
-                    Color32::WHITE
-                },
-                "➕",
-            );
-            ui.colored_label(
-                if tape_mute_states[id] {
-                    Color32::RED
-                } else {
-                    Color32::WHITE
-                },
-                "🇲",
-            );
-            ui.colored_label(
-                if tape_solo_states[id] {
-                    Color32::RED
-                } else {
-                    Color32::WHITE
-                },
-                "🇸",
-            );
+            let grayed_out = Color32::from_rgba_unmultiplied(255, 255, 255, 20);
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+                // ui.group(|ui| {
+                ui.colored_label(
+                    if *primary_tape == id && modul.is_recording() {
+                        Color32::RED
+                    } else {
+                        grayed_out
+                    },
+                    "⏺",
+                );
+                ui.colored_label(
+                    if is_secondary {
+                        Color32::RED
+                    } else {
+                        grayed_out
+                    },
+                    "➕",
+                );
+                ui.colored_label(
+                    if tape_mute_states[id] {
+                        Color32::RED
+                    } else {
+                        grayed_out
+                    },
+                    "🇲",
+                );
+                ui.colored_label(
+                    if tape_solo_states[id] {
+                        Color32::RED
+                    } else {
+                        grayed_out
+                    },
+                    "🇸",
+                );
 
-            ui.label(format!("{:0.2}", tape_volumes[id]));
+                ui.label(format!("{:0.2}", tape_volumes[id]));
+                // });
+            });
         });
 
         let desired_size = ui.available_width() * vec2(1.0, 0.03);
@@ -279,7 +284,7 @@ fn draw_tape(
             .iter()
             .map(|i| {
                 index += 1;
-                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, 1.5 - *i / max)
+                to_screen * pos2(index as f32 / SAMPLE_GRAPH_SIZE as f32, 1.3 - *i / max)
             })
             .collect();
 
