@@ -40,13 +40,13 @@ impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
 
     pub fn volume_up(&mut self) {
         if self.volume < 1.0 {
-            self.volume += 0.05;
+            self.volume += 0.01;
         }
     }
 
     pub fn volume_down(&mut self) {
-        if self.volume > 0.0 {
-            self.volume -= 0.05;
+        if self.volume > 0.01 {
+            self.volume -= 0.01;
         }
     }
 
