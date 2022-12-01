@@ -15,6 +15,7 @@ void main()
     vec2 uv = texcoord;
     uv -= 0.5;
     float c = sign(box(uv, vec2(wavepoint, wavepoint)));
-
+    c = 1 - c;
+    
     fragColor = vec4(c, c, c, c);
 }
