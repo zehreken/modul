@@ -6,7 +6,7 @@ use egui::*;
 use super::Drawable;
 
 pub struct WindowMetronome {
-    _is_running: bool,
+    is_running: bool,
     texture: egui::TextureHandle,
 }
 
@@ -18,7 +18,7 @@ impl WindowMetronome {
             ctx.load_texture("square", image.clone(), TextureFilter::Linear)
         });
         Self {
-            _is_running: false,
+            is_running: false,
             texture: texture.clone(),
         }
     }
@@ -26,7 +26,7 @@ impl WindowMetronome {
 impl Drawable for WindowMetronome {
     fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
         let Self {
-            _is_running,
+            is_running,
             texture,
         } = self;
 
@@ -34,10 +34,10 @@ impl Drawable for WindowMetronome {
             ctx.request_repaint();
             ui.label(format!("time: {}", modul.get_audio_index()));
             ui.label("sign: 4/4");
-            // let r = ui.checkbox(is_running, "run");
-            // if r.changed() {
-            //     modul.switch_metronome(*is_running);
-            // }
+            ui.checkbox(is_running, "beep").changed();
+            {
+                modul.switch_metronome(*is_running);
+            }
 
             let desired_size = ui.available_width() * vec2(1.0, 0.02);
             let (_id, rect) = ui.allocate_space(desired_size);

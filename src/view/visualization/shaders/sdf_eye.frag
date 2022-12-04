@@ -35,7 +35,7 @@ void main()
     iris_v -= iris_two_v;
 
     vec3 eye_color = getColor(vec3(227.0, 227.0, 227.0)) * eye_v;
-    vec3 iris_color = getColor(vec3(56.0, 138.0, 232.0)) * iris_v;
+    vec3 iris_color = getColor(vec3(255.0, 0.0, 55.0)) * iris_v;
     vec3 iris_two_color = getColor(vec3(51.0, 51.0, 51.0)) * iris_two_v;
     vec3 color = eye_color + iris_color + iris_two_color;
 

@@ -53,7 +53,7 @@ impl Modul {
         println!("input channel count: {}", input_config.channels);
         println!("input sample rate: {:?}", input_config.sample_rate);
 
-        let beats = 4.0;
+        let beats = 4.0; // This corresponds to the time, at the moment it is 4/4
         let seconds_per_beat = 60.0 / config.bpm as f32;
         let bar_length = beats * seconds_per_beat; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
 
