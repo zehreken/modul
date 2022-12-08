@@ -7,6 +7,7 @@ pub const COLOR_BAR: &str = include_str!("shaders/color_bar.frag");
 pub const TEXTURE: &str = include_str!("shaders/texture.frag");
 pub const SDF_EYE: &str = include_str!("shaders/sdf_eye.frag");
 pub const DEBUG_COLOR: &str = include_str!("shaders/debug_color.frag");
+pub const UV_VISUAL: &str = include_str!("shaders/uv_visual.frag");
 
 pub fn text_shader_meta() -> ShaderMeta {
     ShaderMeta {
@@ -34,12 +35,14 @@ pub fn meta() -> ShaderMeta {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone, Default)]
 pub struct Vec2 {
     pub x: f32,
     pub y: f32,
 }
 
 #[repr(C)]
+#[derive(Copy, Clone, Default)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -47,6 +50,7 @@ pub struct Vec3 {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone, Default)]
 pub struct Vertex {
     pub pos: Vec3,
     pub uv: Vec2,

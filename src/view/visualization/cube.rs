@@ -1,9 +1,8 @@
-use std::path::Path;
-
 use super::{material::*, object::Shape};
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};
+use std::path::Path;
 
 pub struct Cube {
     pipeline: Pipeline,
@@ -57,7 +56,6 @@ impl Cube {
             Vertex { pos : Vec3 { x: -1.0, y:  1.0, z:  1.0}, uv: Vec2 { x: 1.0, y: 1.0 } },
             Vertex { pos : Vec3 { x: -1.0, y:  1.0, z: -1.0}, uv: Vec2 { x: 0.0, y: 1.0 } },
         ];
-
         let vertex_buffer = Buffer::immutable(ctx, BufferType::VertexBuffer, &vertices);
 
         #[rustfmt::skip]
