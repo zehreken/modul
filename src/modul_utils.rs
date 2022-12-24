@@ -9,6 +9,9 @@ pub mod utils {
     pub const SAMPLE_GRAPH_SIZE: usize = 100;
     pub const A_FREQ: f32 = 440.0;
     pub const C_FREQ: f32 = 523.25;
+    pub const CHANNELS: u16 = 4;
+    pub const SAMPLE_RATE: u32 = 44100;
+    pub const BITS_PER_SAMPLE: u16 = 16;
 
     #[derive(Debug)]
     pub enum ModulMessage {
@@ -111,13 +114,13 @@ pub mod utils {
 
     pub fn _write_tape(tape: &Tape<f32>, name: &str) {
         let spec = hound::WavSpec {
-            channels: 4,         // TODO: Fix this hardcoded value
-            sample_rate: 44100,  // TODO: Fix this hardcoded value
-            bits_per_sample: 16, // TODO: Fix this hardcoded value
+            channels: CHANNELS,               // TODO: Fix this hardcoded value
+            sample_rate: SAMPLE_RATE,         // TODO: Fix this hardcoded value
+            bits_per_sample: BITS_PER_SAMPLE, // TODO: Fix this hardcoded value
             sample_format: hound::SampleFormat::Int,
         };
 
-        let mut writer = hound::WavWriter::create(format!("{}.wav", name), spec).unwrap();
+        let mut writer = hound::WavWriter::create(format!("out/{}.wav", name), spec).unwrap();
         for frame in tape.audio.iter() {
             let sample = frame;
             let amplitude = i16::MAX as f32;
@@ -127,13 +130,13 @@ pub mod utils {
 
     pub fn write(buffer: &[f32], name: &str) {
         let spec = hound::WavSpec {
-            channels: 4,         // TODO: Fix this hardcoded value
-            sample_rate: 44100,  // TODO: Fix this hardcoded value
-            bits_per_sample: 16, // TODO: Fix this hardcoded value
+            channels: CHANNELS,               // TODO: Fix this hardcoded value
+            sample_rate: SAMPLE_RATE,         // TODO: Fix this hardcoded value
+            bits_per_sample: BITS_PER_SAMPLE, // TODO: Fix this hardcoded value
             sample_format: hound::SampleFormat::Int,
         };
 
-        let mut writer = hound::WavWriter::create(format!("{}.wav", name), spec).unwrap();
+        let mut writer = hound::WavWriter::create(format!("out/{}.wav", name), spec).unwrap();
         for sample in buffer.iter() {
             let amplitude = i16::MAX as f32;
             writer.write_sample((sample * amplitude) as i16).unwrap();
