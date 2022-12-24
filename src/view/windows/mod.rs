@@ -5,7 +5,7 @@ pub mod window_stats;
 pub mod window_tapes;
 pub mod windows;
 
-pub use crate::modul::Modul;
+pub use crate::core::Modul;
 pub use window_controls::*;
 pub use window_log::*;
 pub use window_metronome::*;

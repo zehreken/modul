@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::modul;
+use crate::core::Modul;
 use egui::*;
 
 use super::Drawable;
@@ -24,7 +24,7 @@ impl WindowMetronome {
     }
 }
 impl Drawable for WindowMetronome {
-    fn draw(&mut self, ctx: &egui::Context, modul: &mut modul::Modul) {
+    fn draw(&mut self, ctx: &egui::Context, modul: &mut Modul) {
         let Self {
             is_running,
             texture,

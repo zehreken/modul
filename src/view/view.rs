@@ -5,9 +5,8 @@ use std::path::Path;
 use self::{super::visualization::object::Object, super::windows::Windows};
 
 use super::visualization::material;
-use crate::modul;
-use crate::modul::Modul;
-use crate::modul_utils::utils::TAPE_COUNT;
+use crate::core::utils::TAPE_COUNT;
+use crate::core::Modul;
 use crate::Config;
 use egui::Context;
 use {egui_miniquad as egui_mq, miniquad as mq};
@@ -27,7 +26,7 @@ struct Stage {
     cube: Object,
     _test_obj: Object,
     windows: super::windows::Windows,
-    modul: modul::Modul,
+    modul: Modul,
     egui_mq: egui_mq::EguiMq,
     rotation: f32,
 }
@@ -74,7 +73,7 @@ impl Stage {
                 .position(Vec3::new(-1.0, 0.0, 0.0))
                 .build(),
             windows: super::windows::Windows::new(egui_mq.egui_ctx()),
-            modul: modul::Modul::new(config),
+            modul: Modul::new(config),
             egui_mq,
             rotation: 0.0,
         }

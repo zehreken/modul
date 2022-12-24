@@ -1,5 +1,5 @@
 pub mod utils {
-    use crate::audio_model::Input;
+    use crate::core::audio_model::Input;
     use crate::tape::Tape;
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};

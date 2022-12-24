@@ -4,7 +4,7 @@ use super::Drawable;
 pub struct WindowControls {}
 
 impl Drawable for WindowControls {
-    fn draw(&mut self, egui_ctx: &egui::Context, _modul: &mut crate::modul::Modul) {
+    fn draw(&mut self, egui_ctx: &egui::Context, _modul: &mut crate::core::Modul) {
         egui::Window::new("controls").show(egui_ctx, |ui| {
             // ctx.request_repaint();
             ui.label("Controls");

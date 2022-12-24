@@ -1,6 +1,6 @@
 use egui::Color32;
 
-use crate::modul;
+use crate::core::Modul;
 
 use super::Drawable;
 
@@ -8,7 +8,7 @@ use super::Drawable;
 pub struct WindowStats {}
 
 impl Drawable for WindowStats {
-    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut modul::Modul) {
+    fn draw(&mut self, egui_ctx: &egui::Context, modul: &mut Modul) {
         let instant = modul.instant;
         egui::Window::new("stats").show(egui_ctx, |ui| {
             egui_ctx.request_repaint();

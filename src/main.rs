@@ -1,10 +1,8 @@
-mod modul;
-mod modul_utils;
 mod tape;
 mod view;
 use std::cmp::Ordering;
 use std::env;
-mod audio_model;
+mod core;
 mod metronome;
 
 fn main() {
