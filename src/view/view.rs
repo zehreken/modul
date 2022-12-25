@@ -123,7 +123,7 @@ impl mq::EventHandler for Stage {
             ctx.apply_uniforms(&material::Uniforms {
                 mvp: view_proj * model,
                 wavepoint,
-                text: text,
+                text,
             });
 
             ctx.draw(0, 6, 1);
@@ -265,7 +265,7 @@ pub fn start(config: Config) {
         ..Default::default()
     };
 
-    mq::start(conf, |mut ctx| Box::new(Stage::new(&mut ctx, config)));
+    mq::start(conf, |mut ctx| Box::new(Stage::new(ctx, config)));
 }
 
 pub fn load_image(path: &Path) -> image::DynamicImage {

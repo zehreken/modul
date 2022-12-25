@@ -52,7 +52,7 @@ impl<T: Copy + Clone + Add + AddAssign> Tape<T> {
 
     pub fn clear(&mut self, default: T) {
         for i in 0..self.audio.len() {
-            self.audio[i] = default.clone();
+            self.audio[i] = default;
         }
     }
 

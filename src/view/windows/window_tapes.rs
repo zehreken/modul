@@ -289,7 +289,7 @@ fn draw_tape(
                 max = p;
             }
         }
-        max = max / 3.0; // Division is for scaling up
+        max /= 3.0; // Division is for scaling up
         let points: Vec<Pos2> = wavepoints
             .iter()
             .map(|i| {
