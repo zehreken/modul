@@ -4,6 +4,7 @@ use std::cmp::Ordering;
 use std::env;
 mod core;
 mod metronome;
+use colored::Colorize;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -22,6 +23,11 @@ impl Config {
         let default_bar_count = 4;
         let mut bpm: u16 = default_bpm;
         let mut bar_count: usize = default_bar_count;
+
+        println!("{}", "                 ".on_yellow());
+        println!("{}", "      MODUL      ".blue().on_yellow());
+        println!("{}", "                 ".on_yellow());
+
         match args.len().cmp(&3) {
             Ordering::Less => {
                 println!("Not enough arguments...\nModul will start with default config {} BPM and {} bars...\n", default_bpm, default_bar_count)
