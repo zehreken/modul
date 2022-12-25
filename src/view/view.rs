@@ -4,7 +4,7 @@ use std::path::Path;
 
 use self::{super::visualization::object::Object, super::windows::Windows};
 
-use super::visualization::material;
+use super::visualization::{self, material};
 use crate::core::utils::TAPE_COUNT;
 use crate::core::Modul;
 use crate::Config;
@@ -24,7 +24,7 @@ struct Stage {
     quads: Vec<Object>,
     // big_quad: Object,
     cube: Object,
-    _test_obj: Object,
+    sphere: Object,
     windows: super::windows::Windows,
     modul: Modul,
     egui_mq: egui_mq::EguiMq,
@@ -69,8 +69,11 @@ impl Stage {
                     material::SDF_CIRCLE,
                 )))
                 .build(),
-            _test_obj: Object::new(mq_ctx, material::DEBUG_COLOR)
-                .position(Vec3::new(-1.0, 0.0, 0.0))
+            sphere: Object::new(mq_ctx, material::DEBUG_COLOR)
+                .shape(Box::new(super::visualization::Sphere::new(
+                    mq_ctx,
+                    material::SDF_EYE,
+                )))
                 .build(),
             windows: super::windows::Windows::new(egui_mq.egui_ctx()),
             modul: Modul::new(config),
@@ -87,6 +90,8 @@ impl mq::EventHandler for Stage {
         // Update visual objects
         // self.some_obj.update() looks nicer
         self.rotation += 0.01;
+
+        self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 90.0, 0.0, self.rotation);
 
         for i in 0..self.quads.len() {
             self.quads[i].transform.rotation =
@@ -109,7 +114,6 @@ impl mq::EventHandler for Stage {
         // Draw things behind egui here
 
         // All quads share the same vertices
-
         for i in 0..self.quads.len() {
             let wavepoint = self.modul.get_sample_averages()[i];
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
@@ -128,24 +132,6 @@ impl mq::EventHandler for Stage {
 
             ctx.draw(0, 6, 1);
         }
-
-        // Draw generic item
-        /*
-        let model = Mat4::from_scale_rotation_translation(
-            self._test_obj.transform.scale,
-            self._test_obj.transform.rotation,
-            self._test_obj.transform.position,
-        );
-        ctx.apply_pipeline(&self._test_obj.get_pipeline());
-        ctx.apply_bindings(&self._test_obj.get_bindings());
-        ctx.apply_uniforms(&material::Uniforms {
-            mvp: view_proj * model,
-            wavepoint: self.modul.get_sample_averages()[0],
-            text: (0, 0, 0, 0),
-        });
-        ctx.draw(0, 6, 1);
-        */
-        // ================
 
         // Play-through
         if self.modul.is_play_through() {
@@ -181,8 +167,24 @@ impl mq::EventHandler for Stage {
                 wavepoint,
                 text,
             });
-            ctx.draw(0, 36, 1);
+            // ctx.draw(0, 36, 1);
             // ============
+
+            // Draw sphere
+            let model = Mat4::from_scale_rotation_translation(
+                self.sphere.transform.scale,
+                self.sphere.transform.rotation,
+                self.sphere.transform.position,
+            );
+            ctx.apply_pipeline(&self.sphere.get_pipeline());
+            ctx.apply_bindings(&self.sphere.get_bindings());
+            ctx.apply_uniforms(&material::Uniforms {
+                mvp: view_proj * model,
+                wavepoint,
+                text,
+            });
+            ctx.draw(0, visualization::VERTEX_COUNT as i32 * 6, 1);
+            // ================
         }
         // ============
 
@@ -265,7 +267,7 @@ pub fn start(config: Config) {
         ..Default::default()
     };
 
-    mq::start(conf, |mut ctx| Box::new(Stage::new(ctx, config)));
+    mq::start(conf, |ctx| Box::new(Stage::new(ctx, config)));
 }
 
 pub fn load_image(path: &Path) -> image::DynamicImage {

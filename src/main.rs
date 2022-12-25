@@ -25,7 +25,7 @@ impl Config {
         let mut bar_count: usize = default_bar_count;
 
         println!("{}", "                 ".on_yellow());
-        println!("{}", "      MODUL      ".blue().on_yellow());
+        println!("{}", "      MODUL      ".bold().blue().on_yellow());
         println!("{}", "                 ".on_yellow());
 
         match args.len().cmp(&3) {
