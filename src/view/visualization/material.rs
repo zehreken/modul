@@ -8,6 +8,7 @@ pub const TEXTURE: &str = include_str!("shaders/texture.frag");
 pub const SDF_EYE: &str = include_str!("shaders/sdf_eye.frag");
 pub const DEBUG_COLOR: &str = include_str!("shaders/debug_color.frag");
 pub const UV_VISUAL: &str = include_str!("shaders/uv_visual.frag");
+pub const SDF_EYE_2: &str = include_str!("shaders/sdf_eye_2.frag");
 
 pub fn text_shader_meta() -> ShaderMeta {
     ShaderMeta {

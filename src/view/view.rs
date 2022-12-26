@@ -22,9 +22,9 @@ const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GT
 
 struct Stage {
     quads: Vec<Object>,
-    // big_quad: Object,
     cube: Object,
     sphere: Object,
+    spheres: Vec<Object>,
     windows: super::windows::Windows,
     modul: Modul,
     egui_mq: egui_mq::EguiMq,
@@ -60,6 +60,24 @@ impl Stage {
                 .build(),
             );
         }
+        let mut spheres = Vec::with_capacity(TAPE_COUNT);
+        for i in 0..TAPE_COUNT {
+            spheres.push(
+                Object::new(mq_ctx, material::SDF_EYE)
+                    .shape(Box::new(super::visualization::Sphere::new(
+                        mq_ctx,
+                        material::SDF_EYE_2,
+                    )))
+                    .position(Vec3::new(
+                        -2.25 + (i % 4) as f32 * 1.5_f32,
+                        -0.75_f32 + (i / 4) as f32 * 1.5_f32,
+                        0.0,
+                    ))
+                    .rotation(Quat::from_euler(EulerRot::XYZ, 90.0, 0.0, 0.0))
+                    .scale(Vec3::new(0.75, 0.75, 0.75))
+                    .build(),
+            );
+        }
         Self {
             quads,
             // big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
@@ -72,9 +90,10 @@ impl Stage {
             sphere: Object::new(mq_ctx, material::DEBUG_COLOR)
                 .shape(Box::new(super::visualization::Sphere::new(
                     mq_ctx,
-                    material::SDF_EYE,
+                    material::SDF_EYE_2,
                 )))
                 .build(),
+            spheres,
             windows: super::windows::Windows::new(egui_mq.egui_ctx()),
             modul: Modul::new(config),
             egui_mq,
@@ -91,12 +110,17 @@ impl mq::EventHandler for Stage {
         // self.some_obj.update() looks nicer
         self.rotation += 0.01;
 
-        self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 90.0, 0.0, self.rotation);
+        self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
         for i in 0..self.quads.len() {
-            self.quads[i].transform.rotation =
+            self.spheres[i].transform.rotation =
                 Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
         }
+
+        // for i in 0..self.quads.len() {
+        //     self.quads[i].transform.rotation =
+        //         Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        // }
     }
 
     fn draw(&mut self, ctx: &mut mq::Context) {
@@ -114,6 +138,7 @@ impl mq::EventHandler for Stage {
         // Draw things behind egui here
 
         // All quads share the same vertices
+        /*
         for i in 0..self.quads.len() {
             let wavepoint = self.modul.get_sample_averages()[i];
             let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
@@ -131,6 +156,27 @@ impl mq::EventHandler for Stage {
             });
 
             ctx.draw(0, 6, 1);
+        }
+        */
+
+        // All spheres share the same vertices
+        for i in 0..self.spheres.len() {
+            let wavepoint = self.modul.get_sample_averages()[i];
+            let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
+            ctx.apply_pipeline(self.spheres[i].get_pipeline());
+            ctx.apply_bindings(self.spheres[i].get_bindings());
+            let model = Mat4::from_scale_rotation_translation(
+                self.spheres[i].transform.scale,
+                self.spheres[i].transform.rotation,
+                self.spheres[i].transform.position,
+            );
+            ctx.apply_uniforms(&material::Uniforms {
+                mvp: view_proj * model,
+                wavepoint: 1.0,
+                text,
+            });
+
+            ctx.draw(0, visualization::VERTEX_COUNT as i32 * 6, 1);
         }
 
         // Play-through

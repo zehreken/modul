@@ -30,7 +30,8 @@ impl Config {
 
         match args.len().cmp(&3) {
             Ordering::Less => {
-                println!("Not enough arguments...\nModul will start with default config {} BPM and {} bars...\n", default_bpm, default_bar_count)
+                let message = format!("Not enough arguments...\nModul will start with default config {} BPM and {} bars...\n", default_bpm, default_bar_count);
+                println!("{}", message.yellow());
             }
             Ordering::Equal => {
                 let arg_one: &str = &args[1][..];
