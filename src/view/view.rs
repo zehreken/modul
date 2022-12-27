@@ -172,7 +172,7 @@ impl mq::EventHandler for Stage {
             );
             ctx.apply_uniforms(&material::Uniforms {
                 mvp: view_proj * model,
-                wavepoint: 1.0,
+                wavepoint,
                 text,
             });
 

@@ -20,10 +20,10 @@ void main()
     vec2 uv = texcoord;
     uv -= 0.5; // This moves origin to the center
 
-    float radius = 1.0;
+    float radius = 1.0 + wavepoint;
     float eye_v = clamp(1.0 - sign(circle(vec2(0.0, 0.0), radius)), 0.0, 1.0);
 
-    float radiusTwo = 0.1;
+    float radiusTwo = 0.1 + wavepoint;
     vec2 iris = uv;
     float iris_v = clamp(1.0 - sign(circle(iris, radiusTwo)), 0.0, 1.0);
 
