@@ -1,4 +1,5 @@
 use super::{material::*, object::Shape};
+use crate::core::utils::*;
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};
@@ -28,7 +29,7 @@ impl Shape for Sphere {
 
 impl Sphere {
     pub fn new(ctx: &mut Context, fragment: &str) -> Self {
-        let image = super::super::load_image(Path::new("assets/uv_mapper.png"));
+        let image = load_image(Path::new("assets/uv_mapper.png"));
         let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
 
         let pair = get_vertices_and_indices();

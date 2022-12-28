@@ -4,6 +4,7 @@ pub mod utils {
     use cpal::traits::DeviceTrait;
     use cpal::{Device, Stream, StreamConfig};
     use ringbuf::{HeapConsumer, HeapProducer};
+    use std::path::Path;
 
     pub const TAPE_COUNT: usize = 8;
     pub const SAMPLE_GRAPH_SIZE: usize = 100;
@@ -110,6 +111,23 @@ pub mod utils {
         }
 
         sum_tape
+    }
+
+    pub fn load_image(path: &Path) -> image::DynamicImage {
+        // Use the open function to load an image from a Path.
+        // ```open``` returns a dynamic image.
+        image::open(path).expect("image not found")
+    }
+
+    pub fn load_image_for_ui(path: &Path) -> Result<egui::ColorImage, image::ImageError> {
+        let image = image::io::Reader::open(path)?.decode()?;
+        let size = [image.width() as _, image.height() as _];
+        let image_buffer = image.to_rgba8();
+        let pixels = image_buffer.as_flat_samples();
+        Ok(egui::ColorImage::from_rgba_unmultiplied(
+            size,
+            pixels.as_slice(),
+        ))
     }
 
     pub fn _write_tape(tape: &Tape<f32>, name: &str) {

@@ -1,8 +1,6 @@
+use self::{super::visualization::object::Object, super::windows::Windows};
 use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
 use rand::{self, Rng};
-use std::path::Path;
-
-use self::{super::visualization::object::Object, super::windows::Windows};
 
 use super::visualization::{self, material};
 use crate::core::utils::TAPE_COUNT;
@@ -314,21 +312,4 @@ pub fn start(config: Config) {
     };
 
     mq::start(conf, |ctx| Box::new(Stage::new(ctx, config)));
-}
-
-pub fn load_image(path: &Path) -> image::DynamicImage {
-    // Use the open function to load an image from a Path.
-    // ```open``` returns a dynamic image.
-    image::open(path).expect("image not found")
-}
-
-pub fn load_image_for_ui(path: &Path) -> Result<egui::ColorImage, image::ImageError> {
-    let image = image::io::Reader::open(path)?.decode()?;
-    let size = [image.width() as _, image.height() as _];
-    let image_buffer = image.to_rgba8();
-    let pixels = image_buffer.as_flat_samples();
-    Ok(egui::ColorImage::from_rgba_unmultiplied(
-        size,
-        pixels.as_slice(),
-    ))
 }

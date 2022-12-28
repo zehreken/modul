@@ -1,4 +1,5 @@
 use super::{material::*, object::Shape};
+use crate::core::utils::*;
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};
@@ -21,7 +22,7 @@ impl Shape for Cube {
 
 impl Cube {
     pub fn new(ctx: &mut Context, fragment: &str) -> Cube {
-        let image = super::super::load_image(Path::new("assets/atlas_gr.png"));
+        let image = load_image(Path::new("assets/atlas_gr.png"));
         let texture = Texture::from_rgba8(ctx, 512, 512, image.as_bytes());
         #[rustfmt::skip]
         let vertices: [Vertex; 24] = [

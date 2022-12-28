@@ -1,7 +1,7 @@
-use std::path::Path;
-
+use crate::core::utils::*;
 use crate::core::Modul;
 use egui::*;
+use std::path::Path;
 
 use super::Drawable;
 
@@ -12,7 +12,7 @@ pub struct WindowMetronome {
 
 impl WindowMetronome {
     pub fn new(ctx: &egui::Context) -> Self {
-        let image = super::super::load_image_for_ui(Path::new("assets/ui/square.jpg")).unwrap();
+        let image = load_image_for_ui(Path::new("assets/ui/square.jpg")).unwrap();
         let mut texture_handle: Option<TextureHandle> = Option::None;
         let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
             ctx.load_texture("square", image.clone(), TextureOptions::default())
