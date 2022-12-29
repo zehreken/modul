@@ -1,6 +1,6 @@
 use super::material::*;
 use super::object::*;
-use crate::core::utils::*;
+use crate::core::*;
 use miniquad as mq;
 use miniquad::*;
 use mq::{BlendState, BlendValue};

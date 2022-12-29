@@ -1,6 +1,6 @@
 use super::super::Config;
 use super::audio_model::*;
-use super::modul_utils::utils::*;
+use super::utils::*;
 use crate::metronome::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};

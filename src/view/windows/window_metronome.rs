@@ -1,5 +1,5 @@
-use crate::core::utils::*;
 use crate::core::Modul;
+use crate::core::*;
 use egui::*;
 use std::path::Path;
 

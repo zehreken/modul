@@ -1,5 +1,4 @@
-use crate::core::modul_utils::utils;
-use crate::core::modul_utils::utils::*;
+use crate::core::*;
 use crate::metronome::Metronome;
 use crate::tape::Tape;
 use ringbuf::{HeapConsumer, HeapProducer};

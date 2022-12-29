@@ -1,5 +1,5 @@
-use crate::core::utils::{SAMPLE_GRAPH_SIZE, TAPE_COUNT};
 use crate::core::Modul;
+use crate::core::{SAMPLE_GRAPH_SIZE, TAPE_COUNT};
 use egui::*;
 
 use super::Drawable;

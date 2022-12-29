@@ -1,12 +1,8 @@
-use self::{super::visualization::object::Object, super::windows::Windows};
+use self::super::windows::Windows;
 use super::scene::Scene;
-use super::visualization::{self, material};
-use crate::core::utils::TAPE_COUNT;
 use crate::core::Modul;
 use crate::Config;
 use egui::Context;
-use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
-use rand::{self, Rng};
 use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
