@@ -1,9 +1,8 @@
-mod tape;
 mod view;
 use std::cmp::Ordering;
 use std::env;
 mod core;
-mod metronome;
+mod features;
 use colored::Colorize;
 
 fn main() {

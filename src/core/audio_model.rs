@@ -1,6 +1,5 @@
 use crate::core::*;
-use crate::metronome::Metronome;
-use crate::tape::Tape;
+use crate::features::{Metronome, Tape};
 use ringbuf::{HeapConsumer, HeapProducer};
 
 pub struct TapeModel {

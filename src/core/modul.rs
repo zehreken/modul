@@ -1,7 +1,7 @@
 use super::super::Config;
 use super::audio_model::*;
 use super::utils::*;
-use crate::metronome::Metronome;
+use crate::features::Metronome;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::{HeapConsumer, HeapProducer, HeapRb};

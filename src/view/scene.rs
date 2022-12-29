@@ -1,5 +1,5 @@
 use self::super::visualization::object::Object;
-use super::visualization::{self, material};
+use super::visualization::material;
 use crate::core::Modul;
 use crate::core::TAPE_COUNT;
 use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
@@ -86,14 +86,12 @@ impl Scene {
 
         self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
-        for i in 0..self.quads.len() {
-            self.spheres[i].transform.rotation =
-                Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        for obj in &mut self.spheres {
+            obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
         }
 
-        // for i in 0..self.quads.len() {
-        //     self.quads[i].transform.rotation =
-        //         Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        // for obj in &mut self.quads {
+        //     obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
         // }
     }
 
