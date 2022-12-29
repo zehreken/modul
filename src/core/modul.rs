@@ -43,7 +43,7 @@ pub struct Modul {
 }
 
 impl Modul {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: &Config) -> Self {
         let host = cpal::default_host();
 
         let input_device = host.default_input_device().unwrap();

@@ -10,6 +10,15 @@ pub const DEBUG_COLOR: &str = include_str!("shaders/debug_color.frag");
 pub const UV_VISUAL: &str = include_str!("shaders/uv_visual.frag");
 pub const SDF_EYE_2: &str = include_str!("shaders/sdf_eye_2.frag");
 
+const BABY: (i32, i32, i32, i32) = (178, 177, 178, 169);
+const ACID: (i32, i32, i32, i32) = (177, 179, 185, 180);
+const BOMB: (i32, i32, i32, i32) = (178, 191, 189, 178);
+const ZONE: (i32, i32, i32, i32) = (170, 191, 190, 181);
+const WILD: (i32, i32, i32, i32) = (167, 185, 188, 180);
+const SOUL: (i32, i32, i32, i32) = (163, 191, 165, 188);
+const GTFO: (i32, i32, i32, i32) = (183, 164, 182, 191);
+pub const TEXTS: [(i32, i32, i32, i32); 7] = [BABY, ACID, BOMB, ZONE, WILD, SOUL, GTFO];
+
 pub fn text_shader_meta() -> ShaderMeta {
     ShaderMeta {
         uniforms: UniformBlockLayout {
