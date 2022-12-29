@@ -9,6 +9,7 @@ use std::path::Path;
 pub struct Quad {
     pipeline: Pipeline,
     bindings: Bindings,
+    num_elements: i32,
 }
 
 impl Shape for Quad {
@@ -18,6 +19,10 @@ impl Shape for Quad {
 
     fn get_bindings(&self) -> &Bindings {
         &self.bindings
+    }
+
+    fn get_num_elements(&self) -> i32 {
+        self.num_elements
     }
 }
 
@@ -77,6 +82,10 @@ impl Quad {
             },
         );
 
-        Quad { pipeline, bindings }
+        Quad {
+            pipeline,
+            bindings,
+            num_elements: indices.len() as i32,
+        }
     }
 }

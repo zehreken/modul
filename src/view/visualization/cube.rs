@@ -8,6 +8,7 @@ use std::path::Path;
 pub struct Cube {
     pipeline: Pipeline,
     bindings: Bindings,
+    num_elements: i32,
 }
 
 impl Shape for Cube {
@@ -17,6 +18,10 @@ impl Shape for Cube {
 
     fn get_bindings(&self) -> &Bindings {
         &self.bindings
+    }
+
+    fn get_num_elements(&self) -> i32 {
+        self.num_elements
     }
 }
 
@@ -104,6 +109,10 @@ impl Cube {
             },
         );
 
-        Cube { pipeline, bindings }
+        Cube {
+            pipeline,
+            bindings,
+            num_elements: indices.len() as i32,
+        }
     }
 }

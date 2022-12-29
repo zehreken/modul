@@ -10,11 +10,12 @@ const STACK_COUNT: usize = 8;
 const STACK_STEP: f32 = PI / STACK_COUNT as f32;
 const SECTOR_COUNT: usize = 12;
 const SECTOR_STEP: f32 = 2_f32 * PI / SECTOR_COUNT as f32;
-pub const VERTEX_COUNT: usize = (STACK_COUNT + 1) * (SECTOR_COUNT + 1);
+const VERTEX_COUNT: usize = (STACK_COUNT + 1) * (SECTOR_COUNT + 1);
 
 pub struct Sphere {
     pipeline: Pipeline,
     bindings: Bindings,
+    num_elements: i32,
 }
 
 impl Shape for Sphere {
@@ -24,6 +25,10 @@ impl Shape for Sphere {
 
     fn get_bindings(&self) -> &Bindings {
         &self.bindings
+    }
+
+    fn get_num_elements(&self) -> i32 {
+        self.num_elements
     }
 }
 
@@ -73,7 +78,11 @@ impl Sphere {
             },
         );
 
-        Sphere { pipeline, bindings }
+        Sphere {
+            pipeline,
+            bindings,
+            num_elements: indices.len() as i32,
+        }
     }
 }
 

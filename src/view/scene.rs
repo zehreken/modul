@@ -125,7 +125,7 @@ impl Scene {
                 text,
             });
 
-            ctx.draw(0, 6, 1);
+            ctx.draw(0, self.quads[i].get_num_elements(), 1);
         }
         */
 
@@ -146,7 +146,7 @@ impl Scene {
                 text,
             });
 
-            ctx.draw(0, visualization::VERTEX_COUNT as i32 * 6, 1);
+            ctx.draw(0, self.spheres[i].get_num_elements(), 1);
         }
 
         // Play-through
@@ -169,7 +169,7 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            ctx.draw(0, 6, 1);
+            ctx.draw(0, self.big_quad.get_num_elements(), 1);
             */
             // ============
 
@@ -183,7 +183,7 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            // ctx.draw(0, 36, 1);
+            // ctx.draw(0, self.cube.get_num_elements(), 1);
             // ============
 
             // Draw sphere
@@ -199,7 +199,7 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            ctx.draw(0, visualization::VERTEX_COUNT as i32 * 6, 1);
+            ctx.draw(0, self.sphere.get_num_elements(), 1);
             // ================
         }
         // ============

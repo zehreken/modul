@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added scene.rs. It is very basic currently but there is at least a container for
+visualization objects.
 
 ### Changed
 - Update miniquad, egui-miniquad and egui packages.
@@ -33,4 +35,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.1] - 2022-09-14
 ### Added
 - Add this CHANGELOG file to hopefully serve as an evolving example of a
-  standardized open source project CHANGELOG.
+standardized open source project CHANGELOG.

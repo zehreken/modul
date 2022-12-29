@@ -23,6 +23,10 @@ impl Object {
     pub fn get_bindings(&self) -> &Bindings {
         self.shape.get_bindings()
     }
+
+    pub fn get_num_elements(&self) -> i32 {
+        self.shape.get_num_elements()
+    }
 }
 
 pub struct ObjectBuilder {
@@ -77,6 +81,7 @@ impl ObjectBuilder {
 pub trait Shape {
     fn get_pipeline(&self) -> &Pipeline;
     fn get_bindings(&self) -> &Bindings;
+    fn get_num_elements(&self) -> i32;
 }
 
 pub struct Transform {
