@@ -1,12 +1,14 @@
-use self::super::visualization::object::Object;
 use super::visualization::material;
 use crate::core::Modul;
 use crate::core::TAPE_COUNT;
-use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
+use crate::view::visualization::object::Object;
+use crate::view::Camera;
+use glam::{EulerRot, Mat4, Quat, Vec3};
 use miniquad as mq;
 use rand::{self, Rng};
 
 pub struct Scene {
+    camera: Camera,
     quads: Vec<Object>,
     cube: Object,
     sphere: Object,
@@ -18,6 +20,8 @@ impl Scene {
     pub fn new(mq_ctx: &mut mq::Context) -> Self {
         let mut quads = Vec::with_capacity(TAPE_COUNT);
         let mut rng = rand::thread_rng();
+
+        let camera = Camera::new(mq_ctx.screen_size(), 60.0);
         for i in 0..TAPE_COUNT {
             quads.push(
                 Object::new(
@@ -66,6 +70,7 @@ impl Scene {
             );
         }
         Self {
+            camera,
             quads,
             // big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
             cube: Object::new(mq_ctx, material::SDF_CIRCLE)
@@ -85,9 +90,12 @@ impl Scene {
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, modul: &Modul, delta_time: f32) {
         // self.some_obj.update() would looks nicer
-        self.rotation += 0.01;
+        self.rotation += 0.1 * delta_time;
+
+        self.camera
+            .update(delta_time, modul.get_sample_averages()[0]);
 
         self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
@@ -101,14 +109,7 @@ impl Scene {
     }
 
     pub fn draw(&mut self, ctx: &mut mq::Context, modul: &Modul) {
-        let (width, height) = ctx.screen_size();
-        let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 10.0);
-        let view = Mat4::look_at_rh(
-            vec3(0.0, 0.0, 3.0),
-            vec3(0.0, 0.0, 0.0),
-            vec3(0.0, 1.0, 0.0),
-        );
-        let view_proj = proj * view;
+        let view_proj = self.camera.get_view_projection();
 
         // All quads share the same vertices
         /*

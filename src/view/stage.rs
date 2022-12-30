@@ -1,7 +1,7 @@
 use self::super::windows::Windows;
 use super::scene::Scene;
 // use super::scene2::Scene2;
-use crate::core::Modul;
+use crate::core::{Modul, ViewTime};
 use crate::Config;
 use egui::Context;
 use {egui_miniquad as egui_mq, miniquad as mq};
@@ -12,6 +12,7 @@ struct Stage {
     scene: Scene,
     // scene2: Scene2,
     modul: Modul,
+    view_time: ViewTime,
 }
 
 impl Stage {
@@ -24,6 +25,7 @@ impl Stage {
             scene: Scene::new(mq_ctx),
             // scene2: Scene2::new(mq_ctx),
             modul: Modul::new(&config),
+            view_time: ViewTime::new(),
         }
     }
 }
@@ -31,8 +33,9 @@ impl Stage {
 impl mq::EventHandler for Stage {
     fn update(&mut self, _ctx: &mut mq::Context) {
         // TODO: Does the order of these calls matter?
+        let delta_time = self.view_time.get_delta_time();
         self.modul.update();
-        self.scene.update();
+        self.scene.update(&self.modul, delta_time);
     }
 
     fn draw(&mut self, ctx: &mut mq::Context) {

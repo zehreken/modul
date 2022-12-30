@@ -91,7 +91,7 @@ pub struct Transform {
 }
 
 impl Transform {
-    fn default() -> Self {
+    pub fn default() -> Self {
         Self {
             position: Vec3::ZERO,
             rotation: Quat::IDENTITY,
