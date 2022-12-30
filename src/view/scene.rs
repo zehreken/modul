@@ -53,9 +53,14 @@ impl Scene {
                     .position(Vec3::new(
                         -2.25 + (i % 4) as f32 * 1.5_f32,
                         -0.75_f32 + (i / 4) as f32 * 1.5_f32,
+                        -0.5,
+                    ))
+                    .rotation(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        std::f32::consts::PI / 2.0,
                         0.0,
                     ))
-                    .rotation(Quat::from_euler(EulerRot::XYZ, 90.0, 0.0, 0.0))
                     .scale(Vec3::new(0.75, 0.75, 0.75))
                     .build(),
             );
@@ -86,9 +91,9 @@ impl Scene {
 
         self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
-        for obj in &mut self.spheres {
-            obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
-        }
+        // for obj in &mut self.spheres {
+        //     obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        // }
 
         // for obj in &mut self.quads {
         //     obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
