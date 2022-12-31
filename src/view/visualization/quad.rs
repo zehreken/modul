@@ -74,10 +74,10 @@ impl Quad {
             ],
             shader,
             PipelineParams {
-                depth_test: Comparison::Always,
+                depth_test: Comparison::Less,
                 depth_write: true,
-                color_blend: Some(color_blend),
-                alpha_blend: Some(alpha_blend),
+                color_blend: None, // Some(color_blend),
+                alpha_blend: None, // Some(alpha_blend),
                 ..Default::default()
             },
         );

@@ -9,7 +9,8 @@ use rand::{self, Rng};
 
 pub struct Scene {
     camera: Camera,
-    quads: Vec<Object>,
+    // quads: Vec<Object>,
+    background: Object,
     cube: Object,
     sphere: Object,
     spheres: Vec<Object>,
@@ -18,10 +19,12 @@ pub struct Scene {
 
 impl Scene {
     pub fn new(mq_ctx: &mut mq::Context) -> Self {
-        let mut quads = Vec::with_capacity(TAPE_COUNT);
+        // let mut quads = Vec::with_capacity(TAPE_COUNT);
         let mut rng = rand::thread_rng();
 
         let camera = Camera::new(mq_ctx.screen_size(), 60.0);
+
+        /*
         for i in 0..TAPE_COUNT {
             quads.push(
                 Object::new(
@@ -46,6 +49,8 @@ impl Scene {
                 .build(),
             );
         }
+        */
+
         let mut spheres = Vec::with_capacity(TAPE_COUNT);
         for i in 0..TAPE_COUNT {
             spheres.push(
@@ -71,12 +76,15 @@ impl Scene {
         }
         Self {
             camera,
-            quads,
-            // big_quad: Object::new(mq_ctx, material::_TEXTURE).build(),
+            // quads,
+            background: Object::new(mq_ctx, material::COLOR_BAR)
+                .position(Vec3::new(0.0, 0.0, -1.0))
+                .scale(Vec3::ONE * 6.0)
+                .build(),
             cube: Object::new(mq_ctx, material::SDF_CIRCLE)
                 .shape(Box::new(super::visualization::cube::Cube::new(
                     mq_ctx,
-                    material::SDF_CIRCLE,
+                    material::DEBUG_COLOR,
                 )))
                 .build(),
             sphere: Object::new(mq_ctx, material::DEBUG_COLOR)
@@ -95,7 +103,7 @@ impl Scene {
         self.rotation += 0.1 * delta_time;
 
         self.camera
-            .update(delta_time, modul.get_sample_averages()[0]);
+            .update(delta_time, modul.get_sample_averages()[8]);
 
         self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
@@ -164,20 +172,24 @@ impl Scene {
             };
 
             // Draw big plane
-            /*
-            let text = TEXTS[(wavepoint * 1000.0) as usize % 7];
-            ctx.apply_pipeline(self.big_quad.get_pipeline());
-            ctx.apply_bindings(self.big_quad.get_bindings());
+            let model = Mat4::from_scale_rotation_translation(
+                self.background.transform.scale,
+                self.background.transform.rotation,
+                self.background.transform.position,
+            );
+            let text = material::TEXTS[(wavepoint * 1000.0) as usize % 7];
+            ctx.apply_pipeline(self.background.get_pipeline());
+            ctx.apply_bindings(self.background.get_bindings());
             ctx.apply_uniforms(&material::Uniforms {
-                mvp: view_proj,
+                mvp: view_proj * model,
                 wavepoint,
                 text,
             });
-            ctx.draw(0, self.big_quad.get_num_elements(), 1);
-            */
+            ctx.draw(0, self.background.get_num_elements(), 1);
             // ============
 
             // Draw cube
+            /*
             let model = Mat4::from_rotation_x(self.rotation) * Mat4::from_rotation_y(self.rotation);
             let text = material::TEXTS[(wavepoint * 1000.0) as usize % 7];
             ctx.apply_pipeline(self.cube.get_pipeline());
@@ -187,7 +199,8 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            // ctx.draw(0, self.cube.get_num_elements(), 1);
+            ctx.draw(0, self.cube.get_num_elements(), 1);
+            */
             // ============
 
             // Draw sphere
@@ -203,7 +216,7 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            ctx.draw(0, self.sphere.get_num_elements(), 1);
+            // ctx.draw(0, self.sphere.get_num_elements(), 1);
             // ================
         }
         // ============
