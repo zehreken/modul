@@ -58,6 +58,10 @@ impl mq::EventHandler for Stage {
         ctx.commit_frame();
     }
 
+    fn resize_event(&mut self, _ctx: &mut mq::Context, width: f32, height: f32) {
+        self.scene.resize((width, height))
+    }
+
     fn mouse_motion_event(&mut self, _ctx: &mut mq::Context, x: f32, y: f32) {
         self.egui_mq.mouse_motion_event(x, y);
     }

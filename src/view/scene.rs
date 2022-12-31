@@ -208,4 +208,8 @@ impl Scene {
         }
         // ============
     }
+
+    pub fn resize(&mut self, screen_size: (f32, f32)) {
+        self.camera.screen_size = screen_size;
+    }
 }

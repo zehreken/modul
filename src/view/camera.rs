@@ -20,8 +20,8 @@ impl Camera {
 
     pub fn update(&mut self, delta_time: f32, wavepoint: f32) {
         self.elapsed_time += delta_time / 10.0;
-        self.transform.position.x = 5.0 * self.elapsed_time.cos();
-        self.transform.position.z = 5.0 * self.elapsed_time.sin();
+        self.transform.position.x = 4.0 * self.elapsed_time.cos();
+        self.transform.position.z = 4.0 * self.elapsed_time.sin();
     }
 
     pub fn get_view_projection(&self) -> Mat4 {
