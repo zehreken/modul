@@ -5,7 +5,7 @@ use crate::view::visualization::object::Object;
 use crate::view::Camera;
 use glam::{EulerRot, Mat4, Quat, Vec3};
 use miniquad as mq;
-use rand::{self, Rng};
+use rand;
 
 pub struct Scene {
     camera: Camera,
@@ -102,8 +102,8 @@ impl Scene {
         // self.some_obj.update() would looks nicer
         self.rotation += 0.1 * delta_time;
 
-        self.camera
-            .update(delta_time, modul.get_sample_averages()[8]);
+        let wavepoint = modul.get_sample_averages()[0].max(modul.get_sample_averages()[8]);
+        self.camera.update(delta_time, wavepoint);
 
         self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
 
@@ -164,7 +164,7 @@ impl Scene {
         // Play-through
         if modul.is_play_through() {
             // 8 is the index of the last element
-            let wavepoint = modul.get_sample_averages()[8];
+            let wavepoint = modul.get_sample_averages()[0].max(modul.get_sample_averages()[8]);
             self.rotation += if wavepoint > 0.05 {
                 -wavepoint
             } else {
@@ -204,6 +204,7 @@ impl Scene {
             // ============
 
             // Draw sphere
+            /*
             let model = Mat4::from_scale_rotation_translation(
                 self.sphere.transform.scale,
                 self.sphere.transform.rotation,
@@ -216,7 +217,8 @@ impl Scene {
                 wavepoint,
                 text,
             });
-            // ctx.draw(0, self.sphere.get_num_elements(), 1);
+            ctx.draw(0, self.sphere.get_num_elements(), 1);
+            */
             // ================
         }
         // ============

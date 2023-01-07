@@ -1,16 +1,20 @@
 use self::super::visualization::object::Object;
 use super::visualization::material;
 use crate::core::Modul;
+use crate::view::Camera;
 use glam::{vec3, EulerRot, Mat4, Quat, Vec3};
 use miniquad as mq;
 
 pub struct Scene2 {
+    camera: Camera,
     objects: Vec<Object>,
     rotation: f32,
 }
 
 impl Scene2 {
     pub fn new(mq_ctx: &mut mq::Context) -> Self {
+        let camera = Camera::new(mq_ctx.screen_size(), 60.0);
+
         let quad = Object::new(mq_ctx, material::DEBUG_COLOR)
             .position(Vec3::new(-1.0, 0.0, 0.0))
             .scale(Vec3::new(0.5, 0.5, 0.5))
@@ -43,28 +47,23 @@ impl Scene2 {
         let objects = vec![quad, cube, sphere];
 
         Self {
+            camera,
             objects,
             rotation: 0.0,
         }
     }
 
-    pub fn update(&mut self) {
-        self.rotation += 0.01;
+    pub fn update(&mut self, modul: &Modul, delta_time: f32) {
+        self.rotation += 0.1 * delta_time;
 
+        self.camera.update(delta_time, 0.0);
         for obj in &mut self.objects {
             obj.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
         }
     }
 
     pub fn draw(&mut self, ctx: &mut mq::Context, modul: &Modul) {
-        let (width, height) = ctx.screen_size();
-        let proj = Mat4::perspective_rh_gl(60.0f32.to_radians(), width / height, 0.01, 10.0);
-        let view = Mat4::look_at_rh(
-            vec3(0.0, 0.0, 3.0),
-            vec3(0.0, 0.0, 0.0),
-            vec3(0.0, 1.0, 0.0),
-        );
-        let view_proj = proj * view;
+        let view_proj = self.camera.get_view_projection();
 
         for obj in &self.objects {
             ctx.apply_pipeline(obj.get_pipeline());
@@ -82,5 +81,9 @@ impl Scene2 {
 
             ctx.draw(0, obj.get_num_elements(), 1);
         }
+    }
+
+    pub fn resize(&mut self, screen_size: (f32, f32)) {
+        self.camera.screen_size = screen_size;
     }
 }
