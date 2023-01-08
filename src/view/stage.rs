@@ -1,6 +1,7 @@
 use self::super::windows::Windows;
 // use super::scene::Scene;
-use super::scene2::Scene2;
+// use super::scene2::Scene2;
+use super::scene3::Scene3;
 use crate::core::{Modul, ViewTime};
 use crate::Config;
 use egui::Context;
@@ -10,7 +11,8 @@ struct Stage {
     windows: super::windows::Windows,
     egui_mq: egui_mq::EguiMq,
     // scene: Scene,
-    scene: Scene2,
+    // scene: Scene2,
+    scene: Scene3,
     modul: Modul,
     view_time: ViewTime,
 }
@@ -23,7 +25,7 @@ impl Stage {
             windows: super::windows::Windows::new(egui_mq.egui_ctx()),
             egui_mq,
             // scene: Scene::new(mq_ctx),
-            scene: Scene2::new(mq_ctx),
+            scene: Scene3::new(mq_ctx),
             modul: Modul::new(&config),
             view_time: ViewTime::new(),
         }
