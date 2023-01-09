@@ -22,7 +22,7 @@ impl Scene3 {
 
         Self {
             camera,
-            background: Object::new(mq_ctx, material::COLOR_BAR)
+            background: Object::new(mq_ctx, material::BLOBS)
                 .position(Vec3::new(0.0, 0.0, -1.0))
                 .scale(Vec3::ONE * 6.0)
                 .build(),
@@ -41,6 +41,8 @@ impl Scene3 {
         self.rotation += 0.1 * delta_time;
 
         self.camera.update(delta_time, 0.0);
+
+        self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
     }
 
     pub fn draw(&mut self, ctx: &mut mq::Context, modul: &Modul) {
@@ -56,7 +58,7 @@ impl Scene3 {
         ctx.apply_bindings(self.background.get_bindings());
         ctx.apply_uniforms(&material::Uniforms {
             mvp: view_proj * model,
-            wavepoint: 1.0,
+            wavepoint: modul.get_sample_averages()[8],
             text,
         });
         ctx.draw(0, self.background.get_num_elements(), 1);
@@ -70,10 +72,10 @@ impl Scene3 {
         ctx.apply_bindings(self.sphere.get_bindings());
         ctx.apply_uniforms(&material::Uniforms {
             mvp: view_proj * model,
-            wavepoint: 0.5,
+            wavepoint: modul.get_sample_averages()[8],
             text: (0, 0, 0, 0),
         });
-        ctx.draw(0, self.sphere.get_num_elements(), 1);
+        // ctx.draw(0, self.sphere.get_num_elements(), 1);
     }
 
     pub fn resize(&mut self, screen_size: (f32, f32)) {

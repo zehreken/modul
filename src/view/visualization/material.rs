@@ -9,6 +9,7 @@ pub const SDF_EYE: &str = include_str!("shaders/sdf_eye.frag");
 pub const DEBUG_COLOR: &str = include_str!("shaders/debug_color.frag");
 pub const UV_VISUAL: &str = include_str!("shaders/uv_visual.frag");
 pub const SDF_EYE_2: &str = include_str!("shaders/sdf_eye_2.frag");
+pub const BLOBS: &str = include_str!("shaders/blobs.frag");
 
 const BABY: (i32, i32, i32, i32) = (178, 177, 178, 169);
 const ACID: (i32, i32, i32, i32) = (177, 179, 185, 180);
