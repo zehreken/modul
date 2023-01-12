@@ -29,7 +29,7 @@ impl Scene3 {
             sphere: Object::new(mq_ctx, material::SDF_CIRCLE)
                 .shape(Box::new(super::visualization::Sphere::new(
                     mq_ctx,
-                    material::SDF_CIRCLE,
+                    material::BLOBS,
                 )))
                 .build(),
             rotation: 0.0,
@@ -75,7 +75,7 @@ impl Scene3 {
             wavepoint: modul.get_sample_averages()[8],
             text: (0, 0, 0, 0),
         });
-        // ctx.draw(0, self.sphere.get_num_elements(), 1);
+        ctx.draw(0, self.sphere.get_num_elements(), 1);
     }
 
     pub fn resize(&mut self, screen_size: (f32, f32)) {
