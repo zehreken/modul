@@ -22,7 +22,7 @@ impl Scene3 {
 
         Self {
             camera,
-            background: Object::new(mq_ctx, material::BLOBS)
+            background: Object::new(mq_ctx, material::BLOBS_2)
                 .position(Vec3::new(0.0, 0.0, -1.0))
                 .scale(Vec3::ONE * 6.0)
                 .build(),
@@ -63,6 +63,7 @@ impl Scene3 {
         });
         ctx.draw(0, self.background.get_num_elements(), 1);
 
+        /*
         let model = Mat4::from_scale_rotation_translation(
             self.sphere.transform.scale,
             self.sphere.transform.rotation,
@@ -76,6 +77,7 @@ impl Scene3 {
             text: (0, 0, 0, 0),
         });
         ctx.draw(0, self.sphere.get_num_elements(), 1);
+        */
     }
 
     pub fn resize(&mut self, screen_size: (f32, f32)) {
