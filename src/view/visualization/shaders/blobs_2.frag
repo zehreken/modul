@@ -1,7 +1,7 @@
 #version 330
 
-#define INTENSITY 10.5
-#define GLOW 4.0
+#define INTENSITY 6.0
+#define GLOW 2.0
 
 uniform float wavepoint;
 in lowp vec2 texcoord;
@@ -24,13 +24,13 @@ void main()
     vec2 uv = texcoord;
     uv -= 0.5; // This moves origin to the center
 
-    float time = wavepoint * 2.0;
+    float time = wavepoint * 20.0;
 	
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	color.rgb += blob(uv - 0.1, vec3(0.2, 0.5, 0.0), vec2(0.0, 0.0), vec2(0.4, 0.1), time);
-	color.rgb += blob(uv + 0.1, vec3(0.3, 0.4, 0.0), vec2(0.2, 0.3), vec2(0.3, 0.2), time);
-	color.rgb += blob(uv - 0.2, vec3(0.4, 0.3, 0.0), vec2(-0.3, -0.1), vec2(0.2, 0.3), time);
-	color.rgb += blob(uv + 0.2, vec3(0.5, 0.2, 0.0), vec2(-0.1, -0.2), vec2(0.1, 0.4), time);
+	color.rgb += blob(uv, vec3(0.2, 0.5, 0.0), vec2(1.0, 1.0), vec2(0.05, 0.1), time);
+	// color.rgb += blob(uv + 0.1, vec3(0.3, 0.4, 0.0), vec2(0.2, 0.3), vec2(0.3, 0.2), time);
+	// color.rgb += blob(uv - 0.2, vec3(0.4, 0.3, 0.0), vec2(-0.3, -0.1), vec2(0.2, 0.3), time);
+	// color.rgb += blob(uv + 0.2, vec3(0.5, 0.2, 0.0), vec2(-0.1, -0.2), vec2(0.1, 0.4), time);
 
 	fragColor = color;
 }
