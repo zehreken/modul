@@ -10,7 +10,8 @@ use rand;
 pub struct Scene3 {
     camera: Camera,
     background: Object,
-    sphere: Object,
+    // sphere: Object,
+    cube: Object,
     rotation: f32,
 }
 
@@ -26,8 +27,14 @@ impl Scene3 {
                 .position(Vec3::new(0.0, 0.0, -1.0))
                 .scale(Vec3::ONE * 6.0)
                 .build(),
-            sphere: Object::new(mq_ctx, material::SDF_CIRCLE)
-                .shape(Box::new(super::visualization::Sphere::new(
+            // sphere: Object::new(mq_ctx, material::SDF_CIRCLE)
+            //     .shape(Box::new(super::visualization::Sphere::new(
+            //         mq_ctx,
+            //         material::BLOBS,
+            //     )))
+            //     .build(),
+            cube: Object::new(mq_ctx, material::SDF_CIRCLE)
+                .shape(Box::new(super::visualization::Cube::new(
                     mq_ctx,
                     material::BLOBS,
                 )))
@@ -42,7 +49,7 @@ impl Scene3 {
 
         self.camera.update(delta_time, 0.0);
 
-        self.sphere.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
+        self.cube.transform.rotation = Quat::from_euler(EulerRot::XYZ, 0.0, self.rotation, 0.0);
     }
 
     pub fn draw(&mut self, ctx: &mut mq::Context, modul: &Modul) {
@@ -63,21 +70,19 @@ impl Scene3 {
         });
         ctx.draw(0, self.background.get_num_elements(), 1);
 
-        /*
         let model = Mat4::from_scale_rotation_translation(
-            self.sphere.transform.scale,
-            self.sphere.transform.rotation,
-            self.sphere.transform.position,
+            self.cube.transform.scale,
+            self.cube.transform.rotation,
+            self.cube.transform.position,
         );
-        ctx.apply_pipeline(self.sphere.get_pipeline());
-        ctx.apply_bindings(self.sphere.get_bindings());
+        ctx.apply_pipeline(self.cube.get_pipeline());
+        ctx.apply_bindings(self.cube.get_bindings());
         ctx.apply_uniforms(&material::Uniforms {
             mvp: view_proj * model,
             wavepoint: modul.get_sample_averages()[8],
             text: (0, 0, 0, 0),
         });
-        ctx.draw(0, self.sphere.get_num_elements(), 1);
-        */
+        ctx.draw(0, self.cube.get_num_elements(), 1);
     }
 
     pub fn resize(&mut self, screen_size: (f32, f32)) {
