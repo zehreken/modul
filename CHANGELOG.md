@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- Stopping recording to a loop tape also stops recording to the main tape.
 ### Fixed
 
 ## [0.0.3] - 2022-12-31
