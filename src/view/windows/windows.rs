@@ -17,6 +17,8 @@ pub struct Windows {
     window_controls: super::window_controls::WindowControls,
     show_log: bool,
     window_log: super::window_log::WindowLog,
+    show_settings: bool,
+    window_settings: super::window_settings::WindowSettings,
     // inventory: HashMap<bool, dyn Drawable>,
 }
 
@@ -34,6 +36,8 @@ impl Windows {
             window_controls: super::window_controls::WindowControls::default(),
             show_log: false,
             window_log: super::window_log::WindowLog::default(),
+            show_settings: false,
+            window_settings: super::window_settings::WindowSettings::default(),
         }
     }
 
@@ -44,7 +48,7 @@ impl Windows {
                 ui.label("modul ❤ ");
                 ui.separator();
 
-                ui.menu_button("View", |ui| {
+                ui.menu_button("Window", |ui| {
                     ui.checkbox(&mut self.show_tapes, "Tapes");
                     if ui.checkbox(&mut self.show_metronome, "Metronome").changed() {
                         modul.switch_metronome(self.show_metronome);
@@ -52,6 +56,7 @@ impl Windows {
                     ui.checkbox(&mut self.show_stats, "Stats");
                     ui.checkbox(&mut self.show_controls, "Controls");
                     ui.checkbox(&mut self.show_log, "Log");
+                    ui.checkbox(&mut self.show_settings, "Settings");
                 });
                 if ui
                     .checkbox(&mut self.is_play_through, "play through")
@@ -87,6 +92,9 @@ impl Windows {
         }
         if self.show_log {
             self.window_log.draw(ctx, modul);
+        }
+        if self.show_settings {
+            self.window_settings.draw(ctx, modul);
         }
     }
 

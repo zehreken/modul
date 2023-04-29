@@ -31,7 +31,7 @@ pub enum ModulAction {
     SelectSecondaryTape(usize),
     MergeTapes,
     Record,
-    Playback,
+    RecordPlayback,
     PlayThrough,
     Write,
     Clear,

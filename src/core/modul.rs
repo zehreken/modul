@@ -298,7 +298,9 @@ impl Modul {
     }
 
     pub fn record_playback(&mut self) {
-        self.action_producer.push(ModulAction::Playback).unwrap();
+        self.action_producer
+            .push(ModulAction::RecordPlayback)
+            .unwrap();
     }
 
     pub fn play_through(&mut self) {

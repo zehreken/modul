@@ -223,6 +223,13 @@ impl AudioModel {
                 }
                 ModulAction::Record => {
                     if self.is_recording {
+                        // TODO: Add this to settings
+                        // Stop recording to main tape also
+                        self.is_recording_playback = false;
+                        self.audio_message_producer
+                            .push(ModulMessage::RecordingPlayback(self.is_recording_playback))
+                            .unwrap();
+                        // ================================
                         self.is_recording = false;
                         self.audio_message_producer
                             .push(ModulMessage::Recording(self.is_recording))
@@ -246,7 +253,7 @@ impl AudioModel {
                         self.recording_tape.clear();
                     }
                 }
-                ModulAction::Playback => {
+                ModulAction::RecordPlayback => {
                     self.is_recording_playback = !self.is_recording_playback;
                     self.audio_message_producer
                         .push(ModulMessage::RecordingPlayback(self.is_recording_playback))
