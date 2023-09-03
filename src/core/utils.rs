@@ -70,7 +70,7 @@ pub fn create_input_stream_live(
     };
 
     input_device
-        .build_input_stream(config, input_data_fn, err_fn)
+        .build_input_stream(config, input_data_fn, err_fn, None)
         .unwrap()
 }
 
@@ -92,7 +92,7 @@ pub fn create_output_stream_live(
     };
 
     output_device
-        .build_output_stream(config, output_data_fn, err_fn)
+        .build_output_stream(config, output_data_fn, err_fn, None)
         .unwrap()
 }
 
