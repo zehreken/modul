@@ -1,9 +1,11 @@
-mod view;
+// mod view;
 use std::cmp::Ordering;
 use std::env;
 mod core;
 mod features;
 use colored::Colorize;
+mod winit_view;
+use winit_view::view;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -23,9 +25,11 @@ impl Config {
         let mut bpm: u16 = default_bpm;
         let mut bar_count: usize = default_bar_count;
 
+        println!("{}", "                 ");
         println!("{}", "                 ".on_yellow());
         println!("{}", "      MODUL      ".bold().blue().on_yellow());
         println!("{}", "                 ".on_yellow());
+        println!("{}", "                 ");
 
         match args.len().cmp(&3) {
             Ordering::Less => {
