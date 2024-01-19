@@ -8,7 +8,10 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-use crate::winit_view::{gui, renderer};
+use crate::{
+    winit_view::{gui, renderer},
+    Config,
+};
 
 pub struct App {
     window: Window,
@@ -97,7 +100,7 @@ impl App {
     }
 }
 
-pub async fn start() {
+pub async fn start(config: Config) {
     let size = Size::Physical(PhysicalSize {
         width: 1600,
         height: 1200,

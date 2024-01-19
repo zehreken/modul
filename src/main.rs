@@ -5,12 +5,13 @@ mod core;
 mod features;
 use colored::Colorize;
 mod winit_view;
-use winit_view::view;
+use winit_view::app;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = Config::new(args);
-    view::start(config);
+
+    pollster::block_on(app::start(config));
 }
 
 pub struct Config {
