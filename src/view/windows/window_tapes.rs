@@ -58,15 +58,20 @@ impl Drawable for WindowTapes {
                 );
             }
 
+            if ui.input(|i| i.key_pressed(Key::Num1) && i.modifiers == Modifiers::SHIFT) {
+                select_tape(modul, primary_tape, 0, secondary_tapes, true);
+            }
+            /*
             // Keyboard input
             for e in ui.input().events.iter() {
                 if let egui::Event::Key {
                     key,
                     pressed,
                     modifiers,
+                    repeat,
                 } = e
                 {
-                    if *pressed {
+                    if pressed {
                         match key {
                             Key::Num1 => {
                                 select_tape(
@@ -74,7 +79,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     0,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num2 => {
@@ -83,7 +88,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     1,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num3 => {
@@ -92,7 +97,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     2,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num4 => {
@@ -101,7 +106,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     3,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num5 => {
@@ -110,7 +115,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     4,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num6 => {
@@ -119,7 +124,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     5,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num7 => {
@@ -128,7 +133,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     6,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::Num8 => {
@@ -137,7 +142,7 @@ impl Drawable for WindowTapes {
                                     primary_tape,
                                     7,
                                     secondary_tapes,
-                                    *modifiers == Modifiers::SHIFT,
+                                    modifiers == Modifiers::SHIFT,
                                 );
                             }
                             Key::M => {
@@ -188,6 +193,7 @@ impl Drawable for WindowTapes {
                     }
                 }
             }
+            // */
         });
     }
 }

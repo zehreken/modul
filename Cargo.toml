@@ -14,7 +14,7 @@ cpal = "0.15"
 array-init = "2.0.0"
 miniquad = { version = "=0.3.15" }
 egui-miniquad = "0.13.0"
-egui = { version = "0.20", features = ["bytemuck"] }
+egui = { version = "0.23", features = ["bytemuck"] }
 image = "0.24.2"
 copypasta = "0.8.1"
 glam = "0.24"

@@ -1,3 +1,4 @@
+use crate::view::{Modul, Windows};
 use crate::winit_view::app::App;
 use egui::{Color32, RichText};
 use egui_wgpu::wgpu::TextureFormat;
@@ -10,16 +11,19 @@ use winit::{event_loop::EventLoopWindowTarget, window::Window};
 
 struct Test {
     is_window_open: bool,
+    windows: Windows,
 }
 
 impl Test {
-    fn new() -> Self {
+    fn new(ctx: &Context) -> Self {
         Self {
             is_window_open: false,
+            windows: Windows::new(ctx),
         }
     }
 
-    fn draw(&mut self, ctx: &Context, fps: f32) {
+    fn draw(&mut self, ctx: &Context, fps: f32, modul: &mut Modul) {
+        self.windows.draw(ctx, modul);
         egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::RED));
@@ -69,6 +73,8 @@ pub struct Gui {
     view: Test,
     paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
+    width: u32,
+    height: u32,
 }
 
 impl Gui {
@@ -93,7 +99,7 @@ impl Gui {
         let renderer = Renderer::new(device, texture_format, None, 1);
         let textures = TexturesDelta::default();
 
-        let view = Test::new();
+        let view = Test::new(&egui_ctx);
 
         Self {
             ctx: egui_ctx,
@@ -103,6 +109,8 @@ impl Gui {
             view,
             paint_jobs: vec![],
             textures,
+            width,
+            height,
         }
     }
 
@@ -111,6 +119,12 @@ impl Gui {
     }
 
     // resize
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.screen_descriptor = ScreenDescriptor {
+            size_in_pixels: [width, height],
+            pixels_per_point: 2.,
+        };
+    }
 
     // update scale factor
 
@@ -120,10 +134,11 @@ impl Gui {
         render_target: &wgpu::TextureView,
         app: &App,
         fps: f32,
+        modul: &mut Modul,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.view.draw(egui_ctx, fps);
+            self.view.draw(egui_ctx, fps, modul);
         });
 
         self.textures.append(output.textures_delta);

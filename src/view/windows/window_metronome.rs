@@ -46,12 +46,12 @@ impl Drawable for WindowMetronome {
             let mut shapes = vec![];
             let s = texture.size_vec2();
             let id = texture.id();
-            ui.horizontal(|ui| {
-                ui.image(id, s);
-                ui.image(id, s);
-                ui.image(id, s);
-                ui.image(id, s);
-            });
+            // ui.horizontal(|ui| {
+            //     ui.image(id, s);
+            //     ui.image(id, s);
+            //     ui.image(id, s);
+            //     ui.image(id, s);
+            // });
             shapes.push(epaint::Shape::circle_filled(
                 to_screen * pos2(0.03 + (modul.get_beat_index() % 4) as f32 * 0.082, 5.0),
                 9.0,

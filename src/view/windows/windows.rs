@@ -99,20 +99,25 @@ impl Windows {
     }
 
     fn check_input(&mut self, ui: &mut egui::Ui, modul: &mut super::Modul) {
+        if ui.input(|i| i.key_pressed(Key::Space)) {
+            modul.record();
+        }
+        /*
         for e in ui.input().events.iter() {
             if let egui::Event::Key {
                 key,
                 pressed,
                 modifiers,
+                repeat,
             } = e
             {
-                if *pressed {
+                if pressed {
                     match key {
                         Key::Space => {
                             modul.record();
                         }
                         Key::C => {
-                            if *modifiers == Modifiers::SHIFT {
+                            if modifiers == Modifiers::SHIFT {
                                 modul.clear_all();
                             } else {
                                 modul.clear();
@@ -135,5 +140,6 @@ impl Windows {
                 }
             }
         }
+        */
     }
 }

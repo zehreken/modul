@@ -1,17 +1,20 @@
 use std::collections::VecDeque;
 
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureFormat};
+use wgpu::{Device, Queue, Surface, SurfaceCapabilities, SurfaceConfiguration, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
-    event::{Event, WindowEvent},
+    event::{self, Event, WindowEvent},
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
 
 use crate::{
+    core::Modul,
     winit_view::{gui, renderer},
     Config,
 };
+
+pub struct AudioApp {}
 
 pub struct App {
     window: Window,
@@ -22,10 +25,12 @@ pub struct App {
     surface_config: SurfaceConfiguration,
     texture_format: TextureFormat,
     rolling_frame_time: VecDeque<f32>,
+    config: Config,
+    surface_caps: SurfaceCapabilities,
 }
 
 impl App {
-    async fn new(window: Window) -> App {
+    async fn new(window: Window, config: Config) -> App {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
@@ -88,7 +93,22 @@ impl App {
             surface_config,
             texture_format,
             rolling_frame_time: VecDeque::from(init),
+            config,
+            surface_caps,
         }
+    }
+
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.surface_config = wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: self.texture_format,
+            width: width,
+            height: height,
+            present_mode: self.surface_caps.present_modes[0],
+            alpha_mode: self.surface_caps.alpha_modes[0],
+            view_formats: vec![],
+        };
+        self.surface.configure(&self.device, &self.surface_config);
     }
 
     pub fn device(&self) -> &Device {
@@ -101,21 +121,21 @@ impl App {
 }
 
 pub async fn start(config: Config) {
-    let size = Size::Physical(PhysicalSize {
-        width: 1600,
-        height: 1200,
-    });
+    // let size = Size::Physical(PhysicalSize {
+    //     width: 1600,
+    //     height: 1200,
+    // });
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_decorations(true)
-        .with_resizable(false)
+        .with_resizable(true)
         .with_transparent(false)
-        .with_title("winit-wgpu-egui")
-        .with_inner_size(size)
+        .with_title("modul ❤")
+        // .with_inner_size(size)
         .build(&event_loop)
         .unwrap();
 
-    let app = App::new(window).await;
+    let mut app = App::new(window, config).await;
     // create renderer
     let mut renderer = renderer::Renderer::new(&app.device, &app.surface_config);
     // create gui
@@ -126,7 +146,16 @@ pub async fn start(config: Config) {
     let mut earlier = std::time::Instant::now();
     let mut elapsed_time = 0.0;
 
+    let mut modul = Modul::new(&app.config);
+
     event_loop.run(move |event, _elwt, control_flow| match event {
+        Event::WindowEvent {
+            window_id,
+            event: WindowEvent::Resized(size),
+        } if window_id == app.window.id() => {
+            app.resize(size.width, size.height);
+            gui.resize(size.width, size.height);
+        }
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
@@ -160,8 +189,11 @@ pub async fn start(config: Config) {
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
             renderer.render(&app.device, &app.queue, &output_view, elapsed_time);
-            gui.render(&app.window, &output_view, &app, fps);
+            gui.render(&app.window, &output_view, &app, fps, &mut modul);
             output_frame.present();
+
+            // Modul does not complain at this point
+            modul.update();
         }
         _ => {}
     });
