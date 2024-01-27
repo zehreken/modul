@@ -102,44 +102,23 @@ impl Windows {
         if ui.input(|i| i.key_pressed(Key::Space)) {
             modul.record();
         }
-        /*
-        for e in ui.input().events.iter() {
-            if let egui::Event::Key {
-                key,
-                pressed,
-                modifiers,
-                repeat,
-            } = e
-            {
-                if pressed {
-                    match key {
-                        Key::Space => {
-                            modul.record();
-                        }
-                        Key::C => {
-                            if modifiers == Modifiers::SHIFT {
-                                modul.clear_all();
-                            } else {
-                                modul.clear();
-                            }
-                        }
-                        Key::T => {
-                            modul.record_playback();
-                        }
-                        Key::Y => {
-                            modul.play_through();
-                        }
-                        Key::W => {
-                            modul.write();
-                        }
-                        Key::Escape => {
-                            std::process::exit(0);
-                        }
-                        _ => {}
-                    }
-                }
-            }
+        if ui.input(|i| i.key_pressed(Key::C)) {
+            modul.clear();
         }
-        */
+        if ui.input(|i| i.key_pressed(Key::C) && i.modifiers == Modifiers::SHIFT) {
+            modul.clear_all();
+        }
+        if ui.input(|i| i.key_pressed(Key::T)) {
+            modul.record_playback();
+        }
+        if ui.input(|i| i.key_pressed(Key::Y)) {
+            modul.play_through();
+        }
+        if ui.input(|i| i.key_pressed(Key::W)) {
+            modul.write();
+        }
+        if ui.input(|i| i.key_pressed(Key::Escape)) {
+            std::process::exit(0);
+        }
     }
 }

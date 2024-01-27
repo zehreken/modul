@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use wgpu::{Device, Queue, Surface, SurfaceCapabilities, SurfaceConfiguration, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
-    event::{self, Event, WindowEvent},
+    event::{Event, WindowEvent},
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
