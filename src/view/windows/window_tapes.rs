@@ -58,142 +58,74 @@ impl Drawable for WindowTapes {
                 );
             }
 
-            if ui.input(|i| i.key_pressed(Key::Num1) && i.modifiers == Modifiers::SHIFT) {
-                select_tape(modul, primary_tape, 0, secondary_tapes, true);
+            let is_shift_pressed = ui.input(|i| i.modifiers).matches(Modifiers::SHIFT);
+            if ui.input(|i| i.key_pressed(Key::Num1)) {
+                select_tape(modul, primary_tape, 0, secondary_tapes, is_shift_pressed);
             }
-            /*
-            // Keyboard input
-            for e in ui.input().events.iter() {
-                if let egui::Event::Key {
-                    key,
-                    pressed,
-                    modifiers,
-                    repeat,
-                } = e
-                {
-                    if pressed {
-                        match key {
-                            Key::Num1 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    0,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num2 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    1,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num3 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    2,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num4 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    3,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num5 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    4,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num6 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    5,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num7 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    6,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::Num8 => {
-                                select_tape(
-                                    modul,
-                                    primary_tape,
-                                    7,
-                                    secondary_tapes,
-                                    modifiers == Modifiers::SHIFT,
-                                );
-                            }
-                            Key::M => {
-                                tape_mute_states[*primary_tape] = !tape_mute_states[*primary_tape];
-                                modul.toggle_mute();
-                                for i in 0..TAPE_COUNT {
-                                    if secondary_tapes[i] {
-                                        tape_mute_states[i] = !tape_mute_states[i];
-                                    }
-                                }
-                            }
-                            Key::N => {
-                                modul.merge_tapes();
-                            }
-                            Key::S => {
-                                tape_solo_states[*primary_tape] = !tape_solo_states[*primary_tape];
-                                modul.toggle_solo();
-                                for i in 0..TAPE_COUNT {
-                                    if secondary_tapes[i] {
-                                        tape_solo_states[i] = !tape_solo_states[i];
-                                    }
-                                }
-                            }
-                            Key::ArrowUp => {
-                                if tape_volumes[*primary_tape] < 1.0 {
-                                    tape_volumes[*primary_tape] += 0.01;
-                                }
-                                for i in 0..TAPE_COUNT {
-                                    if secondary_tapes[i] && tape_volumes[i] < 1.0 {
-                                        tape_volumes[i] += 0.01;
-                                    }
-                                }
-                                modul.volume_up();
-                            }
-                            Key::ArrowDown => {
-                                if tape_volumes[*primary_tape] > 0.01 {
-                                    tape_volumes[*primary_tape] -= 0.01;
-                                }
-                                for i in 0..TAPE_COUNT {
-                                    if secondary_tapes[i] && tape_volumes[i] > 0.01 {
-                                        tape_volumes[i] -= 0.01;
-                                    }
-                                }
-                                modul.volume_down();
-                            }
-                            _ => {}
-                        }
+            if ui.input(|i| i.key_pressed(Key::Num2)) {
+                select_tape(modul, primary_tape, 1, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num3)) {
+                select_tape(modul, primary_tape, 2, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num4)) {
+                select_tape(modul, primary_tape, 3, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num5)) {
+                select_tape(modul, primary_tape, 4, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num6)) {
+                select_tape(modul, primary_tape, 5, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num7)) {
+                select_tape(modul, primary_tape, 6, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::Num8)) {
+                select_tape(modul, primary_tape, 7, secondary_tapes, is_shift_pressed);
+            }
+            if ui.input(|i| i.key_pressed(Key::M)) {
+                tape_mute_states[*primary_tape] = !tape_mute_states[*primary_tape];
+                modul.toggle_mute();
+                for i in 0..TAPE_COUNT {
+                    if secondary_tapes[i] {
+                        tape_mute_states[i] = !tape_mute_states[i];
                     }
                 }
             }
-            // */
+            if ui.input(|i| i.key_pressed(Key::N)) {
+                modul.merge_tapes();
+            }
+            if ui.input(|i| i.key_pressed(Key::S)) {
+                tape_solo_states[*primary_tape] = !tape_solo_states[*primary_tape];
+                modul.toggle_solo();
+                for i in 0..TAPE_COUNT {
+                    if secondary_tapes[i] {
+                        tape_solo_states[i] = !tape_solo_states[i];
+                    }
+                }
+            }
+            if ui.input(|i| i.key_pressed(Key::ArrowUp)) {
+                if tape_volumes[*primary_tape] < 1.0 {
+                    tape_volumes[*primary_tape] += 0.01;
+                }
+                for i in 0..TAPE_COUNT {
+                    if secondary_tapes[i] && tape_volumes[i] < 1.0 {
+                        tape_volumes[i] += 0.01;
+                    }
+                }
+                modul.volume_up();
+            }
+            if ui.input(|i| i.key_pressed(Key::ArrowDown)) {
+                if tape_volumes[*primary_tape] > 0.01 {
+                    tape_volumes[*primary_tape] -= 0.01;
+                }
+                for i in 0..TAPE_COUNT {
+                    if secondary_tapes[i] && tape_volumes[i] > 0.01 {
+                        tape_volumes[i] -= 0.01;
+                    }
+                }
+                modul.volume_down();
+            }
         });
     }
 }
