@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use wgpu::{Device, Queue, Surface, SurfaceCapabilities, SurfaceConfiguration, TextureFormat};
 use winit::{
-    dpi::{PhysicalSize, Size},
+    dpi::PhysicalSize,
     event::{Event, WindowEvent},
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
@@ -170,7 +170,7 @@ pub async fn start(config: Config) {
             earlier = std::time::Instant::now();
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
-            let fps = calculate_fps(&rolling_frame_times);
+            modul.stats.fps = calculate_fps(&rolling_frame_times);
             let output_frame = match app.surface.get_current_texture() {
                 Ok(frame) => frame,
                 Err(wgpu::SurfaceError::Outdated) => {
@@ -189,7 +189,7 @@ pub async fn start(config: Config) {
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
             renderer.render(&app.device, &app.queue, &output_view, elapsed_time);
-            gui.render(&app.window, &output_view, &app, fps, &mut modul);
+            gui.render(&app.window, &output_view, &app, &mut modul);
             output_frame.present();
 
             // Modul does not complain at this point

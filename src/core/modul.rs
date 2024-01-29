@@ -9,6 +9,7 @@ use std::collections::VecDeque;
 use std::time::Duration;
 
 pub struct Stats {
+    pub fps: f32,
     pub bpm: u16,
     pub bar_count: usize,
     pub bar_length: f32,
@@ -83,6 +84,7 @@ impl Modul {
             BufferSize::Fixed(v) => v,
         };
         let stats = Stats {
+            fps: 0.0,
             bpm: config.bpm,
             bar_count: config.bar_count,
             bar_length,

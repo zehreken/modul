@@ -22,46 +22,8 @@ impl Test {
         }
     }
 
-    fn draw(&mut self, ctx: &Context, fps: f32, modul: &mut Modul) {
+    fn draw(&mut self, ctx: &Context, modul: &mut Modul) {
         self.windows.draw(ctx, modul);
-        egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
-                ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::RED));
-                ui.menu_button("File", |ui| {
-                    if ui.button("About...").clicked() {
-                        self.is_window_open = true;
-                        ui.close_menu();
-                    }
-                });
-            });
-        });
-
-        egui::Window::new("Hello, winit-wgpu-egui")
-            .open(&mut self.is_window_open)
-            .show(ctx, |ui| {
-                ui.label(
-                    "This is the most basic example of how to use winit, wgpu and egui together.",
-                );
-                ui.label("Mandatory heart: ♥");
-
-                ui.separator();
-
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about wgpu at");
-                    ui.hyperlink("https://docs.rs/winit");
-                });
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about winit at");
-                    ui.hyperlink("https://docs.rs/wgpu");
-                });
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about egui at");
-                    ui.hyperlink("https://docs.rs/egui");
-                });
-            });
     }
 }
 
@@ -133,12 +95,11 @@ impl Gui {
         window: &Window,
         render_target: &wgpu::TextureView,
         app: &App,
-        fps: f32,
         modul: &mut Modul,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.view.draw(egui_ctx, fps, modul);
+            self.view.draw(egui_ctx, modul);
         });
 
         self.textures.append(output.textures_delta);

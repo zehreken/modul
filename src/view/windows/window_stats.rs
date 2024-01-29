@@ -1,4 +1,4 @@
-use egui::Color32;
+use egui::{Color32, RichText};
 
 use crate::core::Modul;
 
@@ -12,6 +12,7 @@ impl Drawable for WindowStats {
         let instant = modul.instant;
         egui::Window::new("stats").show(egui_ctx, |ui| {
             egui_ctx.request_repaint();
+            ui.label(RichText::new(format!("FPS: {0:0.2}", modul.stats.fps)).color(Color32::RED));
             ui.label(format!("time: {:0.1} sec", instant.elapsed().as_secs_f32()));
             ui.label(format!("audio index: {:0.1}", modul.get_audio_index()));
             ui.label(format!("bpm: {}", modul.stats.bpm));
