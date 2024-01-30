@@ -8,6 +8,7 @@ use egui_winit::{
     State,
 };
 use winit::{event_loop::EventLoopWindowTarget, window::Window};
+const SCALE_FACTOR: f32 = 1.0;
 
 struct Test {
     is_window_open: bool,
@@ -45,18 +46,17 @@ impl Gui {
         device: &wgpu::Device,
         texture_format: TextureFormat,
     ) -> Self {
-        let scale_factor = 2.;
         let (width, height) = (1600, 1200);
         let max_texture_size = device.limits().max_texture_dimension_2d as usize;
 
         let egui_ctx = Context::default();
         let mut egui_state = egui_winit::State::new(event_loop);
         egui_state.set_max_texture_side(max_texture_size);
-        egui_state.set_pixels_per_point(scale_factor);
+        egui_state.set_pixels_per_point(SCALE_FACTOR);
 
         let screen_descriptor = ScreenDescriptor {
             size_in_pixels: [width, height],
-            pixels_per_point: scale_factor,
+            pixels_per_point: SCALE_FACTOR,
         };
         let renderer = Renderer::new(device, texture_format, None, 1);
         let textures = TexturesDelta::default();
@@ -84,7 +84,7 @@ impl Gui {
     pub fn resize(&mut self, width: u32, height: u32) {
         self.screen_descriptor = ScreenDescriptor {
             size_in_pixels: [width, height],
-            pixels_per_point: 2.,
+            pixels_per_point: SCALE_FACTOR,
         };
     }
 
