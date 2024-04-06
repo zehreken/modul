@@ -65,7 +65,7 @@ pub fn create_input_stream_live(
         }
 
         if consumer_fell_behind {
-            println!("[AudioIn] Audio processing thread fell behind");
+            println!("[AudioIn] Consumer fell behind, not enough space in buffer.");
         }
     };
 

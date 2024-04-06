@@ -118,8 +118,8 @@ impl Modul {
         let message_buffer: HeapRb<String> = HeapRb::new(10);
         let (message_producer, message_consumer) = message_buffer.split();
 
-        let input_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
-        let (input_producer, input_consumer) = input_ring_buffer.split();
+        let audio_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
+        let (input_producer, input_consumer) = audio_ring_buffer.split();
 
         let action_ring_buffer: HeapRb<ModulAction> = HeapRb::new(16);
         let (action_producer, action_consumer) = action_ring_buffer.split();
@@ -229,6 +229,10 @@ impl Modul {
             let message = self.log_consumer.pop().unwrap();
             self.add_message(message);
         }
+    }
+
+    pub fn resize(&self) {
+        dbg!("testing resize");
     }
 
     pub fn add_message(&mut self, message: String) {

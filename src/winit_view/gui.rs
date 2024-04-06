@@ -8,7 +8,7 @@ use egui_winit::{
     State,
 };
 use winit::{event_loop::EventLoopWindowTarget, window::Window};
-const SCALE_FACTOR: f32 = 1.0;
+const SCALE_FACTOR: f32 = 2.0;
 
 struct Test {
     is_window_open: bool,
