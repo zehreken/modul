@@ -54,14 +54,26 @@ impl AudioModel {
         let sample_count = self.input_consumer.len();
 
         self.show_beat = self.metronome.show_beat();
-        self.audio_message_producer
-            .push(ModulMessage::ShowBeat(self.show_beat))
-            .unwrap();
+        let r = self
+            .audio_message_producer
+            .push(ModulMessage::ShowBeat(self.show_beat));
+        match r {
+            Ok(_) => {}
+            Err(_) => {
+                dbg!("UI is busy");
+            }
+        }
 
         self.beat_index = self.metronome.get_beat_index();
-        self.audio_message_producer
-            .push(ModulMessage::BeatIndex(self.beat_index))
-            .unwrap();
+        let r = self
+            .audio_message_producer
+            .push(ModulMessage::BeatIndex(self.beat_index));
+        match r {
+            Ok(_) => {}
+            Err(_) => {
+                dbg!("UI is busy");
+            }
+        }
 
         while !self.input_consumer.is_empty() {
             let t = self.input_consumer.pop().unwrap();
@@ -133,9 +145,15 @@ impl AudioModel {
             self.writing_tape.push(sample);
         }
 
-        self.audio_message_producer
-            .push(ModulMessage::AudioIndex(self.audio_index))
-            .expect("audio message buffer is full");
+        let r = self
+            .audio_message_producer
+            .push(ModulMessage::AudioIndex(self.audio_index));
+        match r {
+            Ok(_) => {}
+            Err(_) => {
+                dbg!("UI is busy");
+            }
+        }
 
         // This is to prevent left/right switching
         let output_channel_count = self.output_channel_count;
@@ -151,9 +169,15 @@ impl AudioModel {
 
         if sample_count > 0 {
             self.sample_averages = sample_averages;
-            self.audio_message_producer
-                .push(ModulMessage::SampleAverages(self.sample_averages))
-                .unwrap();
+            let r = self
+                .audio_message_producer
+                .push(ModulMessage::SampleAverages(self.sample_averages));
+            match r {
+                Ok(_) => {}
+                Err(_) => {
+                    dbg!("UI is busy");
+                }
+            }
         }
 
         self.check_user_input();
