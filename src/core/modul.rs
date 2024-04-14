@@ -45,22 +45,22 @@ pub struct Modul {
 
 impl Modul {
     pub fn new(config: &Config) -> Self {
-        let host = cpal::default_host();
+        let mut host = cpal::default_host();
+        #[cfg(target_os = "windows")]
+        {
+            host = cpal::host_from_id(cpal::HostId::Asio).expect("failed to initialise ASIO host");
+        }
 
         let input_device = host.default_input_device().unwrap();
         let output_device = host.default_output_device().unwrap();
 
         let mut input_config: StreamConfig = input_device.default_input_config().unwrap().into();
-        println!("input channel count: {}", input_config.channels);
-        println!("input sample rate: {:?}", input_config.sample_rate);
 
         let beats = 4.0; // This corresponds to the time, at the moment it is 4/4
         let seconds_per_beat = 60.0 / config.bpm as f32;
         let bar_length = beats * seconds_per_beat; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
 
-        let output_config: StreamConfig = output_device.default_output_config().unwrap().into();
-        println!("output channel count: {}", output_config.channels);
-        println!("output sample rate: {:?}", output_config.sample_rate);
+        let mut output_config: StreamConfig = output_device.default_output_config().unwrap().into();
 
         /*
         ATTENTION:

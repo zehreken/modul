@@ -10,7 +10,7 @@ edition = "2021"
 rand = "0.8.5"
 hound = "3.4.0"
 ringbuf = "0.3"
-cpal = "0.15"
+cpal = { version = "0.15", features = ["asio"] }
 array-init = "2.0.0"
 miniquad = { version = "=0.3.15" }
 egui-miniquad = "0.13.0"
