@@ -45,22 +45,34 @@ pub struct Modul {
 
 impl Modul {
     pub fn new(config: &Config) -> Self {
-        let mut host = cpal::default_host();
-        #[cfg(target_os = "windows")]
-        {
-            host = cpal::host_from_id(cpal::HostId::Asio).expect("failed to initialise ASIO host");
-        }
+        let host = cpal::default_host();
+        // #[cfg(target_os = "windows")]
+        // {
+        //     host = cpal::host_from_id(cpal::HostId::Asio).expect("failed to initialise ASIO host");
+        // }
 
         let input_device = host.default_input_device().unwrap();
         let output_device = host.default_output_device().unwrap();
 
-        let mut input_config: StreamConfig = input_device.default_input_config().unwrap().into();
+        // let mut input_config: StreamConfig = input_device.default_input_config().unwrap().into();
+        // let input_config = StreamConfig {
+        //     channels: 2,
+        //     sample_rate: SampleRate(48000),
+        //     buffer_size: BufferSize::Fixed(512),
+        // };
+        let input_config: StreamConfig = input_device.default_input_config().unwrap().into();
 
         let beats = 4.0; // This corresponds to the time, at the moment it is 4/4
         let seconds_per_beat = 60.0 / config.bpm as f32;
         let bar_length = beats * seconds_per_beat; // bar length in seconds, beats * seconds per beat(60.0 / BPM)
 
-        let mut output_config: StreamConfig = output_device.default_output_config().unwrap().into();
+        // let mut output_config: StreamConfig = output_device.default_output_config().unwrap().into();
+        // let output_config = StreamConfig {
+        //     channels: 2,
+        //     sample_rate: SampleRate(48000),
+        //     buffer_size: BufferSize::Fixed(512),
+        // };
+        let output_config: StreamConfig = output_device.default_output_config().unwrap().into();
 
         /*
         ATTENTION:
@@ -72,7 +84,11 @@ impl Modul {
         const RING_BUFFER_CAPACITY: usize = 8192;
 
         let message_history = VecDeque::with_capacity(10);
-        input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
+        // input_config.sample_rate = cpal::SampleRate(48000);
+        // output_config.sample_rate = cpal::SampleRate(48000);
+        // input_config.buffer_size = BufferSize::Fixed(BUFFER_SIZE);
+        println!("input config: {:?}", input_config);
+        println!("output config: {:?}", output_config);
 
         let output_buffer_size = match output_device
             .default_output_config()
