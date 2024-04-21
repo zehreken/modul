@@ -2,7 +2,9 @@ use super::super::Config;
 use super::audio_model::*;
 use super::utils::*;
 use crate::features::Metronome;
+use cpal::traits::StreamTrait;
 use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::SampleRate;
 use cpal::{BufferSize, Stream, StreamConfig};
 use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
 use std::collections::VecDeque;
@@ -195,6 +197,9 @@ impl Modul {
             audio_model.update();
             std::thread::sleep(Duration::from_micros(1000));
         });
+
+        input_stream.play().unwrap();
+        output_stream.play().unwrap();
 
         Modul {
             tape_length,
