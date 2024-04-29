@@ -6,7 +6,7 @@ use cpal::traits::StreamTrait;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::SampleRate;
 use cpal::{BufferSize, Stream, StreamConfig};
-use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
+use ringbuf::{traits::*, HeapCons, HeapProd, HeapRb};
 use std::collections::VecDeque;
 use std::time::Duration;
 
@@ -29,9 +29,9 @@ pub struct Modul {
     _output_stream: Stream,
     _time: f32,
     audio_index: usize,
-    action_producer: HeapProducer<ModulAction>,
-    _modul_message_producer: HeapProducer<ModulMessage>,
-    modul_message_consumer: HeapConsumer<ModulMessage>,
+    action_producer: HeapProd<ModulAction>,
+    _modul_message_producer: HeapProd<ModulMessage>,
+    modul_message_consumer: HeapCons<ModulMessage>,
     is_recording: bool,
     is_recording_playback: bool,
     is_play_through: bool,
@@ -41,7 +41,7 @@ pub struct Modul {
     beat_index: u32,
     pub stats: Stats,
     pub message_history: VecDeque<String>,
-    log_consumer: HeapConsumer<String>,
+    log_consumer: HeapCons<String>,
     pub instant: std::time::Instant,
 }
 
@@ -133,23 +133,25 @@ impl Modul {
             tape_length, bar_length, preallocated_capacity
         );
 
-        let message_buffer: HeapRb<String> = HeapRb::new(10);
-        let (message_producer, message_consumer) = message_buffer.split();
+        let message_buffer = HeapRb::<String>::new(10);
+        let (mut message_producer, mut message_consumer) = message_buffer.split();
 
-        let audio_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
-        let (input_producer, input_consumer) = audio_ring_buffer.split();
+        let audio_ring_buffer = HeapRb::<Input>::new(RING_BUFFER_CAPACITY);
+        let (mut input_producer, mut input_consumer) = audio_ring_buffer.split();
 
-        let action_ring_buffer: HeapRb<ModulAction> = HeapRb::new(16);
-        let (action_producer, action_consumer) = action_ring_buffer.split();
+        let action_ring_buffer = HeapRb::<ModulAction>::new(16);
+        let (mut action_producer, mut action_consumer) = action_ring_buffer.split();
 
-        let message_ring_buffer_to: HeapRb<ModulMessage> = HeapRb::new(2_usize.pow(10));
-        let (modul_message_producer, audio_message_consumer) = message_ring_buffer_to.split();
+        let message_ring_buffer_to = HeapRb::<ModulMessage>::new(2_usize.pow(10));
+        let (mut modul_message_producer, mut audio_message_consumer) =
+            message_ring_buffer_to.split();
 
-        let message_ring_buffer_from: HeapRb<ModulMessage> = HeapRb::new(2_usize.pow(10));
-        let (audio_message_producer, modul_message_consumer) = message_ring_buffer_from.split();
+        let message_ring_buffer_from = HeapRb::<ModulMessage>::new(2_usize.pow(10));
+        let (mut audio_message_producer, mut modul_message_consumer) =
+            message_ring_buffer_from.split();
 
-        let output_ring_buffer = HeapRb::new(RING_BUFFER_CAPACITY);
-        let (output_producer, output_consumer) = output_ring_buffer.split();
+        let output_ring_buffer = HeapRb::<f32>::new(RING_BUFFER_CAPACITY);
+        let (mut output_producer, mut output_consumer) = output_ring_buffer.split();
 
         let input_stream =
             create_input_stream_live(&input_device, &input_config, tape_length, input_producer);
@@ -226,7 +228,7 @@ impl Modul {
 
     pub fn update(&mut self) {
         while !self.modul_message_consumer.is_empty() {
-            let message = self.modul_message_consumer.pop().unwrap();
+            let message = self.modul_message_consumer.try_pop().unwrap();
             match message {
                 ModulMessage::AudioIndex(audio_index) => self.audio_index = audio_index,
                 ModulMessage::Recording(is_recording) => self.is_recording = is_recording,
@@ -247,7 +249,7 @@ impl Modul {
             }
         }
         while !self.log_consumer.is_empty() {
-            let message = self.log_consumer.pop().unwrap();
+            let message = self.log_consumer.try_pop().unwrap();
             self.add_message(message);
         }
     }
@@ -286,18 +288,20 @@ impl Modul {
 
     pub fn select_primary_tape(&mut self, primary_tape: usize) {
         self.action_producer
-            .push(ModulAction::SelectPrimaryTape(primary_tape))
+            .try_push(ModulAction::SelectPrimaryTape(primary_tape))
             .unwrap();
     }
 
     pub fn select_secondary_tape(&mut self, secondary_tape: usize) {
         self.action_producer
-            .push(ModulAction::SelectSecondaryTape(secondary_tape))
+            .try_push(ModulAction::SelectSecondaryTape(secondary_tape))
             .unwrap();
     }
 
     pub fn merge_tapes(&mut self) {
-        self.action_producer.push(ModulAction::MergeTapes).unwrap();
+        self.action_producer
+            .try_push(ModulAction::MergeTapes)
+            .unwrap();
     }
 
     pub fn _show_beat(&self) -> bool {
@@ -311,55 +315,67 @@ impl Modul {
     pub fn switch_metronome(&mut self, is_active: bool) {
         if is_active {
             self.action_producer
-                .push(ModulAction::StartMetronome)
+                .try_push(ModulAction::StartMetronome)
                 .unwrap();
         } else {
             self.action_producer
-                .push(ModulAction::StopMetronome)
+                .try_push(ModulAction::StopMetronome)
                 .unwrap();
         }
     }
 
     pub fn record(&mut self) {
-        self.action_producer.push(ModulAction::Record).unwrap();
+        self.action_producer.try_push(ModulAction::Record).unwrap();
     }
 
     pub fn record_playback(&mut self) {
         self.action_producer
-            .push(ModulAction::RecordPlayback)
+            .try_push(ModulAction::RecordPlayback)
             .unwrap();
     }
 
     pub fn play_through(&mut self) {
-        self.action_producer.push(ModulAction::PlayThrough).unwrap();
+        self.action_producer
+            .try_push(ModulAction::PlayThrough)
+            .unwrap();
     }
 
     pub fn write(&mut self) {
-        self.action_producer.push(ModulAction::Write).unwrap();
+        self.action_producer.try_push(ModulAction::Write).unwrap();
     }
 
     pub fn clear_all(&mut self) {
-        self.action_producer.push(ModulAction::ClearAll).unwrap();
+        self.action_producer
+            .try_push(ModulAction::ClearAll)
+            .unwrap();
     }
 
     pub fn clear(&mut self) {
-        self.action_producer.push(ModulAction::Clear).unwrap();
+        self.action_producer.try_push(ModulAction::Clear).unwrap();
     }
 
     pub fn toggle_mute(&mut self) {
-        self.action_producer.push(ModulAction::ToggleMute).unwrap();
+        self.action_producer
+            .try_push(ModulAction::ToggleMute)
+            .unwrap();
     }
 
     pub fn toggle_solo(&mut self) {
-        self.action_producer.push(ModulAction::ToggleSolo).unwrap();
+        self.action_producer
+            .try_push(ModulAction::ToggleSolo)
+            .unwrap();
     }
 
     pub fn volume_up(&mut self) {
-        self.action_producer.push(ModulAction::VolumeUp).unwrap();
+        self.action_producer
+            .try_push(ModulAction::VolumeUp)
+            .unwrap();
     }
 
     pub fn volume_down(&mut self) {
-        self.action_producer.push(ModulAction::VolumeDown).unwrap();
+        self.action_producer
+            .try_push(ModulAction::VolumeDown)
+            .unwrap();
     }
 
     pub fn get_sample_averages(&self) -> [f32; TAPE_COUNT + 1] {

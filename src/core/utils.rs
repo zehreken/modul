@@ -2,7 +2,7 @@ use crate::core::audio_model::Input;
 use crate::features::Tape;
 use cpal::traits::DeviceTrait;
 use cpal::{Device, Stream, StreamConfig};
-use ringbuf::{HeapConsumer, HeapProducer};
+use ringbuf::{traits::*, HeapCons, HeapProd};
 use std::path::Path;
 
 pub const TAPE_COUNT: usize = 8;
@@ -48,13 +48,13 @@ pub fn create_input_stream_live(
     input_device: &Device,
     config: &StreamConfig,
     tape_length: usize,
-    mut producer: HeapProducer<Input>,
+    mut producer: HeapProd<Input>,
 ) -> Stream {
     let mut index = 0;
     let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
         let mut consumer_fell_behind = false;
         for &sample in data {
-            if producer.push(Input { index, sample }).is_err() {
+            if producer.try_push(Input { index, sample }).is_err() {
                 consumer_fell_behind = true;
             }
 
@@ -77,17 +77,20 @@ pub fn create_input_stream_live(
 pub fn create_output_stream_live(
     output_device: &Device,
     config: &StreamConfig,
-    mut consumer: HeapConsumer<f32>,
+    mut consumer: HeapCons<f32>,
 ) -> Stream {
     let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
         for sample in data {
-            *sample = consumer.pop().unwrap_or(0.0);
+            *sample = consumer.try_pop().unwrap_or(0.0);
         }
         // Consumer capacity is equal to 8192, I don't know what I intented to achieve here
         // But this got rid of the glitchy sound
-        if consumer.len() > 4096 {
+        if consumer.occupied_len() > 4096 {
             consumer.skip(4096);
-            println!("Skipped 4096 samples, consumer: {}", consumer.len());
+            println!(
+                "Skipped 4096 samples, consumer: {}",
+                consumer.occupied_len()
+            );
         }
     };
 
