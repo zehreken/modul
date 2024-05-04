@@ -68,7 +68,7 @@ impl Renderer {
         });
         let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("fragment shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt2.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt.wgsl").into()),
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
