@@ -1,6 +1,6 @@
-use crate::view::{Modul, Windows};
+use super::windows::Windows;
+use crate::core::Modul;
 use crate::winit_view::app::App;
-use egui::{Color32, RichText};
 use egui_wgpu::wgpu::TextureFormat;
 use egui_wgpu::{renderer::ScreenDescriptor, Renderer};
 use egui_winit::{
@@ -8,6 +8,7 @@ use egui_winit::{
     State,
 };
 use winit::{event_loop::EventLoopWindowTarget, window::Window};
+
 const SCALE_FACTOR: f32 = 2.0;
 
 struct Test {

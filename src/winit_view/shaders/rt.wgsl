@@ -48,7 +48,7 @@ const SAMPLES: i32 = 16;
 
 const EXPOSURE: f32 = 1e-2;
 const GAMMA: f32 = 2.2;
-const INTENSITY: f32 = 100.0;
+const INTENSITY: f32 = 10.0;
 
 fn intersect_sphere(ray: Ray, sphere: Sphere) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
@@ -85,10 +85,7 @@ fn intersect_plane(ray: Ray, plane: Plane) -> Intersect {
 fn trace(ray: Ray) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
 
-    let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.0), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
-    let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
-    let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
-    let s4 = Sphere(1.0, vec3(6.0, 1.0, 4.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
+    let s1 = Sphere(3.0, vec3(0.0, 3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
     var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
 
     var intersection = miss;
@@ -97,18 +94,6 @@ fn trace(ray: Ray) -> Intersect {
         intersection = plane;
     }
     var sphere = intersect_sphere(ray, s1);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s2);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s4);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s3);
     if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
         intersection = sphere;
     }
@@ -172,15 +157,15 @@ fn radiance(r: Ray) -> vec3<f32> {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let width = 1600.0;
-    let height = 1200.0;
-    let resolution: vec2<f32> = vec2(width, height);
+    let width = 2560.0;
+    let height = 1600.0;
+    let resolution: vec2<f32> = vec2(width, height); // This is hardcoded resolution of my Windows machine
     let aspect_ratio = width / height;
     var uv = 2.0 * in.position.xy / resolution.xy - vec2(1.0); // Maps xy to [-1, 1]
     uv.x *= aspect_ratio;
     uv.y = -uv.y;
 
-    let ray = Ray(vec3(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
+    let ray = Ray(vec3(0.0, 2.0, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
     let color = vec4(pow(radiance(ray) * EXPOSURE, vec3(1.0 / GAMMA)), 1.0);
     return color;
 }
