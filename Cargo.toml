@@ -13,8 +13,8 @@ ringbuf = "0.4"
 cpal = "0.15"
 array-init = "2.0.0"
 egui = { version = "0.23", features = ["bytemuck"] }
-image = "0.24.2"
-copypasta = "0.8.1"
+image = "0.25.1"
+copypasta = "0.10.1"
 glam = "0.24"
 colored = "2.0.0"
 # migration to winit-wgpu-egui
