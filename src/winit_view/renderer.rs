@@ -21,6 +21,7 @@ pub struct Renderer {
     uniforms_buffer: Buffer,
     uniforms_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
+    vertex_buffer: Buffer,
 }
 
 impl Renderer {
@@ -100,11 +101,18 @@ impl Renderer {
             multiview: None, // 5.
         });
 
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex buffer"),
+            contents: bytemuck::cast_slice(super::lib::VERTICES),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
         Self {
             uniforms,
             uniforms_buffer,
             uniforms_bind_group,
             render_pipeline,
+            vertex_buffer,
         }
     }
 
