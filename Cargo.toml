@@ -12,18 +12,18 @@ hound = "3.4.0"
 ringbuf = "0.4"
 cpal = "0.15"
 array-init = "2.0.0"
-egui = { version = "0.23", features = ["bytemuck"] }
+egui = { version = "0.27", features = ["bytemuck"] }
 image = "0.25.1"
 copypasta = "0.10.1"
-glam = "0.24"
 colored = "2.0.0"
 # migration to winit-wgpu-egui
-winit = "0.28"
-wgpu = "0.17"
+winit = "0.29"
+wgpu = "0.19"
 pollster = "0.3"
 bytemuck = { version = "1.12", features = ["derive"] }
-egui-wgpu = "0.23"
-egui-winit = "0.23"
+egui-wgpu = "0.27"
+egui-winit = "0.27"
 # obsolete
 miniquad = { version = "=0.3.15" }
 egui-miniquad = "0.13.0"
+glam = "0.24"
