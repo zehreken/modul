@@ -16,6 +16,7 @@ egui = { version = "0.27", features = ["bytemuck"] }
 image = "0.25.1"
 copypasta = "0.10.1"
 colored = "2.0.0"
+glam = "0.28"
 # migration to winit-wgpu-egui
 winit = "0.29"
 wgpu = "0.19"
@@ -26,4 +27,3 @@ egui-winit = "0.27"
 # obsolete
 miniquad = { version = "=0.3.15" }
 egui-miniquad = "0.13.0"
-glam = "0.24"

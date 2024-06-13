@@ -4,6 +4,8 @@ use wgpu::{
     Device, Queue, RenderPipeline, ShaderStages, SurfaceConfiguration, TextureView,
 };
 
+use super::lib::Vertex;
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, bytemuck::Zeroable, bytemuck::Pod)]
 pub struct Uniforms {
@@ -22,6 +24,7 @@ pub struct Renderer {
     uniforms_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
+    num_vertices: u32,
 }
 
 impl Renderer {
@@ -65,7 +68,7 @@ impl Renderer {
 
         let vertex_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("vertex shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/six_vertex.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic_vertex.wgsl").into()),
         });
         let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("fragment shader"),
@@ -78,7 +81,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &vertex_shader_module,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers: &[Vertex::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 // 3.
@@ -113,6 +116,7 @@ impl Renderer {
             uniforms_bind_group,
             render_pipeline,
             vertex_buffer,
+            num_vertices: super::lib::VERTICES.len() as u32,
         }
     }
 
@@ -143,8 +147,9 @@ impl Renderer {
             occlusion_query_set: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
+        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_bind_group(0, &self.uniforms_bind_group, &[]);
-        render_pass.draw(0..6, 0..1);
+        render_pass.draw(0..self.num_vertices, 0..1);
         drop(render_pass);
         queue.submit(Some(encoder.finish()));
     } // pass a list of objects

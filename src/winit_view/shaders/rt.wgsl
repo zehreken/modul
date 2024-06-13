@@ -85,7 +85,7 @@ fn intersect_plane(ray: Ray, plane: Plane) -> Intersect {
 fn trace(ray: Ray) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
 
-    let s1 = Sphere(3.0, vec3(0.0, 3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
+    let s1 = Sphere(3.0, vec3(0.0, 3.0, 0.0), Material(vec3(0.0, 0.0, 0.0), 1.0, 0.0));
     var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
 
     var intersection = miss;

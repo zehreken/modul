@@ -1,11 +1,10 @@
 use std::collections::VecDeque;
 
-use wgpu::{Device, Queue, Surface, SurfaceCapabilities, SurfaceConfiguration, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{Event, WindowEvent},
     event_loop::EventLoop,
-    window::{Window, WindowBuilder},
+    window::WindowBuilder,
 };
 
 use crate::{
