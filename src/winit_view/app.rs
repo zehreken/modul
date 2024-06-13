@@ -29,27 +29,6 @@ impl App {
             config,
         }
     }
-
-    // pub fn resize(&mut self, width: u32, height: u32) {
-    //     self.surface_config = wgpu::SurfaceConfiguration {
-    //         usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-    //         format: self.texture_format,
-    //         width: width,
-    //         height: height,
-    //         present_mode: self.surface_caps.present_modes[0],
-    //         alpha_mode: self.surface_caps.alpha_modes[0],
-    //         view_formats: vec![],
-    //     };
-    //     self.surface.configure(&self.device, &self.surface_config);
-    // }
-
-    // pub fn device(&self) -> &Device {
-    //     &self.device
-    // }
-
-    // pub fn queue(&self) -> &Queue {
-    //     &self.queue
-    // }
 }
 
 pub async fn start(config: Config) {
@@ -112,7 +91,7 @@ pub async fn start(config: Config) {
         .find(|f| f.is_srgb())
         .unwrap_or(surface_caps.formats[0]);
 
-    let surface_config = wgpu::SurfaceConfiguration {
+    let mut surface_config = wgpu::SurfaceConfiguration {
         usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
         format: texture_format,
         width: size.width,
@@ -141,7 +120,17 @@ pub async fn start(config: Config) {
             window_id,
             event: WindowEvent::Resized(size),
         } if window_id == window.id() => {
-            // app.resize(size.width, size.height);
+            surface_config = wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+                format: texture_format,
+                width: window.inner_size().width,
+                height: window.inner_size().height,
+                present_mode: surface_caps.present_modes[0],
+                alpha_mode: surface_caps.alpha_modes[0],
+                view_formats: vec![],
+                desired_maximum_frame_latency: 0,
+            };
+            surface.configure(&device, &surface_config);
             gui.resize(size.width, size.height, window.scale_factor() as f32);
         }
         Event::WindowEvent {
