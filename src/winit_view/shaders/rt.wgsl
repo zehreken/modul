@@ -48,7 +48,7 @@ const SAMPLES: i32 = 16;
 
 const EXPOSURE: f32 = 1e-2;
 const GAMMA: f32 = 2.2;
-const INTENSITY: f32 = 100.0;
+const INTENSITY: f32 = 10000.0;
 
 fn intersect_sphere(ray: Ray, sphere: Sphere) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
@@ -121,11 +121,11 @@ fn is_miss(intersect: Intersect) -> bool {
 }
 
 fn radiance(r: Ray) -> vec3<f32> {
-    let amplified = INTENSITY + (INTENSITY * sin(uniforms.time * 10.0));
+    let amplified = INTENSITY * uniforms.time;
     let ambient: vec3<f32> = vec3(0.6, 0.8, 1.0) * amplified / GAMMA;
     var ray = r;
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
-    let light = Light(vec3(1.0) * amplified, normalize(vec3(cos(uniforms.time / 10f), 0.75, sin(uniforms.time / 10f))));
+    let light = Light(vec3(1.0) * amplified, normalize(vec3(cos(amplified / 10f), 0.75, sin(amplified / 10f))));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
     var mask = vec3(1.0);

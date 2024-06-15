@@ -142,7 +142,6 @@ pub async fn start(config: Config) {
             ..
         } => {
             let frame_time = std::time::Instant::now().duration_since(earlier);
-            elapsed_time += frame_time.as_secs_f32();
             earlier = std::time::Instant::now();
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
@@ -164,7 +163,9 @@ pub async fn start(config: Config) {
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
-            renderer.render(&device, &queue, &output_view, elapsed_time);
+            let t = modul.get_sample_averages()[8];
+
+            renderer.render(&device, &queue, &output_view, t);
             gui.render(&window, &output_view, &device, &queue, &mut modul);
             output_frame.present();
             window.request_redraw();
