@@ -5,8 +5,11 @@ struct VertexOutput {
     @location(0) coord: vec2<f32>,
 }
 
+// The vec4 is because in WGSL the alignment should be 16 bytes
+// Even though I need 4*9 bytes to align it properly I have and array of 16*3 bytes
+// The data that is passed from the Rust is [f32; 9]
 struct Uniforms {
-    time: f32,
+    time: array<vec4<f32>, 3>,
 }
 
 @group(0) @binding(0)
@@ -141,7 +144,7 @@ fn radiance(r: Ray) -> vec3<f32> {
     let ambient: vec3<f32> = vec3(0.6, 0.8, 1.0) * INTENSITY / GAMMA;
     var ray = r;
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
-    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(cos(uniforms.time / 10f), 0.75, sin(uniforms.time / 10f))));
+    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(cos(uniforms.time[0][0] * INTENSITY), 0.75, sin(uniforms.time[0][1] * INTENSITY))));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
     var mask = vec3(1.0);
@@ -174,8 +177,8 @@ fn radiance(r: Ray) -> vec3<f32> {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let width = 1600.0;
-    let height = 1200.0;
+    let width = 2560.0;
+    let height = 1600.0;
     let resolution: vec2<f32> = vec2(width, height);
     let aspect_ratio = width / height;
     var uv = 2.0 * in.position.xy / resolution.xy - vec2(1.0); // Maps xy to [-1, 1]

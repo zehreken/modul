@@ -9,7 +9,7 @@ use super::lib::Vertex;
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, bytemuck::Zeroable, bytemuck::Pod)]
 pub struct Uniforms {
-    pub time: f32,
+    pub time: [f32; 12],
 }
 
 impl Uniforms {
@@ -72,7 +72,7 @@ impl Renderer {
         });
         let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("fragment shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt2.wgsl").into()),
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -120,8 +120,14 @@ impl Renderer {
         }
     }
 
-    pub fn render(&mut self, device: &Device, queue: &Queue, view: &TextureView, time: f32) {
-        self.uniforms.time = time;
+    pub fn render(
+        &mut self,
+        device: &Device,
+        queue: &Queue,
+        view: &TextureView,
+        samples: [f32; 12],
+    ) {
+        self.uniforms.time = samples;
 
         queue.write_buffer(&self.uniforms_buffer, 0, self.uniforms.as_bytes());
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {

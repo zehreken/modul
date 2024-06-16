@@ -163,9 +163,10 @@ pub async fn start(config: Config) {
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
-            let t = modul.get_sample_averages()[8];
+            let mut samples = [0.0; 12];
+            samples[..9].copy_from_slice(&modul.get_sample_averages());
 
-            renderer.render(&device, &queue, &output_view, t);
+            renderer.render(&device, &queue, &output_view, samples);
             gui.render(&window, &output_view, &device, &queue, &mut modul);
             output_frame.present();
             window.request_redraw();
