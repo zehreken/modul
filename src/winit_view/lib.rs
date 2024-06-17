@@ -33,22 +33,22 @@ pub struct Vertex {
 // 1 /3--4
 pub const VERTICES: &[Vertex] = &[
     Vertex {
-        position: [-0.5, 0.5, 0.0],
+        position: [-1.0, 1.0, 0.0],
     },
     Vertex {
-        position: [-0.5, -0.5, 0.0],
+        position: [-1.0, -1.0, 0.0],
     },
     Vertex {
-        position: [0.5, 0.5, 0.0],
+        position: [1.0, 1.0, 0.0],
     },
     Vertex {
-        position: [-0.5, -0.5, 0.0],
+        position: [-1.0, -1.0, 0.0],
     },
     Vertex {
-        position: [0.5, -0.5, 0.0],
+        position: [1.0, -1.0, 0.0],
     },
     Vertex {
-        position: [0.5, 0.5, 0.0],
+        position: [1.0, 1.0, 0.0],
     },
 ];
 

@@ -9,7 +9,7 @@ struct VertexOutput {
 // Even though I need 4*9 bytes to align it properly I have and array of 16*3 bytes
 // The data that is passed from the Rust is [f32; 9]
 struct Uniforms {
-    time: array<vec4<f32>, 3>,
+    samples: array<vec4<f32>, 3>,
 }
 
 @group(0) @binding(0)
@@ -90,32 +90,22 @@ fn intersect_plane(ray: Ray, plane: Plane) -> Intersect {
 fn trace(ray: Ray) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
 
-    let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.0), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
-    let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
-    let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
-    let s4 = Sphere(1.0, vec3(6.0, 1.0, 4.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
-    var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
-
     var intersection = miss;
+    var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
     var plane = intersect_plane(ray, p1);
     if (plane.material.diffuse > 0.0 || plane.material.specular > 0.0) {
         intersection = plane;
     }
-    var sphere = intersect_sphere(ray, s1);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s2);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s4);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
-    }
-    sphere = intersect_sphere(ray, s3);
-    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
-        intersection = sphere;
+    
+    for (var i = 0; i < 8; i++) {
+        let x: f32 = f32(i % 4);
+        let y: f32 = f32(i / 4);
+        var c: f32 = uniforms.samples[i / 4][i % 4] * 5.0;
+        let s = Sphere(2.0, vec3(-6.0 + x * 4.0, 3.0 + y * 4.0, 0.0), Material(vec3(0.02 + c, 0.02, 0.02), 1.0, 0.001));
+        var sphere = intersect_sphere(ray, s);
+        if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
+            intersection = sphere;
+        }
     }
     
     return intersection;
@@ -144,7 +134,7 @@ fn radiance(r: Ray) -> vec3<f32> {
     let ambient: vec3<f32> = vec3(0.6, 0.8, 1.0) * INTENSITY / GAMMA;
     var ray = r;
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
-    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(cos(uniforms.time[0][0] * INTENSITY), 0.75, sin(uniforms.time[0][1] * INTENSITY))));
+    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(0.0, 0.75, 1.0)));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
     var mask = vec3(1.0);
