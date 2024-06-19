@@ -100,8 +100,8 @@ fn trace(ray: Ray) -> Intersect {
     for (var i = 0; i < 8; i++) {
         let x: f32 = f32(i % 4);
         let y: f32 = f32(i / 4);
-        var c: f32 = uniforms.samples[i / 4][i % 4] * 5.0;
-        let s = Sphere(2.0, vec3(-6.0 + x * 4.0, 3.0 + y * 4.0, 0.0), Material(vec3(0.02 + c, 0.02, 0.02), 1.0, 0.001));
+        var c: f32 = uniforms.samples[i / 4][i % 4] * 100.0;
+        let s = Sphere(clamp(1.0 + c, 1.0, 2.0), vec3(-6.0 + x * 4.0, 3.0 + y * 4.0, c), Material(vec3(0.02 + c, 0.02, 0.02), 1.0, 0.001));
         var sphere = intersect_sphere(ray, s);
         if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
             intersection = sphere;
@@ -134,7 +134,7 @@ fn radiance(r: Ray) -> vec3<f32> {
     let ambient: vec3<f32> = vec3(0.6, 0.8, 1.0) * INTENSITY / GAMMA;
     var ray = r;
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
-    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(0.0, 0.75, 1.0)));
+    let light = Light(vec3(0.5) * INTENSITY, normalize(vec3(0.0, 0.75, 1.0)));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
     var mask = vec3(1.0);
