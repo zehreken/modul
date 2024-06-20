@@ -101,7 +101,7 @@ fn trace(ray: Ray) -> Intersect {
         let x: f32 = f32(i % 4);
         let y: f32 = f32(i / 4);
         var c: f32 = uniforms.samples[i / 4][i % 4] * 100.0;
-        let s = Sphere(clamp(1.0 + c, 1.0, 2.0), vec3(-6.0 + x * 4.0, 3.0 + y * 4.0, c), Material(vec3(0.02 + c, 0.02, 0.02), 1.0, 0.001));
+        let s = Sphere(clamp(1.0 + c, 1.0, 2.0), vec3(-6.0 + x * 4.0, 3.0 + y * 4.0, clamp(c, 0.0, 1.0)), Material(vec3(0.02 + c, 0.02, 0.02), 1.0, 0.001));
         var sphere = intersect_sphere(ray, s);
         if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
             intersection = sphere;
