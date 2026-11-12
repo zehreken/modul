@@ -5,7 +5,7 @@ A basic audio sampling tool that can record arbitrary number of audio samples fo
 ![flow](docs/modul_flow.png)
 
 Click the gif to watch the video.
-[![Showcase video](docs/showcase.gif)](https://youtu.be/6XSSVz3wmxw)
+[![Showcase video](docs/showcase.gif)](https://youtu.be/p5DSz3pLMhI?si=HIbU8h7z5iMgr7_h&t=192)
 
 ### Controls
 Controls and shortcuts can also be found in the program in 'Controls' window
